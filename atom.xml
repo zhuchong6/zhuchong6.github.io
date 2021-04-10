@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://github/zhuchong6.github.io/"/>
-  <updated>2021-04-04T19:40:14.528Z</updated>
+  <updated>2021-04-10T11:51:55.364Z</updated>
   <id>https://github/zhuchong6.github.io/</id>
   
   <author>
@@ -15,6 +15,46 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>mysql排序后union顺序错乱🤪</title>
+    <link href="https://github/zhuchong6.github.io/2021/04/10/2021-04-10mysql%E6%8E%92%E5%BA%8F%E5%90%8Eunion%E9%A1%BA%E5%BA%8F%E9%94%99%E4%B9%B1/"/>
+    <id>https://github/zhuchong6.github.io/2021/04/10/2021-04-10mysql%E6%8E%92%E5%BA%8F%E5%90%8Eunion%E9%A1%BA%E5%BA%8F%E9%94%99%E4%B9%B1/</id>
+    <published>2021-04-10T11:26:27.000Z</published>
+    <updated>2021-04-10T11:51:55.364Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="记一次sql排序后union-all导致的排序错乱"><a href="#记一次sql排序后union-all导致的排序错乱" class="headerlink" title="记一次sql排序后union all导致的排序错乱"></a>记一次sql排序后union all导致的排序错乱</h1><h3 id="环境介绍"><a href="#环境介绍" class="headerlink" title="环境介绍"></a>环境介绍</h3><blockquote><p>操作系统:macOS</p><p>Mysql:8</p></blockquote><h3 id="问题重现"><a href="#问题重现" class="headerlink" title="问题重现"></a>问题重现</h3><p>业务中需要对查询结果进行时间倒序排列，然后将几个查询子集合并，sql如下：</p><pre><code class="mysql">select distinct tmp.user_id          as userId,                tmp.real_name        as realName,                tmp.mobile           as mobile,                tmp.register_time,                tmp.sourcefrom ((select user_id, real_name, mobile, register_time, &#39;直属粉丝&#39; as source from user where superior_id = ?1)      union all      (select user_id, real_name, mobile, register_time, &#39;间推粉丝&#39; as source       from user       where superior_id in (select user_id from user where superior_id = ?1)) ) as tmp</code></pre><a id="more"></a><p>业务中需要按照以下顺序进行排序：</p><blockquote><table><thead><tr><th>Source</th><th>registerTime</th></tr></thead><tbody><tr><td>直属粉丝</td><td>2020-10-02 00:00:00</td></tr><tr><td>直属粉丝</td><td>2020-10-01 00:00:00</td></tr><tr><td>间推粉丝</td><td>2020-11-02 00:00:00</td></tr><tr><td>间推粉丝</td><td>2020-11-01 00:00:00</td></tr></tbody></table></blockquote><p>我第一个想法就是分别在两个子查询语句中查询后按照时间排讯，但是执行后发现顺序是错乱的。原因是，<code>order by</code>要比<code>union all</code>执行级别低，一旦两个关键字同时出现，会先执行<code>union</code>，在执行<code>order by</code></p><h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>由上面想要的结果，我们可以知道需要进行source排序和register倒排，那么解决方案就很明白了，如下：</p><pre><code class="mysql">select distinct tmp.user_id          as userId,                tmp.real_name        as realName,                tmp.mobile           as mobile,                tmp.register_time,                tmp.od,                tmp.sourcefrom ((select user_id, real_name, mobile, register_time, &#39;直属粉丝&#39; as source, 0 as od from user where superior_id = ?1)      union all      (select user_id, real_name, mobile, register_time, &#39;间推粉丝&#39; as source, 1 as od       from user       where superior_id in (select user_id from user where superior_id = ?1)) ) as tmporder by  tmp.od, tmp.register_time desc;</code></pre><p>比之前多增加了一个od字段用于source的排序，register_time用于时间排序,可以避免乱序问题。</p><p>由于这个问题还花了点时间，特此记录下！</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;记一次sql排序后union-all导致的排序错乱&quot;&gt;&lt;a href=&quot;#记一次sql排序后union-all导致的排序错乱&quot; class=&quot;headerlink&quot; title=&quot;记一次sql排序后union all导致的排序错乱&quot;&gt;&lt;/a&gt;记一次sql排序后union all导致的排序错乱&lt;/h1&gt;&lt;h3 id=&quot;环境介绍&quot;&gt;&lt;a href=&quot;#环境介绍&quot; class=&quot;headerlink&quot; title=&quot;环境介绍&quot;&gt;&lt;/a&gt;环境介绍&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;操作系统:macOS&lt;/p&gt;
+&lt;p&gt;Mysql:8&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;问题重现&quot;&gt;&lt;a href=&quot;#问题重现&quot; class=&quot;headerlink&quot; title=&quot;问题重现&quot;&gt;&lt;/a&gt;问题重现&lt;/h3&gt;&lt;p&gt;业务中需要对查询结果进行时间倒序排列，然后将几个查询子集合并，sql如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;mysql&quot;&gt;select distinct tmp.user_id          as userId,
+                tmp.real_name        as realName,
+                tmp.mobile           as mobile,
+                tmp.register_time,
+                tmp.source
+from ((select user_id, real_name, mobile, register_time, &amp;#39;直属粉丝&amp;#39; as source from user where superior_id = ?1)
+      union all
+      (select user_id, real_name, mobile, register_time, &amp;#39;间推粉丝&amp;#39; as source
+       from user
+       where superior_id in (select user_id from user where superior_id = ?1)) ) as tmp
+&lt;/code&gt;&lt;/pre&gt;
+    
+    </summary>
+    
+    
+      <category term="Mysql" scheme="https://github/zhuchong6.github.io/categories/Mysql/"/>
+    
+    
+      <category term="Mysql" scheme="https://github/zhuchong6.github.io/tags/Mysql/"/>
+    
+      <category term="杂记" scheme="https://github/zhuchong6.github.io/tags/%E6%9D%82%E8%AE%B0/"/>
+    
+  </entry>
   
   <entry>
     <title>springboot整合ELK实现日志收集</title>
