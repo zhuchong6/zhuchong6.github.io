@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://github/zhuchong6.github.io/"/>
-  <updated>2021-04-10T11:51:55.364Z</updated>
+  <updated>2021-04-19T11:47:05.646Z</updated>
   <id>https://github/zhuchong6.github.io/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>InnoDB索引详解</title>
+    <link href="https://github/zhuchong6.github.io/2021/04/18/2021-04-18mysql%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/"/>
+    <id>https://github/zhuchong6.github.io/2021/04/18/2021-04-18mysql%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/</id>
+    <published>2021-04-18T11:16:35.000Z</published>
+    <updated>2021-04-19T11:47:05.646Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="InnoDB索引详解"><a href="#InnoDB索引详解" class="headerlink" title="InnoDB索引详解"></a>InnoDB索引详解</h1><p>环境：</p><blockquote><p>操作系统：macos</p><p>数据库版本：mysql 8.0.23 innodb引擎</p></blockquote><p>本文所有内容都是基于以上环境的，如果有异议的地方欢迎邮件交流。</p><a id="more"></a><h2 id="什么是索引？"><a href="#什么是索引？" class="headerlink" title="什么是索引？"></a>什么是索引？</h2><p>大家应该都有用过字典，我们查字典的时候有好几种方式。我这里拿拼音的方式举例，比如说我要查<code>朱</code>这个字，首先要找到z去字典拼音目录里面先找z，然后在找zhu这个拼音，最后通过后面的页码数找到<code>朱</code>的释义。这里，如果把字典比作数据库，那么拼音目录就是所谓的<code>索引</code>。</p><h2 id="索引有什么用？"><a href="#索引有什么用？" class="headerlink" title="索引有什么用？"></a>索引有什么用？</h2><p>还是拿刚才查字典的动作举例，如果没有拼音目录，我们想找到<code>朱</code>字就只能一个个的去翻字典了，很慢。所以，明白没，索引作用就是加快查询的速度的。</p><p>自此，我们可以给索引下一个定义了：</p><blockquote><p>索引是一种数据结构，可以用来加快查询速度</p></blockquote><h2 id="索引的物理结构"><a href="#索引的物理结构" class="headerlink" title="索引的物理结构"></a>索引的物理结构</h2><p>由于，我平时用mysql比较多，就以mysql数据库，innodb引擎来举例，聊下mysql的索引设计。根据官方文档，索引底层的数据结构是有B+树实现的，大概的结构如下图：</p><p><img src="a.png" alt="B+树"></p><p>我们可以看到，实际存放数据的地方是最下面红色部分，红色部分中id与蓝色id重复，我们是先找到id，才能找到数据。那么id是什么？id代表<code>聚簇索引（cluster index）</code>。根据官方文档的说法，每次创建一张innodb引擎的表时，都会有一个特殊的索引，称之为聚簇索引，用于存储行数据。<strong>通常聚簇索引和主键等同，但是，如果你没有定义主键，那么就选第一个非空的唯一索引作为聚簇索引；如果还是没有的话，那么就会生成一个隐藏的聚簇索引叫<code>GEN_CLUST_INDEX</code>,这个id是一个6byte单调自增的数</strong></p><blockquote><p><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-index-types.html">mysql聚簇索引</a></p></blockquote><p>这里简述下数据库查询流程，假设我们有一条这样的sql<code>select * from user where id=13</code>，由于id=13，那么12&lt;13&lt;14那么就做左边的树下找到<code>id=13</code>的指向实际存储数据指针，再找到数据，就是这么一个简单的流程,具体如图：</p><p><img src="b.png" alt="查询流程"></p><p>实际使用中，我们不一定每次都用聚簇索引来查询，还会使用其他索引来辅助查询。这个时候，就会用到非聚簇索引，官方称之为<code>二级索引</code>。二级索引的查询流程构建在聚簇索引之上的，假设我们的sql是``select * from user where name=a`，具体执行流程如下：</p><p><img src="c.png" alt="二级索引流程"></p><p>可以看出，二级索引第一次查询查的是表的聚簇索引，然后在通过聚簇索引反查用户的记录，这个过程被称作<strong>回表</strong>。如果，我查询结果只需要name和id两个字段的话，但是使用<code>select *</code>查询所有字段触发<strong>回表</strong>性能就很差。但是，如果使用<code>select name, id</code>只查需要的字段就在第一次查询时查到需要的字段，不会再进行第二次查询过程，提升了查询效率，这个叫<strong>索引覆盖</strong>。这就是为什么有的sql优化建议查询只需要查需要的字段，不止网络开销，还有这个方面的考量。</p><h3 id="组合索引"><a href="#组合索引" class="headerlink" title="组合索引"></a>组合索引</h3><p><strong>组合索引</strong>我个人总是和聚簇索引搞混，但是其实是二级索引。他的结构和上面的差不多，只是是由多个字段组成，具体结构如下：</p><p><img src="d.png" alt="组合索引"></p><p>组合索引是先按照第一个索引字段查找，然后第一个字段相同按照第二个字段查找，这也就是为什么组合索引会有<strong>最左匹配原则</strong>这个东西。</p><h2 id="一些索引的问题"><a href="#一些索引的问题" class="headerlink" title="一些索引的问题"></a>一些索引的问题</h2><h3 id="NULL不走索引？"><a href="#NULL不走索引？" class="headerlink" title="NULL不走索引？"></a>NULL不走索引？</h3><p>有很多博文说NULL不走索引，所以不能让字段为NULL。这个说法不准确，在我当前环境中，NULL是能够走索引的,结果如下：</p><pre><code class="sql">explain select * from user where name is NULL;</code></pre><p><img src="e.png" alt="e"></p><p>可以看出NULL是走索引的，但是，还是不推荐使用NULL，因为会使索引、索引统计和值更加复杂，并且需要额外一个字节的存储空间。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;InnoDB索引详解&quot;&gt;&lt;a href=&quot;#InnoDB索引详解&quot; class=&quot;headerlink&quot; title=&quot;InnoDB索引详解&quot;&gt;&lt;/a&gt;InnoDB索引详解&lt;/h1&gt;&lt;p&gt;环境：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;操作系统：macos&lt;/p&gt;
+&lt;p&gt;数据库版本：mysql 8.0.23 innodb引擎&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;本文所有内容都是基于以上环境的，如果有异议的地方欢迎邮件交流。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Mysql" scheme="https://github/zhuchong6.github.io/categories/Mysql/"/>
+    
+    
+      <category term="Mysql" scheme="https://github/zhuchong6.github.io/tags/Mysql/"/>
+    
+  </entry>
   
   <entry>
     <title>mysql排序后union顺序错乱🤪</title>
@@ -547,33 +575,6 @@ es版本：7.6.2
     
     
       <category term="博客搭建" scheme="https://github/zhuchong6.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>美化博客</title>
-    <link href="https://github/zhuchong6.github.io/2019/09/16/2019-09-16%E7%BE%8E%E5%8C%96%E5%8D%9A%E5%AE%A2/"/>
-    <id>https://github/zhuchong6.github.io/2019/09/16/2019-09-16%E7%BE%8E%E5%8C%96%E5%8D%9A%E5%AE%A2/</id>
-    <published>2019-09-16T14:42:39.000Z</published>
-    <updated>2021-04-04T12:26:39.485Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="美化博客"><a href="#美化博客" class="headerlink" title="美化博客"></a>美化博客</h3><p>参考这个博客</p><a id="more"></a><p>暂时红心效果没有搞定（但是替换成爆炸的）</p><p>宠物也没有出来需要在研究下</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;美化博客&quot;&gt;&lt;a href=&quot;#美化博客&quot; class=&quot;headerlink&quot; title=&quot;美化博客&quot;&gt;&lt;/a&gt;美化博客&lt;/h3&gt;&lt;p&gt;参考这个博客&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="博客搭建" scheme="https://github/zhuchong6.github.io/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"/>
-    
-    
-      <category term="博客搭建" scheme="https://github/zhuchong6.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"/>
-    
-      <category term="心得体会" scheme="https://github/zhuchong6.github.io/tags/%E5%BF%83%E5%BE%97%E4%BD%93%E4%BC%9A/"/>
-    
-      <category term="美化博客" scheme="https://github/zhuchong6.github.io/tags/%E7%BE%8E%E5%8C%96%E5%8D%9A%E5%AE%A2/"/>
     
   </entry>
   
