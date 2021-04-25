@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://github/zhuchong6.github.io/"/>
-  <updated>2021-04-19T11:47:05.646Z</updated>
+  <updated>2021-04-25T12:22:51.275Z</updated>
   <id>https://github/zhuchong6.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>项目中用到的设计模式-工厂模式</title>
+    <link href="https://github/zhuchong6.github.io/2021/04/25/2021-04-25%E9%A1%B9%E7%9B%AE%E4%B8%AD%E7%94%A8%E5%88%B0%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://github/zhuchong6.github.io/2021/04/25/2021-04-25%E9%A1%B9%E7%9B%AE%E4%B8%AD%E7%94%A8%E5%88%B0%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</id>
+    <published>2021-04-25T10:55:10.000Z</published>
+    <updated>2021-04-25T12:22:51.275Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我们项目是一个电商项目，我被分配到商品模块的开发任务。其中，涉及到创建商品这个功能，第一个版本比较简单就只有单纯的商品，我的实现也非常简单，直接new一个对象然后设置值就行。但是，后来因为业务需求，各个种类的商品，各个功能的商品逐渐加入到版本迭代中，如果还是这么简单粗暴的处理方式其实也行，但是由于不断修改原始代码增加了犯错的几率，也让测试小伙伴多次重复测试，降低效率。</p><p>这个时候，我就意识到了问题的严重性，决定重构代码。</p><a id="more"></a><h2 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h2><p>第一个版本比较简单，具体可以看下面</p><pre><code class="java">public class Product&#123;  String name;&#125;public class ProductA extends Product&#123;  //轮播图  String[] imgs;&#125;public class ProductB extends Product&#123;  //轮播视频  String[] videos;&#125;public class ProductFactory&#123;  pubic static Product produce(int type)&#123;      if(type ==1) new ProductA();    if(type ==2) new ProductB();    return null;  &#125;&#125;</code></pre><p>优点：</p><ul><li>这个模式优点是将各个不同商品分开，逻辑分离，老代码不做更改，新代码只需继承<code>Product</code>，比较容易实现</li></ul><p>缺点：</p><ul><li><p>如果说我在增加一个<code>虚拟商品（比如积分卡）/实物商品（比如手机）</code>的维度，如果只是增加一个属性字段的话，又会陷入没有使用设计模式之前的困境(可以参考下面)，会有大量重复代码，这个设计模式就没有意义</p><pre><code class="java">if(type ==1)&#123;  //重复代码  if(&quot;纬度&quot;== 虚拟) ...;  if(&quot;纬度&quot;== 实体) ...;&#125;if(type ==2)&#123;  if(&quot;纬度&quot;== 虚拟) ...;  if(&quot;纬度&quot;== 实体) ...;&#125;</code></pre></li></ul><h2 id="工厂方法模式"><a href="#工厂方法模式" class="headerlink" title="工厂方法模式"></a>工厂方法模式</h2><p>如果增加了<code>维度</code>我们该怎么办？</p><p>简单，我们可以对工厂抽象一层分为<code>实体工厂/虚拟工厂</code>专门用来处理维度属性，具体实现如下：</p><pre><code class="java">//商品基类public class Product&#123;  String name;&#125;//虚拟商品public class ProductXuni extends Product&#123;  //轮播图  String[] imgs;&#125;//实体商品public class ProductShiti extends Product&#123;  //轮播视频  String[] videos;&#125;//生产不同商品的工厂的抽象类public interface AbstractFactory&#123;  Product produce();&#125;//虚拟工厂public class XuniFactory implements AbstractFactory&#123;  Product produce()&#123;    return new ProductXuni();  &#125;&#125;//实体工厂public class ShitiFactory implements AbstractFactory&#123;  Product produce()&#123;    return new ProductShiti();  &#125;&#125;//这样省略了大量的重复代码public class Demo &#123;    public static void main(String[] arg) &#123;        AbstractFactory xuniF = new XuniFactory();        AbstractFactory shitiF = new ShitiFactory();        xuniF.produce(); //虚拟商品        shitiF.produce(); //实体商品    &#125;&#125;</code></pre><p>这样看来，好像是完美的解决了目前的问题。但是，产品经理的需求是不断进化的。他又提出一个需求，我们现在创建的都是商品(这里特指自己平台的)，下个版本要将我们的<code>商品、赠品、地推物料、三方商品...</code>这个几个分类全部整合到一起。</p><p><strong>SHIT！！！</strong></p><h3 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h3><p>没办法，生活还要继续。上面的模式生产的都是一类产品，虽然分成多个维度但是还是属于商品这一个大类下面，如果想新建一个分类（比如：地推物料、淘宝商品、京东商品…）最简单粗暴的方式就是每一个分类就将上面的工厂方法复制一份（实际上前两次我就是这么干的😄），但是会带来大量重复代码—cv是真的爽</p><p>于是，我决定采用抽象工厂方法将代码进行重构，具体实现如下：</p><pre><code class="java">public interface Item &#123;    Item produce();&#125;//商品public class Product implements Item&#123;        public Product() &#123;        produce();    &#125;    public Item produce()&#123;      return new Product();    &#125;&#125;//淘宝商品public class TBProduct implements Item&#123;    public TBProduct() &#123;        produce();    &#125;        public Item produce()&#123;      return new TBProduct();    &#125;&#125;//抽象工厂public interface AbstractFactory&#123;        Item produce();&#125;//商品工厂public class ProductFactory implements AbstractFactory()&#123;  public Product produce() &#123;          return new Product();  &#125;&#125;//淘宝商品工厂public class TBProductFactory implements AbstractFactory()&#123;  public TBProduct produce() &#123;          return new TBProduct();  &#125;&#125;public class Client &#123;   public static void main(String[] args) &#123;     //生产商品     AbstractFactory productF = new ProductFactory();     Product keyboard = productF.produce();             //生产淘宝商品     AbstractFactory tabaoF = new TBProductFactory();     TBProduct keyboard = tabaoF.produce();   &#125;&#125;</code></pre><p>咋看一下好像解决了问题，我们以后增加JD商品的时候只需要在增加一个工厂，一个产品就行了。但是，有个问题。比如说，我想要在淘宝工厂方法里面在增加一个动作，叫<code>destroy()</code>。那么，所有的工厂都会重写这个方法，改动非常之大。这个问题，也是抽象工厂模式的缺陷。对此，我又增加了一层抽像来解决这个问题，具体如下：</p><pre><code class="java">//抽象工厂public interface AbstractFactory&#123;        Item produce();    Item destroy();&#125;//抽象工厂基础类public abstract class BaseAbstractFactory implements AbstractFactory&#123;        public Item produce() &#123;        return null;    &#125;      //默认实现      public Item destroy() &#123;        return null;    &#125;&#125;//商品工厂public class ProductFactory extends BaseAbstractFactory&#123;&#125;//淘宝商品public class TBProductFactory extends BaseAbstractFactory&#123;&#125;</code></pre><p>以上，通过增加一个基础抽象类，默认实现抽象工厂的方法，后面的实际工厂继承这个类来根据实际情况选择是否重写，算是比较完美的重构了我们当前的代码。</p><h1 id="感言"><a href="#感言" class="headerlink" title="感言"></a>感言</h1><p>经过这一次的代码重构，我越发觉得以前写的代码是真的垃圾，只是无脑的将业务逻辑进行堆砌，耦合及其严重，导致很多时候牵一发而动全身。看来，设计模式是真的很有必要好好学习，当谨记！！！</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;我们项目是一个电商项目，我被分配到商品模块的开发任务。其中，涉及到创建商品这个功能，第一个版本比较简单就只有单纯的商品，我的实现也非常简单，直接new一个对象然后设置值就行。但是，后来因为业务需求，各个种类的商品，各个功能的商品逐渐加入到版本迭代中，如果还是这么简单粗暴的处理方式其实也行，但是由于不断修改原始代码增加了犯错的几率，也让测试小伙伴多次重复测试，降低效率。&lt;/p&gt;
+&lt;p&gt;这个时候，我就意识到了问题的严重性，决定重构代码。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Java" scheme="https://github/zhuchong6.github.io/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="https://github/zhuchong6.github.io/tags/Java/"/>
+    
+  </entry>
   
   <entry>
     <title>InnoDB索引详解</title>
@@ -546,35 +570,6 @@ es版本：7.6.2
     
     
       <category term="杂谈" scheme="https://github/zhuchong6.github.io/tags/%E6%9D%82%E8%B0%88/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>markdown基础命令</title>
-    <link href="https://github/zhuchong6.github.io/2019/09/21/2019-09-21markdown%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/"/>
-    <id>https://github/zhuchong6.github.io/2019/09/21/2019-09-21markdown%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/</id>
-    <published>2019-09-20T20:55:08.000Z</published>
-    <updated>2021-04-04T12:23:37.223Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="markdown基础语法"><a href="#markdown基础语法" class="headerlink" title="markdown基础语法"></a>markdown基础语法</h1><h2 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h2><pre><code class="markdown"># 一级标题## 二级标题### 三级标题#### 四级标题##### 五级标题###### 六级标题</code></pre><a id="more"></a><blockquote><p>效果展示:</p><h1 id="一级标题"><a href="#一级标题" class="headerlink" title="一级标题"></a>一级标题</h1><h2 id="二级标题"><a href="#二级标题" class="headerlink" title="二级标题"></a>二级标题</h2><h3 id="三级标题"><a href="#三级标题" class="headerlink" title="三级标题"></a>三级标题</h3><h4 id="四级标题"><a href="#四级标题" class="headerlink" title="四级标题"></a>四级标题</h4><h5 id="五级标题"><a href="#五级标题" class="headerlink" title="五级标题"></a>五级标题</h5><h6 id="六级标题"><a href="#六级标题" class="headerlink" title="六级标题"></a>六级标题</h6></blockquote><h2 id="锚点"><a href="#锚点" class="headerlink" title="锚点"></a>锚点</h2><pre><code class="markdown"># 锚点解析成&lt;h1 id=&quot;锚点&quot;&gt;锚点&lt;/h1&gt;访问锚点:[跳到标题的锚点](#锚点);</code></pre><blockquote><p><a href="#%E6%A0%87%E9%A2%98">访问a锚点的连接</a></p></blockquote><h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><pre><code class="markdown">&gt;引用语法</code></pre><blockquote><h1 id="引用的效果"><a href="#引用的效果" class="headerlink" title="引用的效果"></a>引用的效果</h1><blockquote><p>二级引用</p><blockquote><p>三级…</p></blockquote></blockquote></blockquote><h2 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h2><pre><code class="markdown">无序列表:使用星号(*)、加号(+)或是减号(-)作为列表标记* 测试1* 测试2有序列表:使用数字接着一个英文句点1. 测试12. 测试二待办列表:[]不勾选 [x]勾选,注意 [] 前后都要有空格*- [ ] 不够选*- [x] 勾选</code></pre><blockquote><p>效果展示:</p><p>无需列表:</p><ul><li>测试</li><li>测试2</li></ul></blockquote><blockquote><p>有序列表:</p><ol><li>测试</li><li>测试22</li></ol></blockquote><blockquote><p>待办列表: </p><ul><li><input disabled="" type="checkbox"> 不勾选</li><li><input checked="" disabled="" type="checkbox"> 勾选</li></ul></blockquote><h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><pre><code class="markdown">```javascriptvar s = 啊啊啊;```这个代码块就是使用的代码语法</code></pre><h2 id="强调"><a href="#强调" class="headerlink" title="强调"></a>强调</h2><pre><code class="markdown">**加粗**__加粗__*斜体*_斜体_</code></pre><blockquote><p>效果展示:</p><p><strong>加粗</strong></p><p><em>斜体</em></p></blockquote><h2 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h2><pre><code class="markdown">[方框内是连接显示的文字说明](园括号填写连接地址)[www.baid.com](https://www.baidu.com)</code></pre><blockquote><p>效果演示:</p><p><a href="https://www.baidu.com/">www.baid.com</a></p></blockquote><h2 id="表格"><a href="#表格" class="headerlink" title="表格"></a>表格</h2><pre><code class="markdown">基础表格姓名 | 年龄 | 性别------------ | ------------- | ------------zz | 11  | 男cc | 12  | 女表格两边内容对齐，中间内容居中姓名 | 年龄 | 性别:------------ | :-------------: | ------------:zz | 11  | 男cc | 12  | 女</code></pre><blockquote><p>效果演示:</p><p>基础表格</p><table><thead><tr><th>姓名</th><th>年龄</th><th>性别</th></tr></thead><tbody><tr><td>zz</td><td>11</td><td>男</td></tr><tr><td>cc</td><td>12</td><td>女</td></tr></tbody></table><p>表格两边内容对齐，中间内容居中</p><table><thead><tr><th align="left">姓名</th><th align="center">年龄</th><th align="right">性别</th></tr></thead><tbody><tr><td align="left">zz</td><td align="center">11</td><td align="right">男</td></tr><tr><td align="left">cc</td><td align="center">12</td><td align="right">女</td></tr></tbody></table></blockquote><h2 id="分割线"><a href="#分割线" class="headerlink" title="分割线"></a>分割线</h2><pre><code class="markdown">分割线上的文字---分割线下的文字</code></pre><blockquote><p>效果演示:</p><p>aaaaa</p><hr><p>bbbbb</p></blockquote><h2 id="图片"><a href="#图片" class="headerlink" title="图片"></a>图片</h2><p>Markdown 使用了类似链接的语法来插入图片, 包含两种形式: <strong>内联</strong> 和 <strong>引用</strong>.</p><pre><code class="markdown">内联图片:引用的是图片的相对路径,即本地图片![Alt text](/path/to/img.jpg)或![Alt text](/path/to/img.jpg &quot;Optional title&quot;)1.感叹号2.[图片的替代文字]3.普通括号，里面是图片的网址，最后还可以用引号包住并加上 选择性的『title’』文字。引用图片:引用的是网上的图片![Alt text][a] [a]:/path/to/img.jpg &quot;Optional title&quot;1.感叹号2.[图片的替代文字]3.[这里跟上面相同的语法]</code></pre><blockquote><p>效果演示:</p><blockquote><p>内联系图片</p><p><img src="ceshi.png" alt="内部图片"></p></blockquote><blockquote><p>外部图片</p><p><img src="https://cdn.aixifan.com/acfun-pc/2.8.25/img/logo.png" alt="外部图片" title="外部图片"> </p></blockquote></blockquote>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;markdown基础语法&quot;&gt;&lt;a href=&quot;#markdown基础语法&quot; class=&quot;headerlink&quot; title=&quot;markdown基础语法&quot;&gt;&lt;/a&gt;markdown基础语法&lt;/h1&gt;&lt;h2 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h2&gt;&lt;pre&gt;&lt;code class=&quot;markdown&quot;&gt;# 一级标题
-## 二级标题
-### 三级标题
-#### 四级标题
-##### 五级标题
-###### 六级标题
-&lt;/code&gt;&lt;/pre&gt;
-    
-    </summary>
-    
-    
-      <category term="博客搭建" scheme="https://github/zhuchong6.github.io/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"/>
-    
-    
-      <category term="博客搭建" scheme="https://github/zhuchong6.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"/>
     
   </entry>
   
