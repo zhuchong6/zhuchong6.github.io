@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="SpringBoot应用整合ELK实现日志收集摘要ELK即Elasticsearch（后面简称ES）、Logstash、Kibana这三个组件，这三个组件配合起来可以搭建线上的日志系统，本文主要讲述如何使用ELK来收集springboot项目的日志 ELK各个组件的作用 Elasticsearch：用于存储收集的日志 Logstash：用于收集日志，SpringBoot应用整合了Logstash以"><meta property="og:type" content="article"><meta property="og:title" content="springboot整合ELK实现日志收集"><meta property="og:url" content="https://github/zhuchong6.github.io/2021/04/04/2021-04-05ELK%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="SpringBoot应用整合ELK实现日志收集摘要ELK即Elasticsearch（后面简称ES）、Logstash、Kibana这三个组件，这三个组件配合起来可以搭建线上的日志系统，本文主要讲述如何使用ELK来收集springboot项目的日志 ELK各个组件的作用 Elasticsearch：用于存储收集的日志 Logstash：用于收集日志，SpringBoot应用整合了Logstash以"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://github/a.png"><meta property="og:image" content="https://github/b.png"><meta property="og:image" content="https://github/d.png"><meta property="og:image" content="https://github/e.png"><meta property="og:image" content="https://github/f.png"><meta property="og:image" content="https://github/g.png"><meta property="article:published_time" content="2021-04-04T18:08:06.000Z"><meta property="article:modified_time" content="2022-09-29T01:04:32.268Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="中间件"><meta property="article:tag" content="ElasticSearch"><meta property="article:tag" content="Docker"><meta property="article:tag" content="微服务"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://github/a.png"><link rel="canonical" href="https://github/zhuchong6.github.io/2021/04/04/2021-04-05ELK%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>springboot整合ELK实现日志收集 | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">18</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">33</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2021/04/04/2021-04-05ELK%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">springboot整合ELK实现日志收集</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2021-04-05 02:08:06" itemprop="dateCreated datePublished" datetime="2021-04-05T02:08:06+08:00">2021-04-05</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2022-09-29 09:04:32" itemprop="dateModified" datetime="2022-09-29T09:04:32+08:00">2022-09-29</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/ElasticSearch/" itemprop="url" rel="index"><span itemprop="name">ElasticSearch</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="SpringBoot应用整合ELK实现日志收集"><a href="#SpringBoot应用整合ELK实现日志收集" class="headerlink" title="SpringBoot应用整合ELK实现日志收集"></a>SpringBoot应用整合ELK实现日志收集</h1><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>ELK即Elasticsearch（<strong>后面简称ES</strong>）、Logstash、Kibana这三个组件，这三个组件配合起来可以搭建线上的日志系统，本文主要讲述如何使用ELK来收集springboot项目的日志</p><h2 id="ELK各个组件的作用"><a href="#ELK各个组件的作用" class="headerlink" title="ELK各个组件的作用"></a>ELK各个组件的作用</h2><ul><li>Elasticsearch：用于存储收集的日志</li><li>Logstash：用于收集日志，SpringBoot应用整合了Logstash以后会把日志发送给Logstash,Logstash再把日志转发给Elasticsearch</li><li>Kibana：通过提供web端可视化界面来查看日志</li></ul><span id="more"></span><p>具体流程可，大致如下图：</p><p><img src="/a.png" alt="ELK流程图"></p><h2 id="使用Docker-Compose搭建ELK环境"><a href="#使用Docker-Compose搭建ELK环境" class="headerlink" title="使用Docker Compose搭建ELK环境"></a>使用Docker Compose搭建ELK环境</h2><h3 id="下载Docker镜像"><a href="#下载Docker镜像" class="headerlink" title="下载Docker镜像"></a>下载Docker镜像</h3><pre><code class="dockerfile">docker pull elasticsearch:7.12.0
+docker pull logstash:7.12.0
+docker pull kibana:7.12.0
+</code></pre><p>注意⚠️：这里一定要指定镜像版本，不然下载的是两年前的版本</p><h3 id="搭建Elasticsearch集群"><a href="#搭建Elasticsearch集群" class="headerlink" title="搭建Elasticsearch集群"></a>搭建Elasticsearch集群</h3><p>这里，我是为了其他的用途搭建的是一个集群，你们也可以选这一个单机的ES，具体步骤如下：</p><ol><li><p>创建一个docker-compose文件</p><pre><code class="bash">vim /Users/mac/Environments/docker/es/es-compose.yml
+</code></pre></li><li><p>写入配置</p><pre><code class="dockerfile">version: &#39;2.2&#39;
+services:
+  es01:
+    image: elasticsearch:7.12.0
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - &quot;ES_JAVA_OPTS=-Xms512m -Xmx512m&quot;
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+  es02:
+    image: elasticsearch:7.12.0
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - &quot;ES_JAVA_OPTS=-Xms512m -Xmx512m&quot;
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+  es03:
+    image: elasticsearch:7.12.0
+    container_name: es03
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - &quot;ES_JAVA_OPTS=-Xms512m -Xmx512m&quot;
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data03:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+
+  # kibana:
+  #   image: kibana:7.12.0
+  #   container_name: kibana
+  #   ports:
+  #     - 5611:5601
+  #   depends_on:
+  #     - es01  
+  #     - es02
+  #     - es03
+  #   environment:
+  #     SERVER_NAME: kibana
+  #     ELASTICSEARCH_HOSTS: http://es01:9200
+  #     #ELASTICSEARCH_URL: http://es01:9200
+  #   networks:
+  #     - elastic  
+
+  # logstash:
+  #   image: logstash:7.12.0
+  #   container_name: logstash
+  #   volumes:
+  #     - ./logstash-springboot.conf:/usr/share/logstash/pipeline/logstash.conf #挂载logstash的配置文件
+  #   depends_on:
+  #     - es01  #es节点启动之后在启动 
+  #     - es02
+  #     - es03
+  #   ports:
+  #     - 4560:4560
+  #   networks:
+  #     - elastic
+      
+
+volumes:
+  data01:
+    driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
+ 
+
+networks:
+  elastic:
+    driver: bridge
+</code></pre></li><li><p>执行<code>docker-compose -f es-compose.yml up -d</code>,使用<code>docker ps</code>命令查看是否启动成功或者访问<a target="_blank" rel="noopener" href="http://localhost:9200/_cat/health?v">http://localhost:9200/_cat&#x2F;health?v</a>看是否有结果。如果docker是刚下载的话没有进行特殊配置的话，应该会出现，一开始出现3个节点，然后迅速挂掉几个现象。这是因为es集群占用内存太大，内存不够会杀掉应用，官网上推荐的是4g内存（内存不够跑单节点就行了），我们可以修改docker配置，给他更大内存，如图所示：</p><p><img src="/b.png" alt="修改docker内存"></p><p>修改完成，执行<code>docker-compose -f es-compose.yml down -v</code>关闭容器，重复步骤3</p></li></ol><h3 id="搭建Kibana"><a href="#搭建Kibana" class="headerlink" title="搭建Kibana"></a>搭建Kibana</h3><p>将上面<code>es-compose.yml</code>中kibana相关配置打开，重启。访问<a target="_blank" rel="noopener" href="http://localhost:5611/">http://localhost:5611/</a>,会出现kibana的ui界面</p><h3 id="搭建Logstash"><a href="#搭建Logstash" class="headerlink" title="搭建Logstash"></a>搭建Logstash</h3><p><code>es-compose.yml</code>同级目录下，创建一个文件，文件名称是<code>logstash-springboot.conf</code>,然后填入如下内容：</p><pre><code>input &#123;
+  tcp &#123;
+    mode =&gt; &quot;server&quot;
+    host =&gt; &quot;0.0.0.0&quot;
+    port =&gt; 4560
+    codec =&gt; json_lines
+  &#125;
+&#125;
+output &#123;
+  elasticsearch &#123;
+    hosts =&gt; &quot;es01:9200&quot;
+    index =&gt; &quot;springboot-logstash-%&#123;+YYYY.MM.dd&#125;&quot;
+  &#125;
+&#125;
+</code></pre><p>然后类似上面的，打开<code>es-compose.yml</code>Logstash配置，并重启。至此，ELK已经搭建完成</p><h2 id="在SpringBoot应用中集成Logstash"><a href="#在SpringBoot应用中集成Logstash" class="headerlink" title="在SpringBoot应用中集成Logstash"></a>在SpringBoot应用中集成Logstash</h2><ol><li><p>创建一个springboot应用，在pom文件中引入依赖文件</p><pre><code class="xml">&lt;!-- https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;net.logstash.logback&lt;/groupId&gt;
+  &lt;artifactId&gt;logstash-logback-encoder&lt;/artifactId&gt;
+  &lt;version&gt;6.6&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre></li><li><p>在resouce目录下添加一个文件，文件名称为logback-spring.xml，作用是将logback的日志输出到Logstash中去，文件内容如下</p><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE configuration&gt;
+&lt;configuration&gt;
+    &lt;include resource=&quot;org/springframework/boot/logging/logback/defaults.xml&quot;/&gt;
+    &lt;include resource=&quot;org/springframework/boot/logging/logback/console-appender.xml&quot;/&gt;
+    &lt;!--应用名称--&gt;
+    &lt;property name=&quot;APP_NAME&quot; value=&quot;mall-admin&quot;/&gt;
+    &lt;!--日志文件保存路径--&gt;
+    &lt;property name=&quot;LOG_FILE_PATH&quot; value=&quot;$&#123;LOG_FILE:-$&#123;LOG_PATH:-$&#123;LOG_TEMP:-$&#123;java.io.tmpdir:-/tmp&#125;&#125;&#125;/logs&#125;&quot;/&gt;
+    &lt;contextName&gt;$&#123;APP_NAME&#125;&lt;/contextName&gt;
+    &lt;!--每天记录日志到文件appender--&gt;
+    &lt;appender name=&quot;FILE&quot; class=&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;&gt;
+        &lt;rollingPolicy class=&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;&gt;
+            &lt;fileNamePattern&gt;$&#123;LOG_FILE_PATH&#125;/$&#123;APP_NAME&#125;-%d&#123;yyyy-MM-dd&#125;.log&lt;/fileNamePattern&gt;
+            &lt;maxHistory&gt;30&lt;/maxHistory&gt;
+        &lt;/rollingPolicy&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;$&#123;FILE_LOG_PATTERN&#125;&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+    &lt;!--输出到logstash的appender--&gt;
+    &lt;appender name=&quot;LOGSTASH&quot; class=&quot;net.logstash.logback.appender.LogstashTcpSocketAppender&quot;&gt;
+        &lt;!--可以访问的logstash日志收集端口,填logstash的地址端口--&gt;
+        &lt;destination&gt;localhost:4560&lt;/destination&gt;
+        &lt;encoder charset=&quot;UTF-8&quot; class=&quot;net.logstash.logback.encoder.LogstashEncoder&quot;/&gt;
+    &lt;/appender&gt;
+    &lt;root level=&quot;INFO&quot;&gt;
+        &lt;appender-ref ref=&quot;CONSOLE&quot;/&gt;
+        &lt;appender-ref ref=&quot;FILE&quot;/&gt;
+        &lt;appender-ref ref=&quot;LOGSTASH&quot;/&gt;
+    &lt;/root&gt;
+&lt;/configuration&gt;
+</code></pre></li><li><p>启动springboot应用，访问下有日志输出的接口，然后去Kibana中查看</p></li></ol><h2 id="在Kibana中查看日志"><a href="#在Kibana中查看日志" class="headerlink" title="在Kibana中查看日志"></a>在Kibana中查看日志</h2><h3 id="创建index-pattern"><a href="#创建index-pattern" class="headerlink" title="创建index  pattern"></a>创建index pattern</h3><p><img src="/d.png"></p><p><img src="/e.png"></p><p><img src="/f.png"></p><h3 id="查看收集日志"><a href="#查看收集日志" class="headerlink" title="查看收集日志"></a>查看收集日志</h3><p><img src="/g.png"></p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>搭建了ELK日志收集系统之后，我们如果要查看SpringBoot应用的日志信息，就不需要查看日志文件了，直接在Kibana中查看即可。</p></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2021/04/04/2021-04-05ELK%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F/" title="springboot整合ELK实现日志收集">https://github/zhuchong6.github.io/2021/04/04/2021-04-05ELK日志系统/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag"># 中间件</a> <a href="/tags/ElasticSearch/" rel="tag"># ElasticSearch</a> <a href="/tags/Docker/" rel="tag"># Docker</a> <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag"># 微服务</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2021/04/03/2021-04-04%E5%88%86%E5%B8%83%E5%BC%8F%E7%BB%84%E4%BB%B6-%E5%88%86%E5%B8%83%E5%BC%8FID/" rel="prev" title="分布式组件-分布式ID"><i class="fa fa-chevron-left"></i> 分布式组件-分布式ID</a></div><div class="post-nav-item"><a href="/2021/04/10/2021-04-10mysql%E6%8E%92%E5%BA%8F%E5%90%8Eunion%E9%A1%BA%E5%BA%8F%E9%94%99%E4%B9%B1/" rel="next" title="mysql排序后union顺序错乱🤪">mysql排序后union顺序错乱🤪 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SpringBoot%E5%BA%94%E7%94%A8%E6%95%B4%E5%90%88ELK%E5%AE%9E%E7%8E%B0%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86"><span class="nav-number">1.</span> <span class="nav-text">SpringBoot应用整合ELK实现日志收集</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ELK%E5%90%84%E4%B8%AA%E7%BB%84%E4%BB%B6%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">ELK各个组件的作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8Docker-Compose%E6%90%AD%E5%BB%BAELK%E7%8E%AF%E5%A2%83"><span class="nav-number">1.3.</span> <span class="nav-text">使用Docker Compose搭建ELK环境</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BDDocker%E9%95%9C%E5%83%8F"><span class="nav-number">1.3.1.</span> <span class="nav-text">下载Docker镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%90%AD%E5%BB%BAElasticsearch%E9%9B%86%E7%BE%A4"><span class="nav-number">1.3.2.</span> <span class="nav-text">搭建Elasticsearch集群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%90%AD%E5%BB%BAKibana"><span class="nav-number">1.3.3.</span> <span class="nav-text">搭建Kibana</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%90%AD%E5%BB%BALogstash"><span class="nav-number">1.3.4.</span> <span class="nav-text">搭建Logstash</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8SpringBoot%E5%BA%94%E7%94%A8%E4%B8%AD%E9%9B%86%E6%88%90Logstash"><span class="nav-number">1.4.</span> <span class="nav-text">在SpringBoot应用中集成Logstash</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8Kibana%E4%B8%AD%E6%9F%A5%E7%9C%8B%E6%97%A5%E5%BF%97"><span class="nav-number">1.5.</span> <span class="nav-text">在Kibana中查看日志</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAindex-pattern"><span class="nav-number">1.5.1.</span> <span class="nav-text">创建index pattern</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%94%B6%E9%9B%86%E6%97%A5%E5%BF%97"><span class="nav-number">1.5.2.</span> <span class="nav-text">查看收集日志</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.6.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">33</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">12</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">18</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2022</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>

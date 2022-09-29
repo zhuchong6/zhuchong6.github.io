@@ -1,0 +1,944 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="概述 Spring Security是一个安全框架，提供身份认证、授权和常见攻击的防护  那么如何定义安全呢？ 简单来说，就是你有没有进入系统的权限，以及能够访问什么样的资源的权限（包含页面按钮等）。 这些功能是每一个系统必须包含包含的，每个系统都必须重复这样一套代码。基于这样的背景，Spring抽象出一套通用的代码，在此基础上我们只需要定制化开发即可，这就诞生了Spring-Security。"><meta property="og:type" content="article"><meta property="og:title" content="Spring-Security认证"><meta property="og:url" content="https://github/zhuchong6.github.io/2022/02/18/2022-02-18spring-security/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="概述 Spring Security是一个安全框架，提供身份认证、授权和常见攻击的防护  那么如何定义安全呢？ 简单来说，就是你有没有进入系统的权限，以及能够访问什么样的资源的权限（包含页面按钮等）。 这些功能是每一个系统必须包含包含的，每个系统都必须重复这样一套代码。基于这样的背景，Spring抽象出一套通用的代码，在此基础上我们只需要定制化开发即可，这就诞生了Spring-Security。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://github/security-architecture.png"><meta property="og:image" content="https://github/login.png"><meta property="og:image" content="https://github/form_login.png"><meta property="og:image" content="https://github/process.png"><meta property="article:published_time" content="2022-02-18T01:26:35.000Z"><meta property="article:modified_time" content="2022-09-29T01:04:32.292Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="Java"><meta property="article:tag" content="微服务"><meta property="article:tag" content="Spring"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://github/security-architecture.png"><link rel="canonical" href="https://github/zhuchong6.github.io/2022/02/18/2022-02-18spring-security/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>Spring-Security认证 | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">18</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">33</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2022/02/18/2022-02-18spring-security/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">Spring-Security认证</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2022-02-18 09:26:35" itemprop="dateCreated datePublished" datetime="2022-02-18T09:26:35+08:00">2022-02-18</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2022-09-29 09:04:32" itemprop="dateModified" datetime="2022-09-29T09:04:32+08:00">2022-09-29</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><blockquote><p>Spring Security是一个安全框架，提供身份认证、授权和常见攻击的防护</p></blockquote><p>那么如何定义安全呢？</p><p>简单来说，就是你有没有进入系统的权限，以及能够访问什么样的资源的权限（包含页面按钮等）。</p><p>这些功能是每一个系统必须包含包含的，每个系统都必须重复这样一套代码。基于这样的背景，<strong>Spring</strong>抽象出一套通用的代码，在此基础上我们只需要定制化开发即可，这就诞生了Spring-Security。</p><span id="more"></span><h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p>我们先大概了解下Spring-Security的架构，从而对其有个大概的感知。</p><p><img src="/security-architecture.png" alt="spring-security架构图"></p><ul><li>从客户端发出的请求，首先经过servlet容器的FilterChain，进入一个个filter中</li><li>DelegatingFilterProxy是继承自Filter的一个类，用于将FilterChainProxy嵌入到webfilter中</li><li>请求到达FilterChainProxy之后，FilterChainProxy会根据请求的路径，将请求转发到不同的<strong>SpringSecurity定义的过滤器链</strong>上</li><li>请求到达Spring Security Chain上后，执行过滤器链中定义的Filter（<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-security-filters">spring默认过滤器种类</a>）</li></ul><p>以上，就是Spring-Security大体架构。</p><h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><ol><li><p>创建一个SpringBoot项目，添加以下依赖</p><pre><code class="xml">&lt;dependencies&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+    &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+    &lt;optional&gt;true&lt;/optional&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.security&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-security-test&lt;/artifactId&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+  &lt;/dependency&gt;
+&lt;/dependencies&gt;
+</code></pre></li><li><p>直接运行项目，可以看到控制台打印出密码：</p><pre><code class="java">2022-03-02 17:35:20.233  INFO 7930 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: fe636539-f71f-4408-a192-94047e6cf68c
+</code></pre></li><li><p>打开浏览器，输入地址<code>localhost:8080/private</code>，发现跳转到登录界面，用户名输入<code>user</code>,密码输入<code>上面控制台打印出的密码</code>，即可登录成功</p></li></ol><p>自此，一个简单的Spring-Security应用已经搭建好了。</p><h2 id="流程分析"><a href="#流程分析" class="headerlink" title="流程分析"></a>流程分析</h2><p>看到这，大家可能对认证的过程一脸懵逼。不要急，笔者这就带着大家一起分析整个认证过程。</p><p>首先，还是看图，以下是刚才登录流程的流程图：</p><p><img src="/login.png" alt="login"></p><ol><li>首先用户请求未经授权的资源</li><li><code>FilterSecurityInterceptor</code>判断是否授权过，如果未授权抛出<code>AccessDeniedException</code>异常</li><li>由于未授权，<code>ExceptionTranslationFilter</code>启动授权过程，并通过配置类<code>AuthenticationEntryPoint</code>发送重定到登录页</li><li>然后，浏览器将请求重定向到的登录页面</li></ol><p>这就是刚才重定向的流程，下面的就是登录认证的流程：</p><p><img src="/form_login.png" alt="form_login"></p><ol><li>当用户在登录页面提交之后，请求通过过滤器链来到<code>UsernamePasswordAuthenticationFilter</code>这个过滤器中，创建一个<code>UsernamePasswordAuthenticationToken</code>（简单当成一个存储用户名密码的对象，后面会详细分析），注意这个时候还没有认证</li><li>通过<code>AuthenticationManager</code>对象进行认证（也就是比对用户名密码）的操作</li><li>成功，执行一些操作</li><li>失败，执行另一些操作</li></ol><p>以上，就是认证的大致流程。自此，可能还是有些不太明白具体怎么操作的，接下来我们深入源码来仔细剖析。</p><h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>我们可以看到，认证的关键流程是在一个叫做<code>UsernamePasswordAuthenticationFilter</code>开始的，我们打开源码查看他的继承结构：</p><pre><code class="java">GenericFilterBean (org.springframework.web.filter)
+    AbstractAuthenticationProcessingFilter (org.springframework.security.web.authentication)
+        UsernamePasswordAuthenticationFilter (org.springframework.security.web.authentication)
+</code></pre><p>可以发现，这是一个典型的模版方法模式，抽象类定义了大部分流程，实现类实现自定义部分。因此，我们的观察重点来到<code>AbstractAuthenticationProcessingFilter</code>类，又由于它是一个Filter类，我们直接从<code>doFilter</code>方法开始:</p><pre><code class="java">//继承filter实现的doFilter方法
+public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+  throws IOException, ServletException &#123;
+  doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+&#125;
+//真正执行逻辑的方法
+private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+  throws IOException, ServletException &#123;
+  //判断当前请求是否会被该过滤器请求
+  if (!requiresAuthentication(request, response)) &#123;
+    chain.doFilter(request, response);
+    return;
+  &#125;
+  try &#123;
+    //认证逻辑，由其子类实现，即UsernamePasswordAuthenticationFilter.attemptAuthentication方法
+    Authentication authenticationResult = attemptAuthentication(request, response);
+    if (authenticationResult == null) &#123;
+      // return immediately as subclass has indicated that it hasn&#39;t completed
+      return;
+    &#125;
+    //认证成功，设置session策略
+    this.sessionStrategy.onAuthentication(authenticationResult, request, response);
+    // Authentication success
+    if (this.continueChainBeforeSuccessfulAuthentication) &#123;
+      chain.doFilter(request, response);
+    &#125;
+    //认证成功，保存一些状态
+    successfulAuthentication(request, response, chain, authenticationResult);
+  &#125;
+  catch (InternalAuthenticationServiceException failed) &#123;
+    this.logger.error(&quot;An internal error occurred while trying to authenticate the user.&quot;, failed);
+    unsuccessfulAuthentication(request, response, failed);
+  &#125;
+  catch (AuthenticationException ex) &#123;
+    // 认证失败，清除一些状态
+    unsuccessfulAuthentication(request, response, ex);
+  &#125;
+&#125;
+
+//判断当前请求是否会被该过滤器请求
+protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) &#123;
+  //注意这个参数，是他的实现类初始化的时候构造的，详见UsernamePasswordAuthenticationFilter构造方法
+  if (this.requiresAuthenticationRequestMatcher.matches(request)) &#123;
+    return true;
+  &#125;
+  if (this.logger.isTraceEnabled()) &#123;
+    this.logger
+      .trace(LogMessage.format(&quot;Did not match request to %s&quot;, this.requiresAuthenticationRequestMatcher));
+  &#125;
+  return false;
+&#125;
+</code></pre><p>UsernamePasswordAuthenticationFilter：</p><pre><code class="java">public class UsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter &#123;
+
+    public static final String SPRING_SECURITY_FORM_USERNAME_KEY = &quot;username&quot;;
+
+    public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = &quot;password&quot;;
+
+    private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher(&quot;/login&quot;,
+            &quot;POST&quot;);
+
+    private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
+
+    private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
+
+    private boolean postOnly = true;
+
+    public UsernamePasswordAuthenticationFilter() &#123;
+        super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
+    &#125;
+
+    public UsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) &#123;
+        super(DEFAULT_ANT_PATH_REQUEST_MATCHER, authenticationManager);
+    &#125;
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException &#123;
+    //只支持POST方法
+        if (this.postOnly &amp;&amp; !request.getMethod().equals(&quot;POST&quot;)) &#123;
+            throw new AuthenticationServiceException(&quot;Authentication method not supported: &quot; + request.getMethod());
+        &#125;
+    //获取用户名称
+        String username = obtainUsername(request);
+        username = (username != null) ? username : &quot;&quot;;
+        username = username.trim();
+    //获取密码
+        String password = obtainPassword(request);
+        password = (password != null) ? password : &quot;&quot;;
+    //创建一个Authentication，其中authenticated=false，代表未认证成功
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+        // Allow subclasses to set the &quot;details&quot; property
+        setDetails(request, authRequest);
+    //调用AuthenticationManager.authenticate方法进行认证
+        return this.getAuthenticationManager().authenticate(authRequest);
+    &#125;
+&#125;
+
+    @Nullable
+    protected String obtainPassword(HttpServletRequest request) &#123;
+        return request.getParameter(this.passwordParameter);
+    &#125;
+
+    @Nullable
+    protected String obtainUsername(HttpServletRequest request) &#123;
+        return request.getParameter(this.usernameParameter);
+    &#125;
+</code></pre><p>AuthenticaitonManager默认实现类ProviderManager：</p><pre><code class="java">public Authentication authenticate(Authentication authentication) throws AuthenticationException &#123;
+        Class&lt;? extends Authentication&gt; toTest = authentication.getClass();
+        AuthenticationException lastException = null;
+        AuthenticationException parentException = null;
+        Authentication result = null;
+        Authentication parentResult = null;
+        int currentPosition = 0;
+        int size = this.providers.size();
+        for (AuthenticationProvider provider : getProviders()) &#123;
+            if (!provider.supports(toTest)) &#123;
+                continue;
+            &#125;
+            if (logger.isTraceEnabled()) &#123;
+                logger.trace(LogMessage.format(&quot;Authenticating request with %s (%d/%d)&quot;,
+                        provider.getClass().getSimpleName(), ++currentPosition, size));
+            &#125;
+            try &#123;
+        //注意⚠️
+        //注意⚠️
+        //注意⚠️
+        //核心代码在这，通过遍历所有的AuthenticationProvider
+        //如果有一个认证成功，就跳出循环，否者继续循环，循环完毕没有成功，就抛出异常
+                result = provider.authenticate(authentication);
+                if (result != null) &#123;
+                    copyDetails(authentication, result);
+                    break;
+                &#125;
+            &#125;
+            catch (AccountStatusException | InternalAuthenticationServiceException ex) &#123;
+                prepareException(ex, authentication);
+                // SEC-546: Avoid polling additional providers if auth failure is due to
+                // invalid account status
+                throw ex;
+            &#125;
+            catch (AuthenticationException ex) &#123;
+                lastException = ex;
+            &#125;
+        &#125;
+        if (result == null &amp;&amp; this.parent != null) &#123;
+            // Allow the parent to try.
+            try &#123;
+                parentResult = this.parent.authenticate(authentication);
+                result = parentResult;
+            &#125;
+            catch (ProviderNotFoundException ex) &#123;
+                // ignore as we will throw below if no other exception occurred prior to
+                // calling parent and the parent
+                // may throw ProviderNotFound even though a provider in the child already
+                // handled the request
+            &#125;
+            catch (AuthenticationException ex) &#123;
+                parentException = ex;
+                lastException = ex;
+            &#125;
+        &#125;
+        if (result != null) &#123;
+            if (this.eraseCredentialsAfterAuthentication &amp;&amp; (result instanceof CredentialsContainer)) &#123;
+                // Authentication is complete. Remove credentials and other secret data
+                // from authentication
+                ((CredentialsContainer) result).eraseCredentials();
+            &#125;
+            // If the parent AuthenticationManager was attempted and successful then it
+            // will publish an AuthenticationSuccessEvent
+            // This check prevents a duplicate AuthenticationSuccessEvent if the parent
+            // AuthenticationManager already published it
+            if (parentResult == null) &#123;
+                this.eventPublisher.publishAuthenticationSuccess(result);
+            &#125;
+
+            return result;
+        &#125;
+
+        // Parent was null, or didn&#39;t authenticate (or throw an exception).
+        if (lastException == null) &#123;
+            lastException = new ProviderNotFoundException(this.messages.getMessage(&quot;ProviderManager.providerNotFound&quot;,
+                    new Object[] &#123; toTest.getName() &#125;, &quot;No AuthenticationProvider found for &#123;0&#125;&quot;));
+        &#125;
+        // If the parent AuthenticationManager was attempted and failed then it will
+        // publish an AbstractAuthenticationFailureEvent
+        // This check prevents a duplicate AbstractAuthenticationFailureEvent if the
+        // parent AuthenticationManager already published it
+        if (parentException == null) &#123;
+            prepareException(lastException, authentication);
+        &#125;
+        throw lastException;
+    &#125;
+</code></pre><p>关键问题来了，AuthenticationProvider是干嘛的？我们可以打个断点，发现他先走的AnonymousAuthenticationProvider这个，但是后来发现不支持，然后找他的父AuthenticaitonManager，里面默认走的DaoAuthenticationProvider，因此我们只需要看这个就好了。同样的，DaoAuthenticationProvider也是一个模版方法实践的案例，我们通过AbstractUserDetailsAuthenticationProvider可以找到执行流程：</p><pre><code class="java">//AbstractUserDetailsAuthenticationProvider类下面的方法
+public Authentication authenticate(Authentication authentication) throws AuthenticationException &#123;
+        Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
+                () -&gt; this.messages.getMessage(&quot;AbstractUserDetailsAuthenticationProvider.onlySupports&quot;,
+                        &quot;Only UsernamePasswordAuthenticationToken is supported&quot;));
+      //获取用户名，authentication目前未认证
+        String username = determineUsername(authentication);
+    //用户有无被缓存
+        boolean cacheWasUsed = true;
+        UserDetails user = this.userCache.getUserFromCache(username);
+        if (user == null) &#123;
+            cacheWasUsed = false;
+            try &#123;
+        //authentication目前未认证
+        //从子类实现取用户，user对象是从子类的取，一般是从数据库取，所以代表这个对象是实际用户存的
+                user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
+            &#125;
+            catch (UsernameNotFoundException ex) &#123;
+                this.logger.debug(&quot;Failed to find user &#39;&quot; + username + &quot;&#39;&quot;);
+                if (!this.hideUserNotFoundExceptions) &#123;
+                    throw ex;
+                &#125;
+                throw new BadCredentialsException(this.messages
+                        .getMessage(&quot;AbstractUserDetailsAuthenticationProvider.badCredentials&quot;, &quot;Bad credentials&quot;));
+            &#125;
+            Assert.notNull(user, &quot;retrieveUser returned null - a violation of the interface contract&quot;);
+        &#125;
+  //缓存直接走下面流程
+        try &#123;
+      //检查操作，暂时不理会
+            this.preAuthenticationChecks.check(user);
+      //关键点
+      //user是实际用户存的，authentication是通过前面请求参数封装的未认证
+      //这一步就是比对过程，还是在子类中实现
+            additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
+        &#125;
+        catch (AuthenticationException ex) &#123;
+            if (!cacheWasUsed) &#123;
+                throw ex;
+            &#125;
+            // There was a problem, so try again after checking
+            // we&#39;re using latest data (i.e. not from the cache)
+            cacheWasUsed = false;
+            user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
+            this.preAuthenticationChecks.check(user);
+            additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
+        &#125;
+        this.postAuthenticationChecks.check(user);
+        if (!cacheWasUsed) &#123;
+            this.userCache.putUserInCache(user);
+        &#125;
+        Object principalToReturn = user;
+        if (this.forcePrincipalAsString) &#123;
+            principalToReturn = user.getUsername();
+        &#125;
+        return createSuccessAuthentication(principalToReturn, authentication, user);
+    &#125;
+
+//子类DaoAuthenticationProvider的实现
+    protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
+            throws AuthenticationException &#123;
+        prepareTimingAttackProtection();
+        try &#123;
+      //通过UserDetailService取鱼用户名，并进行比对
+            UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+            if (loadedUser == null) &#123;
+                throw new InternalAuthenticationServiceException(
+                        &quot;UserDetailsService returned null, which is an interface contract violation&quot;);
+            &#125;
+            return loadedUser;
+        &#125;
+        catch (UsernameNotFoundException ex) &#123;
+            mitigateAgainstTimingAttack(authentication);
+            throw ex;
+        &#125;
+        catch (InternalAuthenticationServiceException ex) &#123;
+            throw ex;
+        &#125;
+        catch (Exception ex) &#123;
+            throw new InternalAuthenticationServiceException(ex.getMessage(), ex);
+        &#125;
+    &#125;
+//子类DaoAuthenticationProvider的实现
+//真实信息和参数中取的信息的比对过程，也就是认证过程
+    protected void additionalAuthenticationChecks(UserDetails userDetails,
+            UsernamePasswordAuthenticationToken authentication) throws AuthenticationException &#123;
+        if (authentication.getCredentials() == null) &#123;
+            this.logger.debug(&quot;Failed to authenticate since no credentials provided&quot;);
+            throw new BadCredentialsException(this.messages
+                    .getMessage(&quot;AbstractUserDetailsAuthenticationProvider.badCredentials&quot;, &quot;Bad credentials&quot;));
+        &#125;
+        String presentedPassword = authentication.getCredentials().toString();
+        if (!this.passwordEncoder.matches(presentedPassword, userDetails.getPassword())) &#123;
+            this.logger.debug(&quot;Failed to authenticate since password does not match stored value&quot;);
+            throw new BadCredentialsException(this.messages
+                    .getMessage(&quot;AbstractUserDetailsAuthenticationProvider.badCredentials&quot;, &quot;Bad credentials&quot;));
+        &#125;
+    &#125;
+</code></pre><p>以上，就是默认实现的整个认证流程，流程图可以参考下面的图：</p><p><img src="/process.png" alt="process"></p><h2 id="实现前后端分离的认证过程"><a href="#实现前后端分离的认证过程" class="headerlink" title="实现前后端分离的认证过程"></a>实现前后端分离的认证过程</h2><p>目前绝大多数的项目都是前后端分离的项目，而Spring-Security默认实现的是表单登录，所以需要对其进行一些改造来满足我们的需求。</p><p><strong>注意，我们暂时还是使用form表单的参数、url，只是改为Ajax提交</strong></p><ol><li><p>按照上面的流程图一步步替换，首先创建一个自己的Filter，由于使用的还是表单登录的filter，直接继承<code>UsernamePasswordAuthenticationFilter</code>即可</p><pre><code class="java">@Slf4j
+public class MyLoginAuthenticationFilter extends UsernamePasswordAuthenticationFilter &#123;
+</code></pre><pre><code>public MyLoginAuthenticationFilter() &#123;
+    //直接使用父类的配置
+    super();
+&#125;
+
+@Override
+public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException &#123;
+    //只支持post提交
+    if (!request.getMethod().equals(HttpMethod.POST.name())) &#123;
+        throw new AuthenticationServiceException(&quot;Authentication method not supported: &quot; + request.getMethod());
+    &#125;
+
+    UsernamePasswordAuthenticationToken unAuthenticaiton = null;
+    try &#123;
+        Map&lt;String, String&gt; map = getStringStringMap(request);
+        String username = map.get(&quot;username&quot;).trim();
+        String password = map.get(&quot;password&quot;).trim();
+        //创建一个未认证的Authentication
+        unAuthenticaiton = new UsernamePasswordAuthenticationToken(username, password);
+    &#125;catch (Exception e)&#123;
+        log.error(&quot;解析错误:&#123;&#125;&quot;, e.getMessage());
+    &#125;
+    return getAuthenticationManager().authenticate(unAuthenticaiton);
+&#125;
+
+/**
+ * 将request中的用户名、密码提取出来封装到map中
+ * @param request
+ * @return
+ * @throws IOException
+ */
+private Map&lt;String, String&gt; getStringStringMap(HttpServletRequest request) throws IOException &#123;
+    BufferedReader reader = request.getReader();
+    StringBuilder builder = new StringBuilder();
+    String line = reader.readLine();
+    while (line != null) &#123;
+        builder.append(line);
+        line = reader.readLine();
+    &#125;
+    reader.close();
+
+    String reqBody = builder.toString();
+            //JsonUtil是自己写的工具类，将string转成对象，可以直接用其他工具实现
+    JsonParser parse = JsonUtil.parse(reqBody);
+    Map&lt;String, String&gt; map = parse.readValueAs(Map.class);
+    return map;
+&#125;
+</code></pre><p>}</p></li></ol><pre><code>2. 替换`AuthenticaitonManager`，但是由于其默认实现类`ProviderManager`逻辑是通用的，所以我们这个场景没有必要替换
+
+3. 替换`AuthenticaitonProvider`，其中`UserServiceImpl`是我们自己的实现类
+
+```java
+@Component
+public class MyAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider &#123;
+
+    @Autowired
+    public UserServiceImpl userService;
+
+      //对密码进行加密的类，Security中密码对比就是加密后比对是否一致
+    @Autowired
+    @Lazy
+    public BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    /**
+     * 执行密码校验
+     * @param userDetails
+     * @param authentication
+     * @throws AuthenticationException
+     */
+    @Override
+    protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException &#123;
+        if (authentication.getCredentials() == null) &#123;
+            this.logger.debug(&quot;Failed to authenticate since no credentials provided&quot;);
+            throw new BadCredentialsException(this.messages
+                    .getMessage(&quot;AbstractUserDetailsAuthenticationProvider.badCredentials&quot;, &quot;Bad credentials&quot;));
+        &#125;
+        String presentedPassword = authentication.getCredentials().toString();
+        if (!this.bCryptPasswordEncoder.matches(presentedPassword, userDetails.getPassword())) &#123;
+            this.logger.debug(&quot;Failed to authenticate since password does not match stored value&quot;);
+            throw new BadCredentialsException(this.messages
+                    .getMessage(&quot;AbstractUserDetailsAuthenticationProvider.badCredentials&quot;, &quot;Bad credentials&quot;));
+        &#125;
+    &#125;
+
+
+    /**
+     * 获取密码参数,这个地方获取的就是可信任的
+     * 一般从数据库或者其他服务获取
+     * @param username
+     * @param authentication
+     * @return
+     * @throws AuthenticationException
+     */
+    @Override
+    protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException &#123;
+        UserDetails loadedUser = userService.loadUserByUsername(username);
+        if (loadedUser == null) &#123;
+            throw new InternalAuthenticationServiceException(
+                    &quot;UserDetailsService returned null, which is an interface contract violation&quot;);
+        &#125;
+        return loadedUser;
+    &#125;
+
+&#125;
+</code></pre><ol start="4"><li><p>实现自己的UserService类,关键点在于实现<code>UserDetailsService</code>接口。通常，这里就是从数据库或者服务中获取，这里简单演示下流程。</p><pre><code class="java">public interface UserService &#123;
+&#125;
+</code></pre><p>@Service(value &#x3D; “userService”)<br>public class UserServiceImpl implements UserService, UserDetailsService {</p><pre><code>@Override
+public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException &#123;
+
+    if (!&quot;zhuchong&quot;.equals(username)) &#123;
+        throw new UsernameNotFoundException(&quot;找不到用户&quot;);
+    &#125;
+            //添加角色
+    List&lt;GrantedAuthority&gt; grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(&quot;ADMIN,USER&quot;);
+    String encode = new BCryptPasswordEncoder().encode(&quot;123&quot;);
+  //这个是security默认提供的，一般我们需要实现自己的User类，实现UserDetails接口即可
+  //这里偷懒直接用现成的
+    return new User(&quot;zhuchong&quot;, encode, grantedAuthorities);
+&#125;
+</code></pre><p>}</p></li></ol><pre><code>5. 自此，我们所有流程基本修改完毕，但是还有最重要的一个就是把这些修改过的类配置进security中
+
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter &#123;
+    @Autowired
+    private MyAuthenticationProvider myAuthenticationProvider;
+
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() &#123;
+        return new BCryptPasswordEncoder();
+    &#125;
+
+    @Bean
+    public MyLoginAuthenticationFilter myLoginAuthenticationFilter() throws Exception &#123;
+        MyLoginAuthenticationFilter filter = new MyLoginAuthenticationFilter();
+
+        //对这个filter设置AuthenticationManager，取默认的
+        filter.setAuthenticationManager(authenticationManagerBean());
+        //设置成功的处理器，由于要返回json，所以进行一些处理
+        filter.setAuthenticationSuccessHandler((request, response, authentication) -&gt; &#123;
+            //登录成功时返回给前端的数据
+            Map result = new HashMap();
+            result.put(&quot;success&quot;, &quot;登录成功&quot;);
+            response.setContentType(&quot;application/json;charset=utf-8&quot;);
+            response.getWriter().write(JsonUtil.jsonToString(result));
+        &#125;);
+        //设置失败的处理器，由于要返回json，所以进行一些处理
+        filter.setAuthenticationFailureHandler((request, response, exception) -&gt; &#123;
+            Map result = new HashMap();
+
+            if (exception instanceof UsernameNotFoundException) &#123;
+                result.put(&quot;fail&quot;, exception.getMessage());
+            &#125; else if (exception instanceof BadCredentialsException) &#123;
+                result.put(&quot;fail&quot;, &quot;密码错误&quot; + exception.getMessage());
+            &#125; else &#123;
+                result.put(&quot;fail&quot;, &quot;其他异常&quot;);
+            &#125;
+            response.setContentType(&quot;application/json;charset=utf-8&quot;);
+            response.getWriter().write(JsonUtil.jsonToString(result));
+        &#125;);
+        return filter;
+    &#125;
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception &#123;
+        //关闭跨域和csrf防护
+        http.cors().and().csrf().disable();
+        //对请求url进行防护
+        http.authorizeRequests()
+                .antMatchers(&quot;/index&quot;).hasRole(&quot;USER&quot;)
+                .antMatchers(&quot;hello&quot;).hasRole(&quot;admin&quot;)
+
+                .and()
+                .formLogin()
+                .permitAll()
+
+                .and()
+                .logout()
+                .permitAll()
+                .logoutSuccessHandler((request, response, authentication) -&gt; &#123;
+                    //登出成功时返回给前端的数据
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;注销成功&quot;);
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;)
+                .deleteCookies(&quot;JSESSIONID&quot;)
+
+                .and()
+                .exceptionHandling()
+                .accessDeniedHandler((request, response, exception) -&gt; &#123;
+                    //访问拒绝时返回给前端的数据
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;无权访问，need Authorities!!&quot;);
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;)
+                .authenticationEntryPoint((request, response, exception) -&gt; &#123;
+                    //访问有权限url时进行拦截
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;需要登录!!&quot;);
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;)
+                .and()
+                .sessionManagement()
+                .maximumSessions(1)     //最多只能一个用户登录一个账号
+                .expiredSessionStrategy(event -&gt; &#123;
+                    //session策略的返回
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;您的账号在异地登录，建议修改密码!!&quot;);
+                    HttpServletResponse response = event.getResponse();
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;);
+        //把filter添加到UsernamePasswordAuthenticationFilter这个过滤器位置
+        http.addFilterAt(myLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        //把自定义的AuthenticationProvider设置进去
+        http.authenticationProvider(myAuthenticationProvider);
+    &#125;
+&#125;
+</code></pre><p>自此，已经完成改造。可以在postman上测试一下，基本上入参返回值都能使用json来展示。</p><h2 id="自定义短信登录"><a href="#自定义短信登录" class="headerlink" title="自定义短信登录"></a>自定义短信登录</h2><p>我们可以模仿<code>UsernamePasswordAuthenticationFilter</code>来实现，短信的Filter</p><ol><li><p>创建一个用于实现短信功能的Filter，<code>SmsLoginAuthenticationFilter</code></p><pre><code class="java">public class SmsLoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter &#123;
+
+    Map&lt;String,String&gt; map= new HashMap&lt;&gt;();
+    //定义短信接口的入参
+    public static final String SPRING_SECURITY_FORM_USERNAME_KEY = &quot;userPhone&quot;;
+
+    public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = &quot;code&quot;;
+
+    private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
+
+    private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
+
+    //定义短信接口的url和方法类型
+    private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher(&quot;/smsLogin&quot;,
+            &quot;POST&quot;);
+
+    public SmsLoginAuthenticationFilter() &#123;
+        super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
+    &#125;
+</code></pre><pre><code>public SmsLoginAuthenticationFilter(AuthenticationManager authenticationManager) &#123;
+    super(DEFAULT_ANT_PATH_REQUEST_MATCHER, authenticationManager);
+&#125;
+
+@Override
+public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException &#123;
+    //只支持post提交
+    if (!request.getMethod().equals(HttpMethod.POST.name())) &#123;
+        throw new AuthenticationServiceException(&quot;Authentication method not supported: &quot; + request.getMethod());
+    &#125;
+    //取出reqest的手机号
+    String username = obtainUsername(request);
+    username = (username != null) ? username : &quot;&quot;;
+    username = username.trim();
+    //取出request的验证码
+    String password = obtainPassword(request);
+    password = (password != null) ? password : &quot;&quot;;
+    //创建一个自定义的Authentication对象
+    SmsAuthenticationToken smsAuthenticationToken = new SmsAuthenticationToken(username, password);
+    //把request的一些参数绑定到smsAuthenticationToken对象中，具体可以断点查看
+    setDetails(request, smsAuthenticationToken);
+    //调用AuthenticationManager的authenticate方法
+    return this.getAuthenticationManager().authenticate(smsAuthenticationToken);
+&#125;
+
+protected void setDetails(HttpServletRequest request, SmsAuthenticationToken authRequest) &#123;
+    authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+&#125;
+
+@Nullable
+protected String obtainPassword(HttpServletRequest request) throws IOException &#123;
+    return map.get(passwordParameter);
+&#125;
+
+@Nullable
+protected String obtainUsername(HttpServletRequest request) throws IOException &#123;
+    getStringStringMap(request);
+    return map.get(usernameParameter);
+&#125;
+
+
+
+/**
+ * 将request中的用户名、密码提取出来封装到map中
+ * @param request
+ * @return
+ * @throws IOException
+ */
+private Map&lt;String, String&gt; getStringStringMap(HttpServletRequest request) throws IOException &#123;
+    BufferedReader reader = request.getReader();
+    StringBuilder builder = new StringBuilder();
+    String line = reader.readLine();
+    while (line != null) &#123;
+        builder.append(line);
+        line = reader.readLine();
+    &#125;
+    reader.close();
+
+    String reqBody = builder.toString();
+
+    JsonParser parse = JsonUtil.parse(reqBody);
+    map = parse.readValueAs(Map.class);
+    return map;
+&#125;
+</code></pre><p>}</p></li></ol><pre><code>2. 自定义一个`Authentication`类，名字是`SmsAuthenticationToken`，用于自定义的短信信息,这个基本照抄`UsernamePasswordAuthenticationToken`
+
+```java
+public class SmsAuthenticationToken extends AbstractAuthenticationToken &#123;
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
+    private final Object principal;
+
+    private Object credentials;
+
+    public SmsAuthenticationToken(Object principal, Object credentials) &#123;
+        super(null);
+        this.principal = principal;
+        this.credentials = credentials;
+    &#125;
+
+    public SmsAuthenticationToken(Collection&lt;? extends GrantedAuthority&gt; authorities, Object principal, Object credentials) &#123;
+        super(authorities);
+        this.principal = principal;
+        this.credentials = credentials;
+        super.setAuthenticated(true);
+    &#125;
+
+    @Override
+    public Object getCredentials() &#123;
+        return this.credentials;
+    &#125;
+
+    @Override
+    public Object getPrincipal() &#123;
+        return this.principal;
+    &#125;
+&#125;
+</code></pre><ol start="3"><li><p>第1步中调用AuthenticationManager的authenticate方法，由于AuthenticationManager实现类ProviderManager比较通用，可以不用重新实现</p></li><li><p>创建一个<code>AuthenticationProvider</code>的实现类<code>SmsAuthenticationProvider</code>，用于实现具体查找可信任的验证码信息</p><pre><code class="java">@Component
+public class SmsAuthenticationProvider implements AuthenticationProvider &#123;
+    @Autowired
+    private SmsServiceImpl smsService;
+
+    @Override
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException &#123;
+        SmsAuthenticationToken smsAuthenticationToken = (SmsAuthenticationToken) authentication;
+        //请求参数获取的
+        String unAuthenticationCode = authentication.getCredentials().toString();
+        //从后台缓存获取的
+        String authenticationCode = smsService.getCode(smsAuthenticationToken.getPrincipal().toString());
+        if (authenticationCode == null) &#123;
+            throw new InternalAuthenticationServiceException(
+                    &quot;UserDetailsService returned null, which is an interface contract violation&quot;);
+        &#125;
+        if (!unAuthenticationCode.equals(authenticationCode)) &#123;
+            throw new BadCredentialsException(&quot;AbstractUserDetailsAuthenticationProvider.badCredentials&quot;);
+        &#125;
+        //验证通过，从数据库取user，填充到userDetails中
+        UserDetails user = smsService.loadUserByUsername(smsAuthenticationToken.getPrincipal().toString());
+        return createSuccessAuthentication(authentication, user);
+    &#125;
+
+    private Authentication createSuccessAuthentication(Authentication authentication, UserDetails smsDetail) &#123;
+        //主要拼一个
+        SmsAuthenticationToken authenticationToken = new SmsAuthenticationToken(smsDetail.getAuthorities(),
+                smsDetail.getUsername(), smsDetail.getPassword());
+        authenticationToken.setDetails(authentication.getDetails());
+        return authenticationToken;
+    &#125;
+
+    @Override
+    public boolean supports(Class&lt;?&gt; authentication) &#123;
+        return (SmsAuthenticationToken.class.isAssignableFrom(authentication));
+    &#125;
+
+&#125;
+</code></pre></li><li><p>由于这个是短信验证功能，和表单提交的有点不一样，因此User对象得定制，所以新增一个SmsDetail类.这个类实现UserDetail接口</p></li></ol><pre><code class="java">@Data
+public class SmsDetail implements UserDetails &#123;
+    private static final Log logger = LogFactory.getLog(User.class);
+
+    private String password;
+
+    private String username;
+
+    private Set&lt;GrantedAuthority&gt; authorities;
+
+    private boolean accountNonExpired;
+
+    private boolean accountNonLocked;
+
+    private boolean credentialsNonExpired;
+
+    private boolean enabled;
+
+    /**
+     * 手机号
+     */
+    private String phone;
+    /**
+     * 验证码
+     */
+    private String code;
+&#125;
+</code></pre><ol start="6"><li><p>接下来就是熟悉的controller层和service层</p><pre><code class="java">@RestController
+public class SmsLoginController &#123;
+
+    @PostMapping(&quot;/verityCode&quot;)
+    @ResponseBody
+    Result login(@RequestBody Map&lt;String, String&gt; map) &#123;
+        String username = map.get(&quot;userPhone&quot;);
+        //如果用户存在，发送验证码
+        Boolean checkUserExist = true;
+        if(checkUserExist)&#123;
+            //假装是一个随机的字符串
+            String code = &quot;66666&quot;;
+            CacheUtil.put(&quot;sms&quot;+username,code);
+            return Result.ok(code);
+        &#125;
+        return Result.ok();
+    &#125;
+
+&#125;
+</code></pre><p>@Service(value &#x3D; “smsService”)<br>public class SmsServiceImpl implements UserService, UserDetailsService {</p><pre><code>   public String getCode(String phone) throws UsernameNotFoundException &#123;
+       //这里就是通过phone去缓存中取数据
+       String key = &quot;sms&quot;+phone;
+       String code = CacheUtil.get(key);
+       if(code == null)&#123;
+           throw new UsernameNotFoundException(&quot;验证码不存在&quot;);
+       &#125;
+       return code;
+   &#125;
+
+   @Override
+   public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException &#123;
+       //通过手机号查找用户
+       if (!&quot;131&quot;.equals(phone)) &#123;
+           throw new UsernameNotFoundException(&quot;找不到用户&quot;);
+       &#125;
+
+       List&lt;GrantedAuthority&gt; grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(&quot;ADMIN,USER&quot;);
+       String encode = new BCryptPasswordEncoder().encode(&quot;123&quot;);
+       return new User(&quot;zhuchong&quot;, encode, grantedAuthorities);
+   &#125;
+</code></pre><p>}</p><pre><code>
+</code></pre></li><li><p>添加配置，将我们刚才的自定义的类设置进去</p><pre><code class="java">@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter &#123;
+    @Autowired
+    private MyAuthenticationProvider myAuthenticationProvider;
+
+    @Autowired
+    private SmsAuthenticationProvider smsAuthenticationProvider;
+</code></pre><pre><code>   @Bean
+   public BCryptPasswordEncoder bCryptPasswordEncoder() &#123;
+       return new BCryptPasswordEncoder();
+   &#125;
+
+   @Bean
+   public SmsLoginAuthenticationFilter smsLoginAuthenticationFilter() throws Exception&#123;
+       SmsLoginAuthenticationFilter filter = new SmsLoginAuthenticationFilter();
+
+       //对这个filter设置AuthenticationManager，取默认的ProviderManager
+       filter.setAuthenticationManager(authenticationManagerBean());
+       //设置成功的处理器，由于要返回json，所以进行一些处理
+       filter.setAuthenticationSuccessHandler((request, response, authentication) -&gt; &#123;
+           //登录成功时返回给前端的数据
+           Map result = new HashMap();
+           result.put(&quot;success&quot;, &quot;sms登录成功&quot;);
+           response.setContentType(&quot;application/json;charset=utf-8&quot;);
+           response.getWriter().write(JsonUtil.jsonToString(result));
+       &#125;);
+       //设置失败的处理器，由于要返回json，所以进行一些处理
+       filter.setAuthenticationFailureHandler((request, response, exception) -&gt; &#123;
+           Map result = new HashMap();
+
+           if (exception instanceof UsernameNotFoundException) &#123;
+               result.put(&quot;fail&quot;, exception.getMessage());
+           &#125; else if (exception instanceof BadCredentialsException) &#123;
+               result.put(&quot;fail&quot;, &quot;sms密码错误&quot; + exception.getMessage());
+           &#125; else &#123;
+               result.put(&quot;fail&quot;, &quot;sms其他异常&quot;);
+           &#125;
+           response.setContentType(&quot;application/json;charset=utf-8&quot;);
+           response.getWriter().write(JsonUtil.jsonToString(result));
+       &#125;);
+
+       return filter;
+   &#125;
+
+   @Bean
+   public MyLoginAuthenticationFilter myLoginAuthenticationFilter() throws Exception &#123;
+       MyLoginAuthenticationFilter filter = new MyLoginAuthenticationFilter();
+
+       //对这个filter设置AuthenticationManager，取默认的
+       filter.setAuthenticationManager(authenticationManagerBean());
+       //设置成功的处理器，由于要返回json，所以进行一些处理
+       filter.setAuthenticationSuccessHandler((request, response, authentication) -&gt; &#123;
+           //登录成功时返回给前端的数据
+           Map result = new HashMap();
+           result.put(&quot;success&quot;, &quot;登录成功&quot;);
+           response.setContentType(&quot;application/json;charset=utf-8&quot;);
+           response.getWriter().write(JsonUtil.jsonToString(result));
+       &#125;);
+       //设置失败的处理器，由于要返回json，所以进行一些处理
+       filter.setAuthenticationFailureHandler((request, response, exception) -&gt; &#123;
+           Map result = new HashMap();
+
+           if (exception instanceof UsernameNotFoundException) &#123;
+               result.put(&quot;fail&quot;, exception.getMessage());
+           &#125; else if (exception instanceof BadCredentialsException) &#123;
+               result.put(&quot;fail&quot;, &quot;密码错误&quot; + exception.getMessage());
+           &#125; else &#123;
+               result.put(&quot;fail&quot;, &quot;其他异常&quot;);
+           &#125;
+           response.setContentType(&quot;application/json;charset=utf-8&quot;);
+           response.getWriter().write(JsonUtil.jsonToString(result));
+       &#125;);
+       return filter;
+   &#125;
+
+   @Override
+   protected void configure(HttpSecurity http) throws Exception &#123;
+       //关闭跨域和csrf防护
+       http.cors().and().csrf().disable();
+       //对请求url进行防护
+       http.authorizeRequests()
+               .antMatchers(&quot;/index&quot;).hasRole(&quot;USER&quot;)
+               .antMatchers(&quot;hello&quot;).hasRole(&quot;admin&quot;)
+               .and()
+               .authorizeRequests()
+               //放行这些路径
+               .antMatchers(&quot;/smsLogin&quot;,&quot;verityCode&quot;,&quot;/login&quot;)
+               .permitAll()
+
+               .and()
+               .formLogin()
+               .permitAll()
+
+               .and()
+               .logout()
+               .permitAll()
+               .logoutSuccessHandler((request, response, authentication) -&gt; &#123;
+                   //登出成功时返回给前端的数据
+                   Map result = new HashMap();
+                   result.put(&quot;success&quot;, &quot;注销成功&quot;);
+                   response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                   response.getWriter().write(JsonUtil.jsonToString(result));
+               &#125;)
+               .deleteCookies(&quot;JSESSIONID&quot;)
+
+               .and()
+               .exceptionHandling()
+               .accessDeniedHandler((request, response, exception) -&gt; &#123;
+                   //访问拒绝时返回给前端的数据
+                   Map result = new HashMap();
+                   result.put(&quot;success&quot;, &quot;无权访问，need Authorities!!&quot;);
+                   response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                   response.getWriter().write(JsonUtil.jsonToString(result));
+               &#125;)
+               .authenticationEntryPoint((request, response, exception) -&gt; &#123;
+                   //访问有权限url时进行拦截
+                   Map result = new HashMap();
+                   result.put(&quot;success&quot;, &quot;需要登录!!&quot;);
+                   response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                   response.getWriter().write(JsonUtil.jsonToString(result));
+               &#125;)
+               .and()
+               .sessionManagement()
+               .maximumSessions(1)     //最多只能一个用户登录一个账号
+               .expiredSessionStrategy(event -&gt; &#123;
+                   //session策略的返回
+                   Map result = new HashMap();
+                   result.put(&quot;success&quot;, &quot;您的账号在异地登录，建议修改密码!!&quot;);
+                   HttpServletResponse response = event.getResponse();
+                   response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                   response.getWriter().write(JsonUtil.jsonToString(result));
+               &#125;);
+       //把filter添加到UsernamePasswordAuthenticationFilter这个过滤器位置
+       http.addFilterAt(myLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+               .addFilterAfter(smsLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+       //把自定义的AuthenticationProvider设置进去
+       http.authenticationProvider(myAuthenticationProvider)
+               .authenticationProvider(smsAuthenticationProvider);
+   &#125;
+</code></pre><pre><code>
+</code></pre></li><li><p>ok完成，启动应用进行验证。首先，先访问<code>/verityCode</code>接口获取验证码，然后在访问<code>/smsLogin接口</code>进行短信功能的认证过程</p></li></ol><p>自此，我们认证过程就告一段落。限于文笔，笔者讲述的可能不是很清晰，大家配合断点源码食用更佳。</p><p>我会把项目上传到github上，以下是链接：<a target="_blank" rel="noopener" href="https://github.com/zhuchong6/spring-all">spring-security</a></p><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-security/reference/servlet/architecture.html">spring官方文档</a></p></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2022/02/18/2022-02-18spring-security/" title="Spring-Security认证">https://github/zhuchong6.github.io/2022/02/18/2022-02-18spring-security/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/Java/" rel="tag"># Java</a> <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag"># 微服务</a> <a href="/tags/Spring/" rel="tag"># Spring</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2022/01/28/2022-01-28go%E5%AD%A6%E4%B9%A0%E5%88%9D%E6%8E%A2/" rel="prev" title="golang入门"><i class="fa fa-chevron-left"></i> golang入门</a></div><div class="post-nav-item"><a href="/2022/02/18/2022-02-18Java%E5%9B%9B%E7%A7%8D%E5%BC%95%E7%94%A8/" rel="next" title="Java引用类型">Java引用类型 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84"><span class="nav-number">1.1.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.2.</span> <span class="nav-text">实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90"><span class="nav-number">1.3.</span> <span class="nav-text">流程分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">1.4.</span> <span class="nav-text">源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E5%89%8D%E5%90%8E%E7%AB%AF%E5%88%86%E7%A6%BB%E7%9A%84%E8%AE%A4%E8%AF%81%E8%BF%87%E7%A8%8B"><span class="nav-number">1.5.</span> <span class="nav-text">实现前后端分离的认证过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9F%AD%E4%BF%A1%E7%99%BB%E5%BD%95"><span class="nav-number">1.6.</span> <span class="nav-text">自定义短信登录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">1.7.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">33</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">12</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">18</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2022</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>
