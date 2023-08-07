@@ -1,0 +1,346 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="并发编程基础线程为什么使用多线程？只有一个目的就是更好的利用多核cpu的资源。多线程一定快吗？不一定，多线程上下文切换需要花费时间，如果执行的任务比较简单，多线程花的时候可能比串行执行还要慢。"><meta property="og:type" content="article"><meta property="og:title" content="java并发编程（一）-线程"><meta property="og:url" content="https://github/zhuchong6.github.io/2021/01/07/2021-01-07java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="并发编程基础线程为什么使用多线程？只有一个目的就是更好的利用多核cpu的资源。多线程一定快吗？不一定，多线程上下文切换需要花费时间，如果执行的任务比较简单，多线程花的时候可能比串行执行还要慢。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://github/images/thread_state.png"><meta property="article:published_time" content="2021-01-07T11:04:01.000Z"><meta property="article:modified_time" content="2023-08-07T00:18:37.946Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="Java"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://github/images/thread_state.png"><link rel="canonical" href="https://github/zhuchong6.github.io/2021/01/07/2021-01-07java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>java并发编程（一）-线程 | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">17</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2021/01/07/2021-01-07java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">java并发编程（一）-线程</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2021-01-07 19:04:01" itemprop="dateCreated datePublished" datetime="2021-01-07T19:04:01+08:00">2021-01-07</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2023-08-07 08:18:37" itemprop="dateModified" datetime="2023-08-07T08:18:37+08:00">2023-08-07</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="并发编程基础"><a href="#并发编程基础" class="headerlink" title="并发编程基础"></a>并发编程基础</h1><h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><p>为什么使用多线程？只有一个目的就是更好的利用多核cpu的资源。多线程一定快吗？不一定，多线程上下文切换需要花费时间，如果执行的任务比较简单，多线程花的时候可能比串行执行还要慢。</p><span id="more"></span><h3 id="线程的创建"><a href="#线程的创建" class="headerlink" title="线程的创建"></a>线程的创建</h3><ol><li><p>继承<code>Thread</code>类</p><pre><code class="java">public class Demo4 &#123;
+    public static void main(String[] args) &#123;
+        new MyTread().start();
+    &#125;
+&#125;
+class MyTread extends Thread&#123;
+    @Override
+    public void run() &#123;
+        System.out.println(&quot;thread:&quot;+Thread.currentThread().getName());
+    &#125;
+&#125;
+</code></pre></li><li><p>实现<code>Runnable</code>接口</p><pre><code class="java">new Thread(new Runnable() &#123;
+    @Override
+    public void run() &#123;
+        System.out.println(&quot;实现Runnable接口&quot;);
+    &#125;
+&#125;).start();
+</code></pre></li><li><p>实现<code>Callable</code>接口</p><pre><code class="java">FutureTask&lt;String&gt; stringFutureTask = new FutureTask&lt;&gt;(new Callable&lt;String&gt;() &#123;
+    @Override
+    public String call() throws Exception &#123;
+        return &quot;call接口&quot;;
+    &#125;
+&#125;);
+new Thread(stringFutureTask).start();
+String s = null;
+try &#123;
+    s = stringFutureTask.get();
+&#125; catch (InterruptedException e) &#123;
+    e.printStackTrace();
+&#125; catch (ExecutionException e) &#123;
+    e.printStackTrace();
+&#125;
+System.out.println(s);
+</code></pre></li></ol><h3 id="线程状态"><a href="#线程状态" class="headerlink" title="线程状态"></a>线程状态</h3><p>在Java中，线程状态在Thread类中的枚举中：</p><pre><code class="java">public enum State &#123;
+  //新建状态，但是没有调用start()方法
+  NEW,
+  //运行状态，包括正在运行中的，以及等待分配cpu的线程
+  RUNNABLE,
+  //阻塞状态，代表正在等待获取锁首次进入synchronized代码块或者方法
+  //或者重入的线程
+  BLOCKED,
+  //调用以下不带时间参数的方法，会使线程进入waiting状态
+  //Object.wait with no timeout
+  //Thread.join with no timeout
+  //LockSupport.park
+  WAITING,
+  //调用以下带时间参数的方法，会使线程进入waiting状态
+  //Thread.sleep
+  //Object.wait with timeout
+  //Thread.join with timeout
+  //LockSupport.parkNanos
+  //LockSupport.parkUntil
+  TIMED_WAITING,
+  //完成线程要执行的任务
+  TERMINATED;
+&#125;
+</code></pre><p><img src="/images/thread_state.png" alt="状态图"></p><p>上面是，线程状态流转图。</p><h4 id="演示"><a href="#演示" class="headerlink" title="演示"></a>演示</h4><pre><code class="java">/**
+ * 线程状态演示
+ * @author zhuchong
+ */
+@Slf4j(topic = &quot;test&quot;)
+public class ThreadStateTest &#123;
+
+    public static void main(String[] args) &#123;
+
+        Thread t1 = new Thread(&quot;t1&quot;) &#123;
+            @Override
+            public void run() &#123;
+                log.debug(&quot;running&quot;);
+            &#125;
+        &#125;;
+
+        Thread t2 = new Thread(&quot;t2&quot;) &#123;
+            @Override
+            public void run() &#123;
+                while (true)&#123;
+
+                &#125;
+            &#125;
+        &#125;;
+        t2.start();
+
+        Thread t3 = new Thread(&quot;t3&quot;) &#123;
+            @Override
+            public void run() &#123;
+                log.debug(&quot;running&quot;);
+            &#125;
+        &#125;;
+        t3.start();
+
+        Thread t4 = new Thread(&quot;t4&quot;) &#123;
+            @Override
+            public void run() &#123;
+                synchronized (ThreadStateTest.class)&#123;
+                    try &#123;
+                        Thread.sleep(10000000);
+                    &#125;catch (InterruptedException e)&#123;
+                        e.printStackTrace();
+                    &#125;
+                &#125;
+            &#125;
+        &#125;;
+        t4.start();
+
+
+        Thread t5 = new Thread(&quot;t5&quot;) &#123;
+            @Override
+            public void run() &#123;
+                try &#123;
+                    t2.join();
+                &#125; catch (InterruptedException e) &#123;
+                    e.printStackTrace();
+                &#125;
+            &#125;
+        &#125;;
+        t5.start();
+
+
+        Thread t6 = new Thread(&quot;t6&quot;) &#123;
+            @Override
+            public void run() &#123;
+                synchronized (ThreadStateTest.class)&#123;
+                    try &#123;
+                        Thread.sleep(10000000);
+                    &#125;catch (InterruptedException e)&#123;
+                        e.printStackTrace();
+                    &#125;
+                &#125;
+            &#125;
+        &#125;;
+        t6.start();
+
+        try &#123;
+            Thread.sleep(500);
+        &#125; catch (InterruptedException e) &#123;
+            e.printStackTrace();
+        &#125;
+
+        log.debug(&quot;t1 state &#123;&#125;&quot;, t1.getState());
+        log.debug(&quot;t2 state &#123;&#125;&quot;, t2.getState());
+        log.debug(&quot;t3 state &#123;&#125;&quot;, t3.getState());
+        log.debug(&quot;t4 state &#123;&#125;&quot;, t4.getState());
+        log.debug(&quot;t5 state &#123;&#125;&quot;, t5.getState());
+        log.debug(&quot;t6 state &#123;&#125;&quot;, t6.getState());
+
+
+    &#125;
+&#125;
+
+-------结果------
+17:52:31.049 [t3] DEBUG test - running
+17:52:31.549 [main] DEBUG test - t1 state NEW
+17:52:31.556 [main] DEBUG test - t2 state RUNNABLE
+17:52:31.556 [main] DEBUG test - t3 state TERMINATED
+17:52:31.556 [main] DEBUG test - t4 state TIMED_WAITING
+17:52:31.556 [main] DEBUG test - t5 state WAITING
+17:52:31.556 [main] DEBUG test - t6 state BLOCKED
+</code></pre><h3 id="线程相关方法"><a href="#线程相关方法" class="headerlink" title="线程相关方法"></a>线程相关方法</h3><pre><code class="java">//提示调度器让出cpu，调度器可能会忽略不一定执行
+public static native void yield();
+//暂停线程正在执行的任务，当前线程还持有锁
+public static native void sleep(long millis);
+//中断此线程
+//如果此线程处于被阻塞状态，例如调用sleep,wait,join方法，那么线程将立即退出被阻塞状态，并抛出一个InterruptedException异常
+//如果线程处于正常活动状态，那么会将该线程的中断标志设置为 true，仅此而已。被设置中断标志的线程将继续正常运行，不受影响。
+public void interrupt();
+//等待直到当前线程结束
+public final void join();
+</code></pre><h3 id="线程方法实践"><a href="#线程方法实践" class="headerlink" title="线程方法实践"></a>线程方法实践</h3><ul><li><p>sleep 线程休眠，但是持有锁</p><pre><code class="java">//可以防止cpu 100%
+public static void main(String[] args) &#123;
+  new Thread(()-&gt;&#123;
+    while (true)&#123;
+      try &#123;
+        Thread.sleep(50);
+      &#125; catch (InterruptedException e) &#123;
+        e.printStackTrace();
+      &#125;
+      System.out.println(&quot;do something&quot;);
+    &#125;
+  &#125;).start();
+&#125;
+</code></pre></li><li><p>interrupt 线程中断，线程是否中断应该由线程自己决定，所以为什么取消了stop、resume、suspend的方法</p><pre><code class="java">//用interrupt中断程序
+public static void main(String[] args) throws InterruptedException &#123;
+  Thread t1 = new Thread(() -&gt; &#123;
+    while (Thread.currentThread().isInterrupted())&#123;
+      try &#123;
+        System.out.println(&quot;t1开始sleep&quot;);
+        Thread.sleep(100000000000L);
+        System.out.println(&quot;t1结束sleep&quot;);
+      &#125; catch (InterruptedException e) &#123;
+        e.printStackTrace();
+      &#125;
+    &#125;
+  &#125;, &quot;t1&quot;);
+  t1.start();
+
+  System.out.println(&quot;----main线程开始sleep&quot;);
+  Thread.sleep(5000);
+  System.out.println(&quot;----main线程结束sleep,当前他t1线程的状态&quot;+ t1.getState());
+
+  //准备打断
+  System.out.println(&quot;Begin Interupt...&quot;);
+  t1.interrupt();
+  System.out.println(&quot;End Interupt...,当前中断状态为：&quot;+t1.isInterrupted());
+    &#125;
+</code></pre></li><li><p>join</p><pre><code class="java">//基于wait方法实现，稍后讲到，这里贴出一段源码,供参考
+while (isAlive()) &#123;
+wait(0);
+&#125;
+</code></pre></li></ul><h3 id="线程间通信"><a href="#线程间通信" class="headerlink" title="线程间通信"></a>线程间通信</h3><p>线程通信定义，线程通信就是当多个线程共同操作共享的资源时，互相告知自己的状态以避免资源争夺。</p><h4 id="为什么需要"><a href="#为什么需要" class="headerlink" title="为什么需要"></a>为什么需要</h4><p>线程是操作系统调度的最小单位，有自己的栈空间，可以按照既定的代码逐步的执行，但是如果每个线程间都孤立的运行，那就会造资源浪费。所以在现实中，我们需要这些线程间可以按照指定的规则共同完成一件任务，所以这些线程之间就需要互相协调，这个过程被称为线程的通信</p><h4 id="线程通信方式"><a href="#线程通信方式" class="headerlink" title="线程通信方式"></a>线程通信方式</h4><p>线程通信方式主要有三种，有<strong>共享内存</strong>，<strong>消息传递</strong>和<strong>管道流</strong>，并且每种方式有不同的实现。</p><h5 id="1-共享内存"><a href="#1-共享内存" class="headerlink" title="1. 共享内存"></a>1. 共享内存</h5><p>volatile有一个关键的特性，保证内存可见性，即多个线程访问内存中的同一个被volatile关键字修饰的变量时，当某一个线程修改完该变量后，需要先将这个最新修改的值写回到主内存，从而保证下一个读取该变量的线程取得的就是主内存中该数据的最新值，这样就保证线程之间的透明性，便于线程通信。</p><pre><code class="java">public class VolatileTest &#123;
+
+    private static volatile boolean flag=true;
+
+    public static void main(String[] args) &#123;
+        new Thread(() -&gt;&#123;
+            while(true)&#123;
+                if(flag)&#123;
+                    System.out.println(&quot;线程A&quot;);
+                    flag = false;
+                &#125;
+            &#125;
+        &#125;, &quot;A&quot;).start();
+
+        new Thread(() -&gt;&#123;
+            while(true)&#123;
+                if(!flag)&#123;
+                    System.out.println(&quot;线程B&quot;);
+                    flag = true;
+                &#125;
+            &#125;
+        &#125;, &quot;B&quot;).start();
+
+    &#125;
+&#125;
+</code></pre><p>上面代码，结果是线程A和线程B交替执行</p><h5 id="2-忙等待"><a href="#2-忙等待" class="headerlink" title="2. 忙等待"></a>2. 忙等待</h5><p>准备处理数据的线程B正在等待数据变为可用。换句话说，它在等待线程A的一个信号，这个信号使hasDataToProcess()返回true。线程B运行在一个循环里，以等待这个信号,这个方式会照成cpu100%的问题</p><pre><code class="java">protected MySignal sharedSignal = ...
+
+...
+
+while(!sharedSignal.hasDataToProcess())&#123;
+  //do nothing... busy waiting
+&#125;
+</code></pre><h5 id="3-消息传递"><a href="#3-消息传递" class="headerlink" title="3. 消息传递"></a>3. 消息传递</h5><p>wait&#x2F;notify等待通知方式，从字面上理解，等待通知机制就是将处于等待状态的线程将由其它线程发出通知后重新获取CPU资源，继续执行之前没有执行完的任务，最经典的例子就是生产者-消费者模型</p><pre><code class="java">public class TwoThreadWaitNotify &#123;
+
+    private int start = 1;
+    private boolean flag = false;
+    public static void main(String[] args) &#123;
+        TwoThreadWaitNotify twoThread = new TwoThreadWaitNotify();
+        Thread t1 = new Thread(new OuNum(twoThread));
+        t1.setName(&quot;A&quot;);
+        Thread t2 = new Thread(new JiNum(twoThread));
+        t2.setName(&quot;B&quot;);
+        t1.start();
+        t2.start();
+    &#125;
+    /**
+     * 偶数线程
+     */
+    public static class OuNum implements Runnable &#123;
+        private TwoThreadWaitNotify number;
+        public OuNum(TwoThreadWaitNotify number) &#123;
+            this.number = number;
+        &#125;
+        @Override
+        public void run() &#123;
+            while (number.start &lt;= 100) &#123;
+                synchronized (TwoThreadWaitNotify.class) &#123;
+                    System.out.println(&quot;偶数线程抢到锁了&quot;);
+                    if (number.flag) &#123;
+                        System.out.println(Thread.currentThread().getName() + &quot;+-+偶数&quot; + number.start);
+                        number.start++;
+                        number.flag = false;
+                        TwoThreadWaitNotify.class.notify();
+                    &#125;else &#123;
+                        try &#123;
+                            TwoThreadWaitNotify.class.wait();
+                        &#125; catch (InterruptedException e) &#123;
+                            e.printStackTrace();
+                        &#125;
+                    &#125;
+                &#125;
+            &#125;
+        &#125;
+    &#125;
+    /**
+     * 奇数线程
+     */
+    public static class JiNum implements Runnable &#123;
+        private TwoThreadWaitNotify number;
+        public JiNum(TwoThreadWaitNotify number) &#123;
+            this.number = number;
+        &#125;
+        @Override
+        public void run() &#123;
+            while (number.start &lt;= 100) &#123;
+                synchronized (TwoThreadWaitNotify.class) &#123;
+                    System.out.println(&quot;奇数线程抢到锁了&quot;);
+                    if (!number.flag) &#123;
+                        System.out.println(Thread.currentThread().getName() + &quot;+-+奇数&quot; + number.start);
+                        number.start++;
+                        number.flag = true;
+                        TwoThreadWaitNotify.class.notify();
+                    &#125;else &#123;
+                        try &#123;
+                            TwoThreadWaitNotify.class.wait();
+                        &#125; catch (InterruptedException e) &#123;
+                            e.printStackTrace();
+                        &#125;
+                    &#125;
+                &#125;
+            &#125;
+        &#125;
+    &#125;
+&#125;
+</code></pre><p>由于，底层存在虚假唤醒的问题，所以jdk推荐如下写法，规避虚假唤醒的风险：</p><pre><code class="java">synchronized (obj) &#123;
+  while (&lt;condition does not hold&gt;)
+    obj.wait(timeout);
+  ... // Perform action appropriate to condition
+&#125;
+</code></pre></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2021/01/07/2021-01-07java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" title="java并发编程（一）-线程">https://github/zhuchong6.github.io/2021/01/07/2021-01-07java并发编程/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/Java/" rel="tag"># Java</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2020/12/19/2020-12-19Stream%E5%87%BD%E6%95%B0%E6%93%8D%E4%BD%9C/" rel="prev" title="Stream函数操作"><i class="fa fa-chevron-left"></i> Stream函数操作</a></div><div class="post-nav-item"><a href="/2021/04/03/2021-04-04%E5%88%86%E5%B8%83%E5%BC%8F%E7%BB%84%E4%BB%B6-%E5%88%86%E5%B8%83%E5%BC%8FID/" rel="next" title="分布式组件-分布式ID">分布式组件-分布式ID <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">并发编程基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">1.1.1.</span> <span class="nav-text">线程的创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81"><span class="nav-number">1.1.2.</span> <span class="nav-text">线程状态</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BC%94%E7%A4%BA"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">演示</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9B%B8%E5%85%B3%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.3.</span> <span class="nav-text">线程相关方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%96%B9%E6%B3%95%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.1.4.</span> <span class="nav-text">线程方法实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1"><span class="nav-number">1.1.5.</span> <span class="nav-text">线程间通信</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81"><span class="nav-number">1.1.5.1.</span> <span class="nav-text">为什么需要</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F"><span class="nav-number">1.1.5.2.</span> <span class="nav-text">线程通信方式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98"><span class="nav-number">1.1.5.2.1.</span> <span class="nav-text">1. 共享内存</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E5%BF%99%E7%AD%89%E5%BE%85"><span class="nav-number">1.1.5.2.2.</span> <span class="nav-text">2. 忙等待</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E6%B6%88%E6%81%AF%E4%BC%A0%E9%80%92"><span class="nav-number">1.1.5.2.3.</span> <span class="nav-text">3. 消息传递</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">55</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">17</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">26</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2023</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>

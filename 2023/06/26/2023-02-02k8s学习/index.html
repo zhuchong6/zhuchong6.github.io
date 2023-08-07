@@ -1,0 +1,846 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="Kubernetes学习一、初识K8S简介 官网：https:&#x2F;&#x2F;kubernetes.io&#x2F;zh-cn&#x2F;docs&#x2F;concepts&#x2F;overview&#x2F;  Kubernetes 这个名字源于希腊语，意为“舵手”或“飞行员”，简称k8s。 Kubernetes 是一个可移植、可扩展的开源平台，用于管理容器化的工作负载和服务，可促进声明式配置和自动化。 Kubernetes 拥有一个庞大且快速增长的生"><meta property="og:type" content="article"><meta property="og:title" content="k8s学习"><meta property="og:url" content="https://github/zhuchong6.github.io/2023/06/26/2023-02-02k8s%E5%AD%A6%E4%B9%A0/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="Kubernetes学习一、初识K8S简介 官网：https:&#x2F;&#x2F;kubernetes.io&#x2F;zh-cn&#x2F;docs&#x2F;concepts&#x2F;overview&#x2F;  Kubernetes 这个名字源于希腊语，意为“舵手”或“飞行员”，简称k8s。 Kubernetes 是一个可移植、可扩展的开源平台，用于管理容器化的工作负载和服务，可促进声明式配置和自动化。 Kubernetes 拥有一个庞大且快速增长的生"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://github/images/k8s01.svg"><meta property="og:image" content="https://github/images/k8s02.svg"><meta property="og:image" content="https://github/images/k8sjiagou.png"><meta property="og:image" content="https://github/images/k8s03.svg"><meta property="og:image" content="https://github/images/k8s04.png"><meta property="og:image" content="https://github/images/k8s05.png"><meta property="og:image" content="https://github/images/k8s06.png"><meta property="og:image" content="https://github/images/k8s07.svg"><meta property="article:published_time" content="2023-06-26T13:16:30.000Z"><meta property="article:modified_time" content="2023-08-07T00:18:37.950Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="中间件"><meta property="article:tag" content="k8s"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://github/images/k8s01.svg"><link rel="canonical" href="https://github/zhuchong6.github.io/2023/06/26/2023-02-02k8s%E5%AD%A6%E4%B9%A0/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>k8s学习 | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">17</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2023/06/26/2023-02-02k8s%E5%AD%A6%E4%B9%A0/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">k8s学习</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2023-06-26 21:16:30" itemprop="dateCreated datePublished" datetime="2023-06-26T21:16:30+08:00">2023-06-26</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2023-08-07 08:18:37" itemprop="dateModified" datetime="2023-08-07T08:18:37+08:00">2023-08-07</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/k8s/" itemprop="url" rel="index"><span itemprop="name">k8s</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="Kubernetes学习"><a href="#Kubernetes学习" class="headerlink" title="Kubernetes学习"></a>Kubernetes学习</h1><h2 id="一、初识K8S"><a href="#一、初识K8S" class="headerlink" title="一、初识K8S"></a>一、初识K8S</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><blockquote><p>官网：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/overview/">https://kubernetes.io/zh-cn/docs/concepts/overview/</a></p></blockquote><p><strong>Kubernetes</strong> 这个名字源于希腊语，意为“舵手”或“飞行员”，简称k8s。</p><p><strong>Kubernetes</strong> 是一个可移植、可扩展的开源平台，用于管理容器化的工作负载和服务，可促进声明式配置和自动化。 <strong>Kubernetes</strong> 拥有一个庞大且快速增长的生态，其服务、支持和工具的使用范围相当广泛。</p><span id="more"></span><h3 id="为什么需要k8s"><a href="#为什么需要k8s" class="headerlink" title="为什么需要k8s"></a>为什么需要k8s</h3><blockquote><p>官网：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/overview/">https://kubernetes.io/zh-cn/docs/concepts/overview/</a></p></blockquote><p>下图展示了部署的发展历程：</p><p><img src="/images/k8s01.svg" alt="部署方式发展历史"></p><p>容器是打包和运行应用程序的好方式。在生产环境中， 你需要管理运行着应用程序的容器，并确保服务不会下线。 例如，如果一个容器发生故障，则你需要启动另一个容器。 如果此行为交由给系统处理，是不是会更容易一些？</p><p>这就是 Kubernetes 要来做的事情！ Kubernetes 为你提供了一个可弹性运行分布式系统的框架。 Kubernetes 会满足你的扩展要求、故障转移你的应用、提供部署模式等。</p><h2 id="二、组件-amp-架构"><a href="#二、组件-amp-架构" class="headerlink" title="二、组件&amp;架构"></a>二、组件&amp;架构</h2><ul><li>集群组件</li><li>核心概念</li></ul><h3 id="1-集群组件"><a href="#1-集群组件" class="headerlink" title="1. 集群组件"></a>1. 集群组件</h3><ul><li>集群（cluster）：将同一个软件服务多个节点组织到一起共同为系统提供服务的过程称之为该软件的集群。redis集群、es集群、mongo集群等。</li><li>k8s集群：多个节点，至少三个 角色：1.master节点（control plane控制节点） 2.work node：工作节点（pod容器实际运行的节点）</li></ul><p>当你部署完 Kubernetes，便拥有了一个完整的集群。一组工作机器，称为 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/architecture/nodes/">节点</a>， 会运行容器化应用程序。每个集群至少有一个工作节点。工作节点会托管 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/">Pod</a> ，而 Pod 就是作为应用负载的组件。 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/reference/glossary/?all=true#term-control-plane">控制平面</a>管理集群中的工作节点和 Pod。</p><p><img src="/images/k8s02.svg" alt="k8s架构"></p><h4 id="1-1-控制平面组件（Contorl-Plane-Component）"><a href="#1-1-控制平面组件（Contorl-Plane-Component）" class="headerlink" title="1.1 控制平面组件（Contorl Plane Component）"></a>1.1 控制平面组件（Contorl Plane Component）</h4><p>控制平面组件会为集群做出全局决策，比如资源的调度。 以及检测和响应集群事件，例如当不满足部署的 <code>replicas</code> 字段时， 要启动新的pod）</p><blockquote><p>控制平面组件可以在集群中的任何节点上运行。 然而，为了简单起见，设置脚本通常会在同一个计算机上启动所有控制平面组件， 并且不会在此计算机上运行用户容器</p></blockquote><ul><li><p>kube-apiserver</p><p>API 服务器是 Kubernetes 控制平面的组件， 该组件负责公开了 Kubernetes API，负责处理接受请求的工作。 API 服务器是 Kubernetes 控制平面的前端。Kubernetes API 服务器的主要实现是 <code>kube-apiserver</code>。 <code>kube-apiserver</code> 设计上考虑了水平扩缩，也就是说，它可通过部署多个实例来进行扩缩。 你可以运行 <code>kube-apiserver</code> 的多个实例，并在这些实例之间平衡流量。</p></li><li><p>etcd</p><p>一致且高可用的键值存储，用作 Kubernetes 所有集群数据的后台数据库。</p></li><li><p>kube-scheduler</p><p><code>kube-scheduler</code> 是控制平面的组件， 负责监视新创建的、未指定运行节点（node）的Pods， 并选择节点来让 Pod 在上面运行。调度决策考虑的因素包括单个 Pod 及 Pods 集合的资源需求、软硬件及策略约束、 亲和性及反亲和性规范、数据位置、工作负载间的干扰及最后时限。</p></li><li><p>kube-controller-manager</p><p>kube-controller-manager是控制平面组件，负责运行控制器进程。从逻辑上讲， 每个控制器都是一个单独的进程， 但是为了降低复杂性，它们都被编译到同一个可执行文件，并在同一个进程中运行。</p><p>有许多不同类型的控制器。以下是一些例子：</p><ul><li>节点控制器（Node Controller）：负责在节点出现故障时进行通知和响应</li><li>任务控制器（Job Controller）：监测代表一次性任务的 Job 对象，然后创建 Pods 来运行这些任务直至完成</li><li>端点分片控制器（EndpointSlice controller）：填充端点分片（EndpointSlice）对象（以提供 Service 和 Pod 之间的链接）。</li><li>服务账号控制器（ServiceAccount controller）：为新的命名空间创建默认的服务账号（ServiceAccount）</li></ul></li><li><p>cloud-controller-manager</p><p>cloud-controller-manager是一个控制平面组件，嵌入了特定云平台的控制逻辑。 云控制器管理器（Cloud Controller Manager）允许你将你的集群连接到云提供商的 API 之上， 并将与该云平台交互的组件同与你的集群交互的组件分离开来。</p><p><code>cloud-controller-manager</code> 仅运行特定于云平台的控制器。 因此如果你在自己的环境中运行 Kubernetes，或者在本地计算机中运行学习环境， 所部署的集群不需要有云控制器管理器。</p></li></ul><h4 id="1-2-Node组件"><a href="#1-2-Node组件" class="headerlink" title="1.2. Node组件"></a>1.2. Node组件</h4><blockquote><p>节点组件会在每个节点上运行，负责维护运行的 Pod 并提供 Kubernetes 运行环境</p></blockquote><h5 id="1-2-1-kubelet"><a href="#1-2-1-kubelet" class="headerlink" title="1.2.1 kubelet"></a>1.2.1 kubelet</h5><p><code>kubelet</code> 会在集群中每个节点（node）上运行。 它保证容器（containers）都运行在 Pod中。</p><p>kubelet 接收一组通过各类机制提供给它的 PodSpecs， 确保这些 PodSpecs 中描述的容器处于运行状态且健康。 kubelet 不会管理不是由 Kubernetes 创建的容器。</p><h5 id="1-2-2-kube-proxy"><a href="#1-2-2-kube-proxy" class="headerlink" title="1.2.2 kube-proxy"></a>1.2.2 kube-proxy</h5><p>kube-proxy是集群中每个节点（node）上所运行的网络代理， 实现 Kubernetes 服务（Service） 概念的一部分。</p><p>kube-proxy 维护节点上的一些网络规则， 这些网络规则会允许从集群内部或外部的网络会话与 Pod 进行网络通信。</p><p>如果操作系统提供了可用的数据包过滤层，则 kube-proxy 会通过它来实现网络规则。 否则，kube-proxy 仅做流量转发。</p><h5 id="1-2-3-容器运行时"><a href="#1-2-3-容器运行时" class="headerlink" title="1.2.3 容器运行时"></a>1.2.3 容器运行时</h5><p>容器运行环境是负责运行容器的软件。</p><p>Kubernetes 支持许多容器运行环境，例如 <a target="_blank" rel="noopener" href="https://containerd.io/docs/">containerd</a>、 <a target="_blank" rel="noopener" href="https://cri-o.io/#what-is-cri-o">CRI-O</a> 以及 <a target="_blank" rel="noopener" href="https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/container-runtime-interface.md">Kubernetes CRI (容器运行环境接口)</a> 的其他任何实现。</p><h4 id="1-3-Addons（插件）"><a href="#1-3-Addons（插件）" class="headerlink" title="1.3. Addons（插件）"></a>1.3. Addons（插件）</h4><p>插件使用 Kubernetes 资源（DaemonSet、 Deployment 等）实现集群功能。 因为这些插件提供集群级别的功能，插件中命名空间域的资源属于 <code>kube-system</code> 命名空间。</p><p>下面描述众多插件中的几种。有关可用插件的完整列表，请参见 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/cluster-administration/addons/">插件（Addons）</a>。</p><h5 id="1-3-1-DNS"><a href="#1-3-1-DNS" class="headerlink" title="1.3.1 DNS"></a>1.3.1 DNS</h5><p>尽管其他插件都并非严格意义上的必需组件，但几乎所有 Kubernetes 集群都应该有<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/dns-pod-service/">集群 DNS</a>， 因为很多示例都需要 DNS 服务。</p><p>集群 DNS 是一个 DNS 服务器，和环境中的其他 DNS 服务器一起工作，它为 Kubernetes 服务提供 DNS 记录。</p><p>Kubernetes 启动的容器自动将此 DNS 服务器包含在其 DNS 搜索列表中。</p><h5 id="1-3-2-Web界面（仪表盘）"><a href="#1-3-2-Web界面（仪表盘）" class="headerlink" title="1.3.2 Web界面（仪表盘）"></a>1.3.2 Web界面（仪表盘）</h5><p><a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/tasks/access-application-cluster/web-ui-dashboard/">Dashboard</a> 是 Kubernetes 集群的通用的、基于 Web 的用户界面。 它使用户可以管理集群中运行的应用程序以及集群本身， 并进行故障排除。</p><h5 id="1-3-3-容器资源监控"><a href="#1-3-3-容器资源监控" class="headerlink" title="1.3.3 容器资源监控"></a>1.3.3 容器资源监控</h5><p><a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/tasks/debug/debug-cluster/resource-usage-monitoring/">容器资源监控</a> 将关于容器的一些常见的时间序列度量值保存到一个集中的数据库中， 并提供浏览这些数据的界面。</p><h5 id="1-3-4-集群层面日志"><a href="#1-3-4-集群层面日志" class="headerlink" title="1.3.4 集群层面日志"></a>1.3.4 集群层面日志</h5><p><a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/cluster-administration/logging/">集群层面日志</a>机制负责将容器的日志数据保存到一个集中的日志存储中， 这种集中日志存储提供搜索和浏览接口。</p><h5 id="1-3-5-网络插件"><a href="#1-3-5-网络插件" class="headerlink" title="1.3.5 网络插件"></a>1.3.5 网络插件</h5><p><a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins">网络插件</a> 是实现容器网络接口（CNI）规范的软件组件。它们负责为 Pod 分配 IP 地址，并使这些 Pod 能在集群内部相互通信。</p><h3 id="2-集群架构详解"><a href="#2-集群架构详解" class="headerlink" title="2. 集群架构详解"></a>2. 集群架构详解</h3><p><img src="/images/k8sjiagou.png" alt="k8s集群详解"></p><p>总结：kubernetes集群由多个节点组成，节点通常分为两部分：一类属于管理平面的主节点&#x2F;控制节点（Masgter Node）；一类属于运行平面的工作节点（Work Node）。复杂的工作都交给控制节点去做了，工作节点负责提供稳定的操作接口和能力抽象即可。</p><h2 id="三、Pod-amp-Container"><a href="#三、Pod-amp-Container" class="headerlink" title="三、Pod &amp; Container"></a>三、Pod &amp; Container</h2><h3 id="1-什么是Pod"><a href="#1-什么是Pod" class="headerlink" title="1. 什么是Pod"></a>1. 什么是Pod</h3><blockquote><p>官网描述：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/">https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/</a></p></blockquote><h4 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h4><p><strong>Pod</strong> 是可以在 Kubernetes 中创建和管理的、最小的可部署的计算单元。</p><p><strong>Pod</strong>（就像在鲸鱼荚或者豌豆荚中）是一组（一个或多个）容器； 这些容器共享存储、网络、以及怎样运行这些容器的声明。 Pod 中的内容总是并置（colocated）的并且一同调度，在共享的上下文中运行。<strong>简而言之，如果用docker的术语描述的话，pod类似共享名称空间和文件系统卷的一组容器</strong></p><p><code>Pod 就是用来管理一组(一个或多个)容器的集合，特点：共享网络、共享存储、共享上下文环境</code></p><h4 id="1-2-Pod怎么管理多个容器？"><a href="#1-2-Pod怎么管理多个容器？" class="headerlink" title="1.2 Pod怎么管理多个容器？"></a>1.2 Pod怎么管理多个容器？</h4><p>Pod 被设计成支持形成内聚服务单元的多个协作过程（形式为容器）。 Pod 中的容器被自动安排到集群中的同一物理机或虚拟机上，并可以一起进行调度。 容器之间可以共享资源和依赖、彼此通信、协调何时以及何种方式终止自身。</p><p>例如，你可能有一个容器，为共享卷中的文件提供 Web 服务器支持，以及一个单独的 “边车 (sidercar)” 容器负责从远端更新这些文件，如下图所示：</p><p><img src="/images/k8s03.svg" alt="side-car"></p><h4 id="1-3-如何使用Pod？"><a href="#1-3-如何使用Pod？" class="headerlink" title="1.3 如何使用Pod？"></a>1.3 如何使用Pod？</h4><p>通常你不需要直接创建Pod，甚至单实例Pod。相反，你会使用诸如Deployment或者Job这类负载资源来创建Pod。如果Pod需要状态追踪，可以考虑使用StatefulSet资源。</p><p>Kubernetes集群中的Pod主要有两种方法：</p><ul><li>运行单个容器的Pod：”每个Pod一个容器“模型是最常见的Kubernates用例；这种情况下，可以将Pod看作单个容器的包装器，并且Kubernetes直接管理Pod，而不是容器</li><li>运行多个协同工作的容器的Pod：Pod可能封装由多个紧密耦合且需要共享资源的共处容器组成的应用程序。这些位于同一位置的容器可能形成单个内聚的服务单元–一个容器将文件共享从共享卷提供给公众，而另一个单独的“边车”（sidecar）容器则刷新或者更新这些文件。Pod将这些容器和存储资源打包为一个可管理的实体。</li></ul><blockquote><p>说明：</p><ul><li>将多个并置、同管的容器组织到一个Pod中是一种相对高级的使用场景。只有在容器之间紧密关联时你才应该使用这种模式。</li><li>每个Pod都旨在运行给定应用程序单个实例，如果需要横向拓展该应用，则应该使用多个Pod，每个Pod一个实例。在Kubernetes中，这通常被称为副本（Replication）。</li></ul></blockquote><h3 id="2-Pod的基本操作"><a href="#2-Pod的基本操作" class="headerlink" title="2. Pod的基本操作"></a>2. Pod的基本操作</h3><h4 id="2-1-查看Pod"><a href="#2-1-查看Pod" class="headerlink" title="2.1 查看Pod"></a>2.1 查看Pod</h4><pre><code class="shell">#查看默认命名空间的pod
+kubectl get pods|pod
+
+#查看所有命名空间的pod
+kubectl get pods|pod -A
+
+#查看默认命名空间下pod的详情信息
+kubectl get pods -o wide
+
+#查看所有命名空间下pod的详情信息
+kubectl get pods -o wide -A
+
+#实时监控当前命名空间pod的状态
+kubectl get pods -w
+
+#实时监控所有命名空间pod的状态
+kubectl get pods -w -A
+</code></pre><h4 id="2-2-创建Pod"><a href="#2-2-创建Pod" class="headerlink" title="2.2 创建Pod"></a>2.2 创建Pod</h4><blockquote><p>官网链接：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/#using-pods:~:text=simple%2Dpod.yaml-,apiVersion%3A%20v1,-kind%3A%20Pod">https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/#using-pods:~:text=simple%2Dpod.yaml-,apiVersion%3A%20v1,-kind%3A%20Pod</a></p></blockquote><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+</code></pre><pre><code class="shell">#使用apply命令和create命令创建pod
+kubectl create -f nginx-pod.yml
+kubectl apply -f nginx-pod.yml
+</code></pre><blockquote><p>注意：</p><p>create是不存在pod时候创建，存在的时候报错。因此，更推荐使用apply，apply是不存在创建，存在更新</p></blockquote><p><em><strong>配置无需手写，可以借助IDEA中kubernetes插件生成</strong></em></p><h4 id="2-3-删除Pod"><a href="#2-3-删除Pod" class="headerlink" title="2.3 删除Pod"></a>2.3 删除Pod</h4><pre><code class="shell">#根据pod名称删除
+kubectl delete pod pod名称
+#根据pod配置文件删除
+kubectl delete -f nginx-pod.yml
+</code></pre><h4 id="2-4-进入Pod容器"><a href="#2-4-进入Pod容器" class="headerlink" title="2.4 进入Pod容器"></a>2.4 进入Pod容器</h4><pre><code class="shell">#类似docker exec
+#注意这种方式默认只会进入pod中的第一个容器
+kubectl exec -it nginx(pod名称) --(固定写死) bash(执行命令)
+#进入指定容器
+kubectl exec -it nginx(pod名称) -c nginx(指定进入容器名称) --(固定写死) bash(执行命令)
+</code></pre><h4 id="2-5-查看Pod日志"><a href="#2-5-查看Pod日志" class="headerlink" title="2.5 查看Pod日志"></a>2.5 查看Pod日志</h4><pre><code class="shell">#查看第一个容器日志
+kubectl logs -f(可选，加了查看实时日志) nginx(pod名称）
+#查看指定容器日志
+kubectl logs -f(可选，加了查看实时日志) nginx(pod名称）-c nginx(查看日志的容器名称)
+</code></pre><h4 id="2-6-查看Pod的描述信息"><a href="#2-6-查看Pod的描述信息" class="headerlink" title="2.6 查看Pod的描述信息"></a>2.6 查看Pod的描述信息</h4><pre><code class="shell">kubectl describe pod nginx(pod名称)
+</code></pre><h3 id="3-Pod运行多个容器"><a href="#3-Pod运行多个容器" class="headerlink" title="3. Pod运行多个容器"></a>3. Pod运行多个容器</h3><h4 id="3-1-创建Pod"><a href="#3-1-创建Pod" class="headerlink" title="3.1 创建Pod"></a>3.1 创建Pod</h4><pre><code class="yaml">#myapp.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp
+  labels:
+    app: myapp
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.21
+      ports:
+        - containerPort: 80
+      imagePullPolicy: IfNotPresent
+
+    - name: redis
+      image: redis:5.0.10
+      ports:
+        - containerPort: 6379
+      imagePullPolicy: IfNotPresent
+  restartPolicy: Always
+</code></pre><pre><code class="shell">#执行命令
+kubectl apply -f myapp.yaml
+</code></pre><h4 id="3-2-查看指定容器日志"><a href="#3-2-查看指定容器日志" class="headerlink" title="3.2 查看指定容器日志"></a>3.2 查看指定容器日志</h4><pre><code class="shell">#查看第一个容器日志
+kubectl logs -f(可选，加了查看实时日志) myapp(pod名称）
+#查看指定容器日志
+kubectl logs -f(可选，加了查看实时日志) myapp(pod名称）-c nginx(查看日志的容器名称)
+#查看指定容器日志
+kubectl logs -f(可选，加了查看实时日志) myapp(pod名称）-c redis(查看日志的容器名称)
+</code></pre><h4 id="3-3-进入容器"><a href="#3-3-进入容器" class="headerlink" title="3.3 进入容器"></a>3.3 进入容器</h4><pre><code class="shell">#默认进入第一个容器，这里会进入nginx中
+kubectl exec -it myapp(pod名称) --(固定写死) bash(执行命令)
+#进入指定容器
+kubectl exec -it myapp(pod名称) -c nginx(指定进入容器名称) --(固定写死) bash(执行命令)
+#进入指定容器
+kubectl exec -it myapp(pod名称) -c redis(指定进入容器名称) --(固定写死) bash(执行命令)
+</code></pre><h3 id="4-Pod的Labels（标签）"><a href="#4-Pod的Labels（标签）" class="headerlink" title="4. Pod的Labels（标签）"></a>4. Pod的Labels（标签）</h3><blockquote><p>标签不仅仅作用Pod上，可以作用在k8s所有对象上，这里以Pod举例</p></blockquote><p>标签（Labels）是附加到Kubernetes对象（比如Pod）上的键值对。标签旨在指定<strong>对用户有意义且相关</strong>的对象标识。标签可以在创建的时候附加到对象，随后可以随时添加和修改。每个对象都可以定义一组键（key）值（value）对，但是每个key对于给定对象（例如Pod）必须是唯一的。</p><p>标签作用：就是起别名，用于过滤或者筛选</p><h4 id="4-1-语法"><a href="#4-1-语法" class="headerlink" title="4.1 语法"></a>4.1 语法</h4><p>标签有键值对组成，其有效值：</p><ul><li>必须为63个字符或者更少（可以为空）</li><li>除非标签值为空，必须以字母数字字符（[a-z0-9A-Z]）开头和结尾</li><li>包含破折号（-）、下划线（_）、点（.）等特殊字符</li></ul><h4 id="4-2-示例"><a href="#4-2-示例" class="headerlink" title="4.2 示例"></a>4.2 示例</h4><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp
+  labels:
+    app: myapp #创建时添加
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.21
+      ports:
+        - containerPort: 80
+      imagePullPolicy: IfNotPresent
+
+    - name: redis
+      image: redis:5.0.10
+      ports:
+        - containerPort: 6379
+      imagePullPolicy: IfNotPresent
+  restartPolicy: Always
+</code></pre><h4 id="4-3-标签基本操作"><a href="#4-3-标签基本操作" class="headerlink" title="4.3 标签基本操作"></a>4.3 标签基本操作</h4><pre><code class="shell">#查看标签
+kubectl get pods --show-labels
+
+#启动之后打标签,这句话意思是：给名称是myapp的pod打标签，标签内容是env=dev
+kubectl label pod myapp(pod名称) env=dev(填要加入的标签)
+
+#--overwrite 代表修改
+#修改标签,这句话意思是：修改名称是myapp的pod中标签key是env的标签，修改值为test
+kubectl label --overwrite pod myapp env=test
+
+#-号代表删除
+#删除标签，这句话意思是：删除名称是myapp的pod中标签key是env的标签
+kubectl label pod myapp env-
+
+#根据label筛选，po是pods的缩写
+kubelctl get po -l env=test
+kubelctl get po -l env
+kubelctl get po -l &#39;!env&#39; #不包含env
+kubelctl get po -l &#39;env in (test,prod)&#39; #选择包含test 和prod的env
+kubelctl get po -l &#39;env notin (test,prod)&#39; #选择不包含test 和prod的env
+</code></pre><h3 id="5-Pod的生命周期"><a href="#5-Pod的生命周期" class="headerlink" title="5. Pod的生命周期"></a>5. Pod的生命周期</h3><blockquote><p>官网：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/pod-lifecycle/">https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/pod-lifecycle/</a></p></blockquote><p>Pod 遵循预定义的生命周期，起始于 <code>Pending</code> 阶段， 如果至少其中有一个主要容器正常启动，则进入 <code>Running</code>，之后取决于 Pod 中是否有容器以失败状态结束而进入 <code>Succeeded</code> 或者 <code>Failed</code> 阶段。</p><p>Pod 在其生命周期中只会被调度一次。 一旦 Pod 被调度（分派）到某个节点，Pod 会一直在该节点运行，直到 Pod 停止或者被终止。</p><h4 id="5-1-生命周期"><a href="#5-1-生命周期" class="headerlink" title="5.1 生命周期"></a>5.1 生命周期</h4><p>和一个个独立的应用容器一样，Pod 也被认为是相对临时性（而不是长期存在）的实体。 Pod 会被创建、赋予一个唯一的 ID（UID）， 并被调度到节点，并在终止（根据重启策略）或删除之前一直运行在该节点。</p><p>如果一个节点死掉了，调度到该节点的 Pod 也被计划在给定超时期限结束后删除。</p><p>Pod 自身不具有自愈能力。如果 Pod 被调度到某节点而该节点之后失效， Pod 会被删除；类似地，Pod 无法在因节点资源耗尽或者节点维护而被驱逐期间继续存活。 Kubernetes 使用一种高级抽象来管理这些相对而言可随时丢弃的 Pod 实例， 称作控制器。</p><p>任何给定的 Pod （由 UID 定义）从不会被“重新调度（rescheduled）”到不同的节点； 相反，这一 Pod 可以被一个新的、几乎完全相同的 Pod 替换掉。 如果需要，新 Pod 的名字可以不变，但是其 UID 会不同。</p><p>如果某物声称其生命期与某 Pod 相同，例如存储卷， 这就意味着该对象在此 Pod （UID 亦相同）存在期间也一直存在。 如果 Pod 因为任何原因被删除，甚至某完全相同的替代 Pod 被创建时， 这个相关的对象（例如这里的卷）也会被删除并重建。</p><h4 id="5-2-Pod阶段"><a href="#5-2-Pod阶段" class="headerlink" title="5.2 Pod阶段"></a>5.2 Pod阶段</h4><p>Pod阶段的数量和含义是被严格定义的。除本文档列举的内容外，不应该在假定Pod有其他的phase值。</p><table><thead><tr><th>取值</th><th>描述</th></tr></thead><tbody><tr><td><code>Pending</code>（悬决）</td><td>Pod 已被 Kubernetes 系统接受，但有一个或者多个容器尚未创建亦未运行。此阶段包括等待 Pod 被调度的时间和通过网络下载镜像的时间。</td></tr><tr><td><code>Running</code>（运行中）</td><td>Pod 已经绑定到了某个节点，Pod 中所有的容器都已被创建。至少有一个容器仍在运行，或者正处于启动或重启状态。</td></tr><tr><td><code>Succeeded</code>（成功）</td><td>Pod 中的所有容器都已成功终止，并且不会再重启。</td></tr><tr><td><code>Failed</code>（失败）</td><td>Pod 中的所有容器都已终止，并且至少有一个容器是因为失败终止。也就是说，容器以非 0 状态退出或者被系统终止。</td></tr><tr><td><code>Unknown</code>（未知）</td><td>因为某些原因无法取得 Pod 的状态。这种情况通常是因为与 Pod 所在主机通信失败。</td></tr></tbody></table><blockquote><p><strong>说明：</strong></p><p>当一个 Pod 被删除时，执行一些 kubectl 命令会展示这个 Pod 的状态为 <code>Terminating</code>（终止）。 这个 <code>Terminating</code> 状态并不是 Pod 阶段之一。 Pod 被赋予一个可以体面终止的期限，默认为 30 秒。 你可以使用 <code>--force</code> 参数来强制终止 Pod。</p></blockquote><h3 id="6-Container特性"><a href="#6-Container特性" class="headerlink" title="6. Container特性"></a>6. Container特性</h3><h4 id="6-1-容器的生命周期"><a href="#6-1-容器的生命周期" class="headerlink" title="6.1 容器的生命周期"></a>6.1 容器的生命周期</h4><p>Kubernetes 会跟踪 Pod 中每个容器的状态，就像它跟踪 Pod 总体上的阶段一样。 你可以使用<strong>容器生命周期回调</strong>来在容器生命周期中的特定时间点触发事件。</p><p>一旦调度器将 Pod 分派给某个节点，<code>kubelet</code> 就通过容器运行时开始为 Pod 创建容器。容器的状态有三种：<code>Waiting</code>（等待）、<code>Running</code>（运行中）和 <code>Terminated</code>（已终止）。</p><p>要检查 Pod 中容器的状态，你可以使用 <code>kubectl describe pod &lt;pod 名称&gt;</code>。 其输出中包含 Pod 中每个容器的状态。</p><p>每种状态都有特定的含义：</p><h3 id="Waiting-（等待）"><a href="#Waiting-（等待）" class="headerlink" title="Waiting （等待）"></a><code>Waiting</code> （等待）</h3><p>如果容器并不处在 <code>Running</code> 或 <code>Terminated</code> 状态之一，它就处在 <code>Waiting</code> 状态。 处于 <code>Waiting</code> 状态的容器仍在运行它完成启动所需要的操作：例如， 从某个容器镜像仓库拉取容器镜像，或者向容器应用 Secret 数据等等。 当你使用 <code>kubectl</code> 来查询包含 <code>Waiting</code> 状态的容器的 Pod 时，你也会看到一个 Reason 字段，其中给出了容器处于等待状态的原因。</p><h3 id="Running（运行中）"><a href="#Running（运行中）" class="headerlink" title="Running（运行中）"></a><code>Running</code>（运行中）</h3><p><code>Running</code> 状态表明容器正在执行状态并且没有问题发生。 如果配置了 <code>postStart</code> 回调，那么该回调已经执行且已完成。 如果你使用 <code>kubectl</code> 来查询包含 <code>Running</code> 状态的容器的 Pod 时， 你也会看到关于容器进入 <code>Running</code> 状态的信息。</p><h3 id="Terminated（已终止）"><a href="#Terminated（已终止）" class="headerlink" title="Terminated（已终止）"></a><code>Terminated</code>（已终止）</h3><p>处于 <code>Terminated</code> 状态的容器已经开始执行并且或者正常结束或者因为某些原因失败。 如果你使用 <code>kubectl</code> 来查询包含 <code>Terminated</code> 状态的容器的 Pod 时， 你会看到容器进入此状态的原因、退出代码以及容器执行期间的起止时间。</p><p>如果容器配置了 <code>preStop</code> 回调，则该回调会在容器进入 <code>Terminated</code> 状态之前执行。</p><h4 id="6-2-容器生命周期回调"><a href="#6-2-容器生命周期回调" class="headerlink" title="6.2 容器生命周期回调"></a>6.2 容器生命周期回调</h4><p>类似于许多具有生命周期回调组件的编程语言框架，例如 Angular、Kubernetes 为容器提供了生命周期回调。 回调使容器能够了解其管理生命周期中的事件，并在执行相应的生命周期回调时运行在处理程序中实现的代码。</p><p>有两个回调暴露给容器：</p><ul><li><p><code>PostStart</code>： 这个回调在容器被创建之后立即被执行。 但是，不能保证回调会在容器入口点（ENTRYPOINT）之前执行。 没有参数传递给处理程序。</p></li><li><p><code>PreStop</code>：在容器因 API 请求或者管理事件（诸如存活态探针、启动探针失败、资源抢占、资源竞争等） 而被终止之前，此回调会被调用。 如果容器已经处于已终止或者已完成状态，则对 preStop 回调的调用将失败。 在用来停止容器的 TERM 信号被发出之前，回调必须执行结束。 Pod 的终止宽限周期在 <code>PreStop</code> 回调被执行之前即开始计数， 所以无论回调函数的执行结果如何，容器最终都会在 Pod 的终止宽限期内被终止。 没有参数会被传递给处理程序。</p></li><li><p>使用容器生命周期回调：</p><pre><code class="yaml">#nginx-container-lifecycle.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    lifecycle:
+      postStart: #容器创建过程中执行
+        exec:
+          command: [&quot;/bin/sh&quot;, &quot;-c&quot;, &quot;echo postStart &gt;&gt; /start.txt&quot;]
+      preStop: #容器终止之前执行
+        exec: #执行命令之后，sleep 30s之后继续关闭容器，为了你能进入容器观察
+          command: [&quot;/bin/sh&quot;, &quot;-c&quot;, &quot;echo preStop &gt;&gt; /stop.txt &amp;&amp; sleep 30&quot;]
+    ports:
+    - containerPort: 80
+</code></pre></li></ul><h4 id="6-3-容器重启策略"><a href="#6-3-容器重启策略" class="headerlink" title="6.3 容器重启策略"></a>6.3 容器重启策略</h4><p>Pod 的 <code>spec</code> 中包含一个 <code>restartPolicy</code> 字段，其可能取值包括 Always、OnFailure 和 Never。默认值是 Always。</p><p><code>restartPolicy</code> 适用于 Pod 中的所有容器。<code>restartPolicy</code> 仅针对同一节点上 <code>kubelet</code> 的容器重启动作。当 Pod 中的容器退出时，<code>kubelet</code> 会按指数回退方式计算重启的延迟（10s、20s、40s、…），其最长延迟为 5 分钟。 一旦某容器执行了 10 分钟并且没有出现问题，<code>kubelet</code> 对该容器的重启回退计时器执行重置操作。</p><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+  restartPolicy: Always
+</code></pre><h4 id="6-4-自定义容器启动命令"><a href="#6-4-自定义容器启动命令" class="headerlink" title="6.4 自定义容器启动命令"></a>6.4 自定义容器启动命令</h4><p>和Docker一样，k8s中容器也可以通过commad、args修改容器启动之后默认执行的命令以及传递相关参数。但是一般推荐使用command修改启动命令，使用args为启动命令传递参数</p><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  containers:
+    - name: redis
+      image: redis:5.0.10
+      command:
+        - &quot;redis-server&quot; #用来指定启动命令
+      args:
+        - &quot;--appendonly yes&quot; #用来为启动命令传递参数
+
+#      args: [&quot;redis-server&quot;, &quot;--appendonly yes&quot;] 单独使用修改启动命令并传递参数
+#      args: 另一种语法
+#        - &quot;redis-server&quot;
+#        - &quot;--appendonly yes&quot;
+      imagePullPolicy: IfNotPresent
+  restartPolicy: Always
+</code></pre><h4 id="6-5-容器探针"><a href="#6-5-容器探针" class="headerlink" title="6.5 容器探针"></a>6.5 容器探针</h4><p><strong>probe</strong> 是由 kubelet 对容器执行的定期诊断。 要执行诊断，kubelet 既可以在容器内执行代码，也可以发出一个网络请求。</p><h5 id="6-5-1-探针类型"><a href="#6-5-1-探针类型" class="headerlink" title="6.5.1 探针类型"></a>6.5.1 探针类型</h5><p>针对运行中的容器，<code>kubelet</code> 可以选择是否执行以下三种探针，以及如何针对探测结果作出反应：</p><ul><li><p><code>livenessProbe</code>：指示容器是否正在运行。如果存活态探测失败，则 kubelet 会杀死容器， 并且容器将根据其重启策略决定未来。如果容器不提供存活探针， 则默认状态为 <code>Success</code>。</p></li><li><p><code>readinessProbe</code>：指示容器是否准备好为请求提供服务。如果就绪态探测失败， 端点控制器将从与 Pod 匹配的所有服务的端点列表中删除该 Pod 的 IP 地址。 初始延迟之前的就绪态的状态值默认为 <code>Failure</code>。 如果容器不提供就绪态探针，则默认状态为 <code>Success</code>。</p></li><li><p><code>startupProbe</code>：指示容器中的应用是否已经启动。如果提供了启动探针，则所有其他探针都会被 禁用，直到此探针成功为止。如果启动探测失败，<code>kubelet</code> 将杀死容器， 而容器依其重启策略进行重启。 如果容器没有提供启动探测，则默认状态为 <code>Success</code>。</p></li></ul><h5 id="6-5-2-探针机制"><a href="#6-5-2-探针机制" class="headerlink" title="6.5.2 探针机制"></a>6.5.2 探针机制</h5><p>使用探针来检查容器有四种不同的方法。 每个探针都必须准确定义为这四种机制中的一种：</p><ul><li><p><code>exec</code>：在容器内执行指定命令。如果命令退出时返回码为 0 则认为诊断成功。</p></li><li><p><code>grpc</code>：使用 <a target="_blank" rel="noopener" href="https://grpc.io/">gRPC</a> 执行一个远程过程调用。 目标应该实现 <a target="_blank" rel="noopener" href="https://grpc.io/grpc/core/md_doc_health-checking.html">gRPC 健康检查</a>。 如果响应的状态是 “SERVING”，则认为诊断成功。</p></li><li><p><code>httpGet</code>：对容器的 IP 地址上指定端口和路径执行 HTTP <code>GET</code> 请求。如果响应的状态码大于等于 200 且小于 400，则诊断被认为是成功的。</p></li><li><p><code>tcpSocket</code>：对容器的 IP 地址上的指定端口执行 TCP 检查。如果端口打开，则诊断被认为是成功的。 如果远程系统（容器）在打开连接后立即将其关闭，这算作是健康的。</p></li></ul><h5 id="6-5-3-探针结果"><a href="#6-5-3-探针结果" class="headerlink" title="6.5.3 探针结果"></a>6.5.3 探针结果</h5><p>每次探测都将获得以下三种结果之一：</p><p><code>Success</code>（成功）</p><p>容器通过了诊断。</p><p><code>Failure</code>（失败）</p><p>容器未通过诊断。</p><p><code>Unknown</code>（未知）</p><p>诊断失败，因此不会采取任何行动。</p><h5 id="6-5-4-探针参数"><a href="#6-5-4-探针参数" class="headerlink" title="6.5.4 探针参数"></a>6.5.4 探针参数</h5><pre><code class="yaml">initialDelaySeconds: 5 #初始化时间5s
+periodSeconds: 4 	#检测间隔时间4s
+timeoutSeconds: 1  #默认检测超时时间为1s
+failureThreshold: 3  #默认失败次数为3，达到3次后重启pod
+successThreshold: 1  #默认成功次数为1，1次检测成功代表成功
+</code></pre><h5 id="6-5-5-使用探针"><a href="#6-5-5-使用探针" class="headerlink" title="6.5.5 使用探针"></a>6.5.5 使用探针</h5><ul><li><p>exec探针</p><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-exec
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80
+      args:
+        - /bin/sh
+        - -c
+        - sleep 7;nginx -g &quot;daemon off;&quot; #这一步会和初始化同时开始运行，也就是初始化5秒后和7秒之间，会检测出一次失败，7秒后启动后检测正常，所以pod不会重启
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+            - ls
+            - /var/run/nginx.pid #查看是否有pid文件
+        initialDelaySeconds: 5 #初始化时间5秒
+        periodSeconds: 4 #检测间隔时间为4秒
+        timeoutSeconds: 1 #默认检测超时时间为1秒
+        failureThreshold: 3 #默认失败次数为3次，达到3次后重启pod
+        successThreshold: 1 #默认成功次数为1次，1次代表成功
+  restartPolicy: Always
+</code></pre><blockquote><p>说明：</p><ol><li>如果sleep 7s，第一次检测发现失败，但是第二次检测发现成功后容器就一直处于健康状态不重启。</li><li>如果sleep 30s，第一次检测失败，超过3次检测同样失败，k8s就会杀死容器进行重启，反复循环这个过程。</li></ol></blockquote></li><li><p>tcp探针</p><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-tcp
+  labels:
+    app: nginx-tcp
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80
+      args:
+        - /bin/sh
+        - -c
+        - sleep 7;nginx -g &quot;daemon off;&quot; #这一步会和初始化同时开始运行，也就是初始化5秒后和7秒之间，会检测出一次失败，7秒后启动后检测正常，所以pod不会重启
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        tcpSocket:
+          port: 80
+        initialDelaySeconds: 5 #初始化时间5秒
+        periodSeconds: 4 #检测间隔时间为4秒
+        timeoutSeconds: 1 #默认检测超时时间为1秒
+        failureThreshold: 3 #默认失败次数为3次，达到3次后重启pod
+        successThreshold: 1 #默认成功次数为1次，1次代表成功
+  restartPolicy: Always
+</code></pre></li><li><p>http探针</p><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-http
+  labels:
+    app: nginx-http
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80
+      args:
+        - /bin/sh
+        - -c
+        - sleep 7;nginx -g &quot;daemon off;&quot; #这一步会和初始化同时开始运行，也就是初始化5秒后和7秒之间，会检测出一次失败，7秒后启动后检测正常，所以pod不会重启
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        httpGet:
+          port: 80 #访问的端口
+          path: /index.html #访问路径
+        initialDelaySeconds: 5 #初始化时间5秒
+        periodSeconds: 4 #检测间隔时间为4秒
+        timeoutSeconds: 1 #默认检测超时时间为1秒
+        failureThreshold: 3 #默认失败次数为3次，达到3次后重启pod
+        successThreshold: 1 #默认成功次数为1次，1次代表成功
+  restartPolicy: Always
+</code></pre></li><li><p>gRPC探针</p></li></ul><h4 id="6-6-资源限制"><a href="#6-6-资源限制" class="headerlink" title="6.6 资源限制"></a>6.6 资源限制</h4><p>在k8s中对于容器资源限制主要分为以下两类：</p><ul><li>内存资源限制：内存请求（request）和内存限制（limit）分配给一个容器。我们保障容器拥有它请求数量的内存，但不允许使用超过限制数量的内存。</li><li>CPU资源限制：为容器设置CPU请求（request）和CPU限制（limit）。容器使用的CPU不能超过所配置的数量。如果系统有空闲的CPU时间，则可以保证给容器分配所请求的数量的CPU资源</li></ul><h5 id="6-6-1-metrics-server"><a href="#6-6-1-metrics-server" class="headerlink" title="6.6.1 metrics-server"></a>6.6.1 metrics-server</h5><blockquote><p>地址：<a target="_blank" rel="noopener" href="https://github.com/kubernetes-sigs/metrics-server">https://github.com/kubernetes-sigs/metrics-server</a></p></blockquote><p>metrics-server是一个可拓展的、高效的容器资源度量源。简单来说就是一个，指标收集服务。</p><p>安装：</p><pre><code class="shell">#执行下面代码
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+#或者将https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml下载到本地
+kubectl apply -f components.yaml #推荐这种
+
+#注意下载下来的的yml文件需要进行修改，打开文件全文搜索&quot;- --metric-resolution=15s&quot;
+#然后在它下面，添加&quot;- --kubelet-insecure-tls&quot;即可
+</code></pre><p>查看：</p><pre><code class="shell">#执行下面命令，看有没有出现mertrics相关的服务即可
+kubectl get apiservices 
+</code></pre><h5 id="6-6-2-指定cpu、内存请求和限制"><a href="#6-6-2-指定cpu、内存请求和限制" class="headerlink" title="6.6.2 指定cpu、内存请求和限制"></a>6.6.2 指定cpu、内存请求和限制</h5><blockquote><p>具体文档见官网：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu">https://kubernetes.io/zh-cn/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu</a></p></blockquote><pre><code class="yaml">#resource-limit.yaml
+piVersion: v1
+kind: Pod
+metadata:
+  name: resource-limit
+  labels:
+    name: resource-limit
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    resources:
+      requests:
+        memory: &quot;100Mi&quot;
+        cpu: &quot;0.5&quot;
+      limits:
+        memory: &quot;128Mi&quot;
+        cpu: &quot;1&quot;
+    ports:
+      - containerPort: 80
+</code></pre><h5 id="6-6-3-查看监控信息"><a href="#6-6-3-查看监控信息" class="headerlink" title="6.6.3 查看监控信息"></a>6.6.3 查看监控信息</h5><pre><code class="shell">kubectl top pod resource-limit(pod名称) 
+</code></pre><h3 id="7-Pod中的init容器"><a href="#7-Pod中的init容器" class="headerlink" title="7. Pod中的init容器"></a>7. Pod中的init容器</h3><p>Init 容器是一种特殊容器，在 Pod 内的应用容器启动之前运行。Init 容器可以包括一些应用镜像中不存在的实用工具和安装脚本。</p><h4 id="7-1-init容器的特点"><a href="#7-1-init容器的特点" class="headerlink" title="7.1 init容器的特点"></a>7.1 init容器的特点</h4><p>除开以下几点不同之外，init容器和普通容器非常像：</p><ul><li>它们总是运行到完成。如果 Pod 的 Init 容器失败，kubelet 会不断地重启该 Init 容器直到该容器成功为止。 然而，如果 Pod 对应的 <code>restartPolicy</code> 值为 “Never”，并且 Pod 的 Init 容器失败， 则 Kubernetes 会将整个 Pod 状态设置为失败。</li><li>每个都必须在下一个启动之前成功完成。</li><li>同时 Init 容器不支持 <code>lifecycle</code>、<code>livenessProbe</code>、<code>readinessProbe</code> 和 <code>startupProbe</code>， 因为它们必须在 Pod 就绪之前运行完成。</li><li>如果为一个 Pod 指定了多个 Init 容器，这些容器会按顺序逐个运行。 每个 Init 容器必须运行成功，下一个才能够运行。当所有的 Init 容器运行完成时， Kubernetes 才会为 Pod 初始化应用容器并像平常一样运行。</li><li>Init 容器支持应用容器的全部字段和特性，包括资源限制、 数据卷和安全设置。 然而，Init 容器对资源请求和限制的处理稍有不同。</li></ul><h4 id="7-2-使用init容器"><a href="#7-2-使用init容器" class="headerlink" title="7.2 使用init容器"></a>7.2 使用init容器</h4><p>你可以在 Pod 的规约中与用来描述应用容器的 <code>containers</code> 数组平行的位置指定 Init 容器。</p><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app.kubernetes.io/name: MyApp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: [&#39;sh&#39;, &#39;-c&#39;, &#39;echo The app is running! &amp;&amp; sleep 3600&#39;]
+  initContainers:
+  - name: init-myservice
+    image: busybox:1.28
+    command: [&#39;sh&#39;, &#39;-c&#39;, &quot;until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done&quot;]
+  - name: init-mydb
+    image: busybox:1.28
+    command: [&#39;sh&#39;, &#39;-c&#39;, &quot;until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done&quot;]
+</code></pre><h2 id="四、Controller控制器"><a href="#四、Controller控制器" class="headerlink" title="四、Controller控制器"></a>四、Controller控制器</h2><h3 id="1-controller控制器"><a href="#1-controller控制器" class="headerlink" title="1. controller控制器"></a>1. controller控制器</h3><blockquote><p>官网：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/">https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/</a></p></blockquote><h4 id="1-1-什么是controller"><a href="#1-1-什么是controller" class="headerlink" title="1.1 什么是controller"></a>1.1 什么是controller</h4><p>kubernetes通常不会直接创建pod，而是通过controller来管理pod。controller定义了pod的部署特性，比如有几个副本，在什么样的node上运行。</p><p>简单定义：controller可以管理pod让pod更具运维能力</p><h4 id="1-2-常见的controller"><a href="#1-2-常见的controller" class="headerlink" title="1.2 常见的controller"></a>1.2 常见的controller</h4><ul><li>Deployment 是最常用的controller，可以管理pod的多个副本，确保pod按照期望状态运行</li><li>Daemset 用于每个node最多只运行一个pod副本的场景，通常用于运行daemon。</li><li>Statefulset 能够保证pod的每个副本在整个生命周期中名称不变，其他controller不提供这个功能。当某个pod发生故障需要删除重启时，pod名称就会发生改变，同时statefulset会保证副本按照固定的顺序启动、更新或者删除。</li><li>Job 用于运行结束就删除的应用，而其他controller中pod通常时长期运行的</li></ul><h4 id="1-3-controller如何管理pod"><a href="#1-3-controller如何管理pod" class="headerlink" title="1.3 controller如何管理pod"></a>1.3 controller如何管理pod</h4><p>控制器通过标签（labels）控制pod</p><h3 id="2-Deployment"><a href="#2-Deployment" class="headerlink" title="2. Deployment"></a>2. Deployment</h3><blockquote><p>官网地址：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/deployment/">https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/deployment/</a></p></blockquote><p>一个Deployment为Pod和ReplicaSet提供声明式更新能力。</p><p>你负责描述Deployment中的目标状态，而Deployment控制器以受控速率更改实际状态，使其变为期望状态。你可以定义Deployment以创建新的ReplicaSet，或者删除现有的Deployment，并通过新的Deployment收养其资源。</p><h4 id="2-1-创建deployment"><a href="#2-1-创建deployment" class="headerlink" title="2.1 创建deployment"></a>2.1 创建deployment</h4><pre><code class="yaml">#deployment.yaml
+apiVersion: apps/v1 #版本信息
+kind: Deployment #Deployment控制器副本
+metadata:
+  name: nginx-deployment #deployment名称
+  labels:
+    app: nginx-deployment #deployment标签名称
+spec: #描述deployment的细节信息
+  replicas: 3 #默认有3个副本
+  selector: #用来告知deployment控制器选择对应标签的pod进行管理，和上面labels不是一个
+    matchLabels:
+      app: nginx
+  template: #描述deployment管理的pod的spec信息
+    metadata:
+      name: nginx
+      labels:
+        app: nginx #pod标签，和上面selector.matchLabels.app对应
+    spec:
+      containers:
+        - name: nginx-deployment
+          image: nginx:1.21
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+</code></pre><h4 id="2-2-查看deployment"><a href="#2-2-查看deployment" class="headerlink" title="2.2 查看deployment"></a>2.2 查看deployment</h4><pre><code class="shell">#部署应用
+kubectl apply -f deployment.yaml
+
+#查看deployment
+kubectl get deployment
+
+#查看pod
+kubectl get po
+
+#查看pod详情
+kubectl describe pod pod-name
+
+#查看deployment详情
+kubectl describe deployment deployment-name
+
+#查看pod日志
+kubectl logs pod-name
+
+#进入pod容器终端，-c container-name 可以指定哪个容器
+kubectl exec -it pod-name --bash
+
+#输出配置信息到文件
+kubectl get deployment nginx-deployment -o yaml &gt;&gt;test.yaml
+</code></pre><h4 id="2-3-扩缩deployment"><a href="#2-3-扩缩deployment" class="headerlink" title="2.3 扩缩deployment"></a>2.3 扩缩deployment</h4><pre><code class="shell">#查询副本
+kubectl get rs|replicatset
+
+#伸缩副本,replicas值最小值为0
+kubectl scale deployment deployment-name --replicas=5
+</code></pre><h4 id="2-4-回滚deployment"><a href="#2-4-回滚deployment" class="headerlink" title="2.4 回滚deployment"></a>2.4 回滚deployment</h4><blockquote><p>说明：</p><p>仅当deployment的pod模版（即.spec.template）发生改变的时候（例如模版的标签或者镜像被更新），才会触发deployment上线，其他更新（例如对deployment的扩容和缩容）不会触发上线动作</p></blockquote><pre><code class="shell">#查看上线状态
+kubectl rollout status [deployment deployment-name | deployment/deployment-name]
+
+#查看历史
+kubectl rollout history deployment deployment-name 
+
+#查看某次历史的详情信息
+kubectl rollout history deployment deployment-name --revision=2
+
+#回到上一个版本
+kubectl rollout undo deployment deployment-name
+
+#回到指定版本
+kubectl rollout undo deployment deployment-name --to-revision=2
+
+#重新部署
+kubectl rollout restart deployment deployment-name
+
+#暂停运行，暂停后对deployment的修改不会立刻生效，恢复后才应用设置
+kubectl rollout pause deployment deployment-name
+
+#恢复运行
+kubectl rollout resume deployment deployment-name
+</code></pre><h4 id="2-5-删除deployment"><a href="#2-5-删除deployment" class="headerlink" title="2.5 删除deployment"></a>2.5 删除deployment</h4><pre><code class="shell">#删除deployment
+kubectl delete [deployment deployment-name|deployment/deployment-name]
+#强烈推荐这种方式
+kubectl delete -f deployment.yaml
+
+#删除默认命名空间全部资源
+kubectl delete all --all
+
+#删除指定命名空间的全部资源
+kubectl delete all --all -n namespace-name
+</code></pre><h3 id="3-StatefulSet"><a href="#3-StatefulSet" class="headerlink" title="3. StatefulSet"></a>3. StatefulSet</h3><blockquote><p>官网地址：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/statefulset/">https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/statefulset/</a></p></blockquote><h4 id="3-1-什么是StatefulSet"><a href="#3-1-什么是StatefulSet" class="headerlink" title="3.1 什么是StatefulSet"></a>3.1 什么是StatefulSet</h4><p>StatefulSet 是用来管理有状态应用的工作负载 API 对象。</p><blockquote><p>无状态应用：应用本身不存储任何数据的应用称之为无状态应用，比如普通的web程序</p><p>有状态应用：应用本身需要存储数据的应用称之为有状态应用，比如redis、mysql、es等应用</p></blockquote><p>StatefulSet 用来管理某 Pod 集合的部署和扩缩， 并为这些 Pod 提供持久存储和持久标识符。</p><p>和 Deployment 类似， StatefulSet 管理基于相同容器规约的一组 Pod。但和 Deployment 不同的是， StatefulSet 为它们的每个 Pod 维护了一个有粘性的 ID。这些 Pod 是基于相同的规约来创建的， 但是不能相互替换：无论怎么调度，每个 Pod 都有一个永久不变的 ID。</p><p>如果希望使用存储卷为工作负载提供持久存储，可以使用 StatefulSet 作为解决方案的一部分。 尽管 StatefulSet 中的单个 Pod 仍可能出现故障， 但持久的 Pod 标识符使得将现有卷与替换已失败 Pod 的新 Pod 相匹配变得更加容易。</p><h4 id="3-2-StatefulSet特点"><a href="#3-2-StatefulSet特点" class="headerlink" title="3.2 StatefulSet特点"></a>3.2 StatefulSet特点</h4><p>StatefulSet 对于需要满足以下一个或多个需求的应用程序很有价值：</p><ul><li>稳定的、唯一的网络标识符。</li><li>稳定的、持久的存储。</li><li>有序的、优雅的部署和扩缩。</li><li>有序的、自动的滚动更新。</li></ul><p>在上面描述中，“稳定的”意味着 Pod 调度或重调度的整个过程是有持久性的。 如果应用程序不需要任何稳定的标识符或有序的部署、删除或扩缩， 则应该使用由一组无状态的副本控制器提供的工作负载来部署应用程序，比如 Deployment 或者 ReplicaSet 可能更适用于你的无状态应用部署需要。</p><h4 id="3-3-限制"><a href="#3-3-限制" class="headerlink" title="3.3 限制"></a>3.3 限制</h4><ul><li>给定 Pod 的存储必须由 <a target="_blank" rel="noopener" href="https://github.com/kubernetes/examples/tree/master/staging/persistent-volume-provisioning/README.md">PersistentVolume Provisioner</a> 基于所请求的 <code>storage class</code> 来制备，或者由管理员预先制备。</li><li>删除或者扩缩 StatefulSet 并<strong>不会</strong>删除它关联的存储卷。 这样做是为了保证数据安全，它通常比自动清除 StatefulSet 所有相关的资源更有价值。</li><li>StatefulSet 当前需要无头服务来负责 Pod 的网络标识。你需要负责创建此服务。</li><li>当删除一个 StatefulSet 时，该 StatefulSet 不提供任何终止 Pod 的保证。 为了实现 StatefulSet 中的 Pod 可以有序且体面地终止，可以在删除之前将 StatefulSet 缩容到 0。</li><li>在默认 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/statefulset/#pod-management-policies">Pod 管理策略</a>(<code>OrderedReady</code>) 时使用<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/statefulset/#rolling-updates">滚动更新</a>， 可能进入需要<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/statefulset/#forced-rollback">人工干预</a>才能修复的损坏状态。</li></ul><h4 id="3-4-使用StatefulSet"><a href="#3-4-使用StatefulSet" class="headerlink" title="3.4 使用StatefulSet"></a>3.4 使用StatefulSet</h4><pre><code class="yaml">kind: Service #提供外部访问，后续会讲
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: nginx
+---
+apiVersion: apps/v1
+kind: StatefulSet #StatefulSet控制器
+metadata:
+  name: web #StatefulSet控制器名称
+spec:
+  selector:
+    matchLabels:
+      app: nginx # 必须匹配 .spec.template.metadata.labels
+  serviceName: &quot;nginx&quot;
+  replicas: 3 # 默认值是 1
+  minReadySeconds: 10 # 默认值是 0
+  template:
+    metadata:
+      labels:
+        app: nginx # 必须匹配 .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: nginx
+        image: registry.k8s.io/nginx-slim:0.8
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: www
+          mountPath: /usr/share/nginx/html #外部卷绑定容器内部这个路径/usr/share/nginx/html
+  volumeClaimTemplates:
+  - metadata:
+      name: www #持久卷名称
+    spec:
+      accessModes: [ &quot;ReadWriteOnce&quot; ]
+      storageClassName: &quot;my-storage-class&quot;
+      resources:
+        requests:
+          storage: 1Gi
+</code></pre><h3 id="4-DaemonSet"><a href="#4-DaemonSet" class="headerlink" title="4. DaemonSet"></a>4. DaemonSet</h3><blockquote><p>官网地址：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/daemonset/">https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/daemonset/</a></p></blockquote><h4 id="4-1-什么是DaemonSet控制器"><a href="#4-1-什么是DaemonSet控制器" class="headerlink" title="4.1 什么是DaemonSet控制器"></a>4.1 什么是DaemonSet控制器</h4><p><strong>DaemonSet</strong> 确保全部（或者某些）节点上运行一个 Pod 的副本。 当有节点加入集群时， 也会为他们新增一个 Pod 。 当有节点从集群移除时，这些 Pod 也会被回收。删除 DaemonSet 将会删除它创建的所有 Pod。</p><p>DaemonSet 的一些典型用法：</p><ul><li>在每个节点上运行集群守护进程</li><li>在每个节点上运行日志收集守护进程</li><li>在每个节点上运行监控守护进程</li></ul><p>一种简单的用法是为每种类型的守护进程在所有的节点上都启动一个 DaemonSet。 一个稍微复杂的用法是为同一种守护进程部署多个 DaemonSet；每个具有不同的标志， 并且对不同硬件类型具有不同的内存、CPU 要求。</p><h4 id="4-2-使用DaemonSet"><a href="#4-2-使用DaemonSet" class="headerlink" title="4.2 使用DaemonSet"></a>4.2 使用DaemonSet</h4><pre><code class="yaml">#nginx-daeon.yaml
+apiVersion: apps/v1 #版本信息
+kind: DaemonSet #DaemonSet控制器
+metadata:
+  name: nginx-deployment #DaemonSet名称
+  labels:
+    app: nginx-deployment #DaemonSet标签名称
+spec: #描述DaemonSet的细节信息
+  selector: #用来告知DaemonSet控制器选择对应标签的pod进行管理，和上面labels不是一个
+    matchLabels:
+      app: nginx
+  template: #描述DaemonSet管理的pod的spec信息
+    metadata:
+      name: nginx
+      labels:
+        app: nginx #pod标签，和上面selector.matchLabels.app对应
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:1.21
+          imagePullPolicy: IfNotPresent
+          resources: &#123;&#125;
+      restartPolicy: Always
+</code></pre><h3 id="5-Job"><a href="#5-Job" class="headerlink" title="5. Job"></a>5. Job</h3><blockquote><p>官网地址：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/job/">https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/job/</a></p></blockquote><h4 id="5-1-什么是Job"><a href="#5-1-什么是Job" class="headerlink" title="5.1 什么是Job"></a>5.1 什么是Job</h4><p>Job 会创建一个或者多个 Pod，并将继续重试 Pod 的执行，直到指定数量的 Pod 成功终止。 随着 Pod 成功结束，Job 跟踪记录成功完成的 Pod 个数。 当数量达到指定的成功个数阈值时，任务（即 Job）结束。 删除 Job 的操作会清除所创建的全部 Pod。 挂起 Job 的操作会删除 Job 的所有活跃 Pod，直到 Job 被再次恢复执行。</p><p>一种简单的使用场景下，你会创建一个 Job 对象以便以一种可靠的方式运行某 Pod 直到完成。 当第一个 Pod 失败或者被删除（比如因为节点硬件失效或者重启）时，Job 对象会启动一个新的 Pod。</p><p>你也可以使用 Job 以并行的方式运行多个 Pod。</p><p>如果你想按某种排期表（Schedule）运行 Job（单个任务或多个并行任务），请参阅 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/cron-jobs/">CronJob</a></p><h4 id="5-2-使用Job"><a href="#5-2-使用Job" class="headerlink" title="5.2 使用Job"></a>5.2 使用Job</h4><pre><code class="yaml">apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+spec:
+  template:
+    spec:
+      containers:
+        - name: pi
+          image: perl:5.34.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - perl
+            - -Mbignum=bpi
+            - -wle
+            - print bpi(2000)
+      restartPolicy: Never
+  backoffLimit: 4
+</code></pre><h4 id="5-3-自动清理完成的Job"><a href="#5-3-自动清理完成的Job" class="headerlink" title="5.3 自动清理完成的Job"></a>5.3 自动清理完成的Job</h4><p>完成的 Job 通常不需要留存在系统中。在系统中一直保留它们会给 API 服务器带来额外的压力。 如果 Job 由某种更高级别的控制器来管理，例如 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/cron-jobs/">CronJob</a>， 则 Job 可以被 CronJob 基于特定的根据容量裁定的清理策略清理掉。</p><ul><li><p>已完成 Job 的 TTL 机制：自动清理已完成 Job （状态为 <code>Complete</code> 或 <code>Failed</code>）的另一种方式是使用由 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/ttlafterfinished/">TTL 控制器</a>所提供的 TTL 机制。 通过设置 Job 的 <code>.spec.ttlSecondsAfterFinished</code> 字段，可以让该控制器清理掉已结束的资源。TTL 控制器清理 Job 时，会级联式地删除 Job 对象。 换言之，它会删除所有依赖的对象，包括 Pod 及 Job 本身。 注意，当 Job 被删除时，系统会考虑其生命周期保障，例如其 Finalizers。</p><pre><code class="yaml">apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi-with-ttl
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: perl:5.34.0
+        command: [&quot;perl&quot;,  &quot;-Mbignum=bpi&quot;, &quot;-wle&quot;, &quot;print bpi(2000)&quot;]
+      restartPolicy: Never
+</code></pre><p>Job <code>pi-with-ttl</code> 在结束 100 秒之后，可以成为被自动删除的对象。</p><p>如果该字段设置为 <code>0</code>，Job 在结束之后立即成为可被自动删除的对象。 如果该字段没有设置，Job 不会在结束之后被 TTL 控制器自动清除。</p></li></ul><h3 id="6-控制器无法解决的问题"><a href="#6-控制器无法解决的问题" class="headerlink" title="6. 控制器无法解决的问题"></a>6. 控制器无法解决的问题</h3><ul><li>如何为Pod服务提供网络</li><li>如何实现多个Pod之间的负载均衡</li></ul><h2 id="五、Service"><a href="#五、Service" class="headerlink" title="五、Service"></a>五、Service</h2><blockquote><p>官网地址：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/service/">https://kubernetes.io/zh-cn/docs/concepts/services-networking/service/</a></p></blockquote><h3 id="1-什么是Service"><a href="#1-什么是Service" class="headerlink" title="1. 什么是Service"></a>1. 什么是Service</h3><h4 id="1-1-定义"><a href="#1-1-定义" class="headerlink" title="1.1 定义"></a>1.1 定义</h4><p>将运行在一个或一组Pod上的网络应用公开为网络服务的方法。</p><h4 id="1-2-为什么需要Service"><a href="#1-2-为什么需要Service" class="headerlink" title="1.2 为什么需要Service"></a>1.2 为什么需要Service</h4><p>问题：如果一组Pod（后端服务器）为集群内的其他Pod（前端服务器）提供功能，那么前端如何找出并跟踪要链接的IP地址，以便前端可以使用提供工作负载的后端服务？</p><p><img src="/images/k8s04.png" alt="noservice"></p><p>service定义的抽象能够解耦这种关联</p><p><img src="/images/k8s05.png" alt="service"></p><h3 id="2-特性"><a href="#2-特性" class="headerlink" title="2. 特性"></a>2. 特性</h3><ul><li>Service通过label关联对应的Pod</li><li>Service生命周期不与Pod绑定，不会应为Pod重新创建而改变IP</li><li>提供了负载均衡的功能，自动转发流量到不同的Pod</li><li>可对集群外部提供访问端口</li><li>集群内部可通过服务名称访问</li></ul><h3 id="3-Service和Pod的关系"><a href="#3-Service和Pod的关系" class="headerlink" title="3. Service和Pod的关系"></a>3. Service和Pod的关系</h3><p><img src="/images/k8s06.png" alt="service-pod-relation"></p><h3 id="4-使用Service"><a href="#4-使用Service" class="headerlink" title="4. 使用Service"></a>4. 使用Service</h3><pre><code class="yaml">apiVersion: apps/v1
+kind: Deployment #定义一个deployment控制器
+metadata:
+  name: nginx-deployment #控制器名称
+  labels:
+    app: nginx-deployment #控制器标签
+spec:
+  replicas: 1 #创建副本数，如果是多个的话，service就具有负载均衡的功能
+  selector:
+    matchLabels:
+      app: nginx-pod #管理的pod的标签
+  template:
+    metadata:
+      name: nginx-pod #定义pod的名称
+      labels:
+        app: nginx-pod #定义pod的标签
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:1.21
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service #定义一个service
+metadata:
+  name: nginx-service #service名称
+spec:
+  selector:
+    app: nginx-pod #service管理的pod的标签
+  ports:
+    - protocol: TCP #传输协议
+      port: 80 #对外暴露的端口
+      targetPort: 80 #绑定容器的端口
+  type: NodePort #一种service类型，既集群外部访问，又可以集群内部访问
+</code></pre><p>通过<code>kubectl get service</code>，查看服务信息，其中**PORT(S)**中的端口（80:30667&#x2F;TCP），80是在集群内部访问，30667可以在集群外部访问 。我本地使用的环境是docker内置的k8s单机环境，因此我可以直接访问<a href="http://localhost:30667，可以看到nginx的首页。">http://localhost:30667，可以看到nginx的首页。</a></p><h3 id="5-多端口"><a href="#5-多端口" class="headerlink" title="5. 多端口"></a>5. 多端口</h3><pre><code class="yaml">apiVersion: apps/v1
+kind: Deployment #定义一个deployment控制器
+metadata:
+  name: nginx-deployment #控制器名称
+  labels:
+    app: nginx-deployment #控制器标签
+spec:
+  replicas: 1 #创建副本数
+  selector:
+    matchLabels:
+      app: nginx-pod #管理的pod的标签
+  template:
+    metadata:
+      name: nginx-pod #定义pod的名称
+      labels:
+        app: nginx-pod #定义pod的标签
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:1.21
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service #定义一个service
+metadata:
+  name: nginx-service #service名称
+spec:
+  selector:
+    app: nginx-pod #service管理的pod的标签
+  ports:
+    - name: write #端口名称，多端口必须指定，相当于端口唯一标识
+      protocol: TCP
+      port: 80 #对外暴露的端口
+      targetPort: 80 #绑定容器的端口
+      nodePort: 31001 #node 节点端口固定在30000-32767之间
+
+    - name: read #端口名称，多端口必须指定，相当于端口唯一标识
+      protocol: TCP
+      port: 80
+      targetPort: 80 #绑定容器的端口
+      nodePort: 31002 #node 节点端口固定在30000-32767之间
+  type: NodePort #一种service类型，既集群外部访问，又可以集群内部访问
+</code></pre><h3 id="6-类型"><a href="#6-类型" class="headerlink" title="6. 类型"></a>6. 类型</h3><p>对一些应用的某些部分（如前端），可能希望将其暴露给 Kubernetes 集群外部的 IP 地址。</p><p>Kubernetes <code>ServiceTypes</code> 允许指定你所需要的 Service 类型。</p><ul><li><strong>ClusterIP</strong>：通过集群的内部 IP 暴露服务，选择该值时服务只能够在集群内部访问。 这也是你没有为服务显式指定 <code>type</code> 时使用的默认值。 你可以使用 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/ingress/">Ingress</a> 或者 <a target="_blank" rel="noopener" href="https://gateway-api.sigs.k8s.io/">Gateway API</a> 向公众暴露服务。</li><li><strong>NodePort</strong>：通过每个节点上的 IP 和静态端口（<code>NodePort</code>）暴露服务。 为了让节点端口可用，Kubernetes 设置了集群 IP 地址，这等同于你请求 <code>type: ClusterIP</code> 的服务。</li><li><strong>LoadBalancer</strong>：使用云提供商的负载均衡器向外部暴露服务。 Kubernetes 不直接提供负载均衡组件；你必须提供一个，或者将你的 Kubernetes 集群与云提供商集成。</li><li><strong>ExternalName</strong>：将服务映射到 <code>externalName</code> 字段的内容（例如，映射到主机名 <code>api.foo.bar.example</code>）。 该映射将集群的 DNS 服务器配置为返回具有该外部主机名值的 <code>CNAME</code> 记录。 无需创建任何类型代理。</li></ul><h4 id="6-1-ClusterIP类型"><a href="#6-1-ClusterIP类型" class="headerlink" title="6.1 ClusterIP类型"></a>6.1 ClusterIP类型</h4><p><strong>这是最常用的Service类型之一</strong>。在集群内部创建一个虚拟IP地址，它可以被其他在同一集群内的pod访问，但不能被集群外部的请求访问。这种类型的服务通常用于内部服务的暴露，例如数据库或者缓存服务。比如在一个web服务中，你可能需要连接到数据库，但是这个数据库并不需要在应用之外暴露。这个时候，你可以使用ClusterIP类型的Service，让应用可以访问到数据库。</p><h4 id="6-2-NodePort类型"><a href="#6-2-NodePort类型" class="headerlink" title="6.2 NodePort类型"></a>6.2 NodePort类型</h4><p>这种类型的Service会创建一个端口，并绑定到每个集群的节点上，从而允许外部流量访问Service。这个类型通常用于公共服务的暴露，例如web应用或者API。</p><p>如果你将type类型字段设置为NodePort，则Kubernetes控制平面将在–service-node-port-range标志指定的范围内分配端口（默认值：30000-32767）。</p><h4 id="6-3-LoadBalancer类型"><a href="#6-3-LoadBalancer类型" class="headerlink" title="6.3 LoadBalancer类型"></a>6.3 LoadBalancer类型</h4><p>这种类型Service类似于NodePort，但是会在云厂商中创建一个负载均衡器。这个类型通常用在云平台上部署应用。云平台的负载均衡器将流量分发到集群节点。这个类型的Serivice只能在云平台使用，并且需要云厂商提供支持。</p><h4 id="6-4-ExternalName类型"><a href="#6-4-ExternalName类型" class="headerlink" title="6.4 ExternalName类型"></a>6.4 ExternalName类型</h4><p>这种类型的Serivce允许Service到任何需要访问的CNAME DNS条目转发。与其他类型不同的是，它并不会代理请求到任何Pod。相反，它将请求转发到配置的外部地址。这种类型的Service通常用于将服务代理到集群外部的其他服务。比如你有一个外部网络上的服务，你希望在kubernetes集群中使用该服务，这个时候你可以创建一个ExternalName类型的服务，将服务的DNS解析到kubernetes集群中。</p><h3 id="7-内部通信"><a href="#7-内部通信" class="headerlink" title="7. 内部通信"></a>7. 内部通信</h3><p>通过serivce名称+端口号访问，例子：<a target="_blank" rel="noopener" href="http://nginx-service/">http://nginx-service:80</a></p><h2 id="六、存储"><a href="#六、存储" class="headerlink" title="六、存储"></a>六、存储</h2><blockquote><p>官网地址：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/storage/">https://kubernetes.io/zh-cn/docs/concepts/storage/</a></p></blockquote><h3 id="1-卷"><a href="#1-卷" class="headerlink" title="1 卷"></a>1 卷</h3><p>容器中的文件在磁盘上是临时存放的，这给在容器中运行较重要的应用带来一些问题。 当容器崩溃或停止时会出现一个问题。此时容器状态未保存， 因此在容器生命周期内创建或修改的所有文件都将丢失。 在崩溃期间，kubelet 会以干净的状态重新启动容器。 当多个容器在一个 Pod 中运行并且需要共享文件时，会出现另一个问题。 跨所有容器设置和访问共享文件系统具有一定的挑战性。</p><p>Kubernetes 卷（Volume）这一抽象概念能够解决这两个问题。</p><h3 id="2-卷的类型"><a href="#2-卷的类型" class="headerlink" title="2 卷的类型"></a>2 卷的类型</h3><p>Kubernetes 支持很多类型的卷。 Pod 可以同时使用任意数目的卷类型。 [、临时卷类型的生命周期与 Pod 相同， 但持久卷可以比 Pod 的存活期长。 当 Pod 不再存在时，Kubernetes 也会销毁临时卷；不过 Kubernetes 不会销毁持久卷。 对于给定 Pod 中任何类型的卷，在容器重启期间数据都不会丢失。</p><p>卷的核心是一个目录，其中可能存有数据，Pod 中的容器可以访问该目录中的数据。 所采用的特定的卷类型将决定该目录如何形成的、使用何种介质保存数据以及目录中存放的内容。常用类型的卷有：configMap、emptyDir、local、nfs、secret等。</p><ul><li>ConfigMap：可以将配置文件以键值对的方式保存到ConfigMap中，并且可以在Pod中以文件或者环境变量的形式使用。ConfigMap可以用来存储不敏感的配置信息，如应用程序的配置文件</li><li>EmptyDir：是一个空目录，可以在Pod中存放临时数据，当Pod被删除时，该目录也会被删除。</li><li>Local：将本地文件系统的目录或者文件映射到Pod中的一个Volume中，可以用来在Pod中共享文件或者数据。</li><li>NFS：能将网络上一个或者多个NFS共享目录挂在到Pod中的Volumn中，可以用来在多个Pod之间共享数据。</li><li>Secret：将敏感信息以密文的形式保存到Secret中，并且可以在Pod中以文件或者环境变量的形式使用。Secret可以用来存储敏感信息，比如：用户名密码、证书等。</li></ul><h3 id="3-使用方式"><a href="#3-使用方式" class="headerlink" title="3 使用方式"></a>3 使用方式</h3><p>使用卷时, 在 <code>.spec.volumes</code> 字段中设置为 Pod 提供的卷，并在 <code>.spec.containers[*].volumeMounts</code> 字段中声明卷在容器中的挂载位置。 容器中的进程看到的文件系统视图是由它们的容器镜像的初始内容以及挂载在容器中的卷（如果定义了的话）所组成的。 其中根文件系统同容器镜像的内容相吻合。 任何在该文件系统下的写入操作，如果被允许的话，都会影响接下来容器中进程访问文件系统时所看到的内容。</p><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  volumes:
+    ***
+  containers:
+    - name: nginx-container
+      image: nginx:1.21
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        ***
+  restartPolicy: Always
+</code></pre><h3 id="4-常见类型"><a href="#4-常见类型" class="headerlink" title="4 常见类型"></a>4 常见类型</h3><h4 id="4-1-EmptyDir"><a href="#4-1-EmptyDir" class="headerlink" title="4.1 EmptyDir"></a>4.1 EmptyDir</h4><pre><code class="yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-pod
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+        app: nginx-pod
+    spec:
+      containers:
+        - name: writer
+          image: busybox
+          command: [ &quot;/bin/sh&quot;,&quot;-c&quot;,&quot;echo &#39;hello world&#39; &gt; /data/hello.txt; sleep 3600&quot; ]
+          volumeMounts:
+            - mountPath: /data
+              name: shared-data
+          imagePullPolicy: IfNotPresent
+        - name: reader
+          image: busybox
+          command: [ &quot;/bin/sh&quot;,&quot;-c&quot;,&quot;cat /data/hello.txt; sleep 3600&quot; ]
+          volumeMounts:
+            - mountPath: /data
+              name: shared-data #指定要绑定的volume
+          imagePullPolicy: IfNotPresent
+      volumes:
+        - name: shared-data #定一个volume
+          emptyDir: &#123;&#125; #指定volume的类型
+      restartPolicy: Always
+</code></pre><h4 id="4-2-HostPath"><a href="#4-2-HostPath" class="headerlink" title="4.2 HostPath"></a>4.2 HostPath</h4><pre><code class="yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: busybox
+          image: busybox
+          command: [ &quot;/bin/sh&quot;,&quot;-c&quot;,&quot;echo &#39;hello world&#39; &gt; /data/hello.txt&quot; ]
+          volumeMounts:
+            - mountPath: /data
+              name: shared-data
+          imagePullPolicy: IfNotPresent
+      volumes:
+        - name: shared-data
+          hostPath:
+            path: /root/data
+      restartPolicy: Always
+</code></pre><h4 id="4-3-NFS"><a href="#4-3-NFS" class="headerlink" title="4.3 NFS"></a>4.3 NFS</h4><p>NFS （ network filesystem:网络文件存储系统）</p><pre><code class="yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: busybox
+          image: busybox
+          command: [ &quot;/bin/sh&quot;,&quot;-c&quot;,&quot;echo &#39;hello world&#39; &gt; /data/hello.txt&quot; ]
+          volumeMounts:
+            - mountPath: /data
+              name: shared-data
+          imagePullPolicy: IfNotPresent
+      volumes:
+        - name: shared-data
+          nfs:
+              server: [服务器ip]
+            path: /root/data #映射地址
+      restartPolicy: Always
+</code></pre><h3 id="5-PV-amp-PVC"><a href="#5-PV-amp-PVC" class="headerlink" title="5. PV &amp; PVC"></a>5. PV &amp; PVC</h3><h4 id="5-1-问题"><a href="#5-1-问题" class="headerlink" title="5.1 问题"></a>5.1 问题</h4><p>Volume提供了非常好的数据持久化方案，不过在可管理性上还有不足。拿前面nfs例子说，要使用volume，Pod必须要知道以下信息：</p><ul><li>当前的volumn类型，并且明确volumn已经创建好了</li><li>必须知道volumn的具体地址信息</li></ul><p>但是Pod通常是由开发人员维护，Volumn则通常由存储系统的管理员维护。开发人员要获得上面的信息，要么询问管理员，要么自己就是管理员。这样问题就来了，开发人员和系统管理人员职责耦合。如果系统比较小或者是开发环境，是可以接受的，但是当集群规模变大，特别是对于生产环境，考虑到事故和安全性，这就成了必须要解决的问题。</p><h4 id="5-2-PV-amp-PVC"><a href="#5-2-PV-amp-PVC" class="headerlink" title="5.2 PV &amp; PVC"></a>5.2 PV &amp; PVC</h4><p><strong>持久卷（PersistentVolume，PV）</strong> 是集群中的一块存储，可以由管理员事先制备， 或者使用存储类（Storage Class）来动态制备。 持久卷是集群资源，就像节点也是集群资源一样。PV 持久卷和普通的 Volume 一样， 也是使用卷插件来实现的，只是它们拥有独立于任何使用 PV 的 Pod 的生命周期。</p><p><strong>持久卷申领（PersistentVolumeClaim，PVC）</strong> 表达的是用户对存储的请求。概念上与 Pod 类似。 Pod 会耗用节点资源，而 PVC 申领会耗用 PV 资源。Pod 可以请求特定数量的资源（CPU 和内存）；同样 PVC 申领也可以请求特定的大小和访问模式</p><h4 id="5-3-基本使用"><a href="#5-3-基本使用" class="headerlink" title="5.3 基本使用"></a>5.3 基本使用</h4><ul><li><p>创建pv</p><pre><code class="yaml">apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv
+spec:
+  capacity:
+    storage: 1Gi #指定容量大小
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: /&#123;nfs-目录名称&#125;
+    server: &#123;nfs-server IP 地址&#125;
+</code></pre></li><li><p>accessModes：支持的访问模式有3种：</p><ul><li>ReadWriteOnce表示PV能以readwrite模式mount到单个节点。这个PV只能被某个节点以读写的方式挂在，意味着这个PV只能被一个Pod挂在到某个节点上，并且这个Pod可以对这个PV进行读写操作。如果尝试在其他节点上挂载这个PV，就会失败</li><li>ReadOnlyMany表示PV能以read-only的方式mount到多个节点。这个PV能被多个节点以只读的方式挂载，意味着这个PV可以被多个Pod挂载到多个节点上。</li><li>ReadWriteMany表示PV能以read-write模式mount到多个节点。这个PV能被多个节点以读写的方式挂载，意味着这个PV可以被多个Pod挂载到多个节点上。</li></ul></li><li><p>persistentVolumeReclaimPolicy：指定PV的回收策略，支持三种策略</p><ul><li><p>Retain：在PVC被删除后，保留PV和其数据，手动清理PV中的数据</p></li><li><p>Delete：在PVC被删除后，自动删除PV和其数据</p></li><li><p>Recycle：在PVC被删除后，通过删除PV中的数据来准备PV以供重新使用</p><blockquote><p>注意：persistentVolumeReclaimPolicy只适用于一些类型的PV，如NFS、HostPath等。对于一些云平台提供的存储，如AWS EBS和Azure Disk，由于地层提供商会自充处理PV的回收问题，因此该属性不适用。</p></blockquote></li></ul></li><li><p>storageClassName：指定PV的class为nfs。相当于为PV设置一个分类，PVC可以指定class申请相应class的PV。</p></li><li><p>创建PVC</p><pre><code class="yaml">apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: nfs #通过名称选择PV
+</code></pre></li><li><p>使用PVC</p><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: pvc-pod
+  labels:
+    app: pvc-pod
+spec:
+  containers:
+    - name: pvc-pod
+      image: busybox
+      command: [&quot;/bin/sh&quot;]
+      args: [&quot;-c&quot;, &quot;while true; do echo &#39;Hello NFS!&#39; &gt;&gt;/data/index.html; sleep 1; done&quot;]
+      volumeMounts:
+        - mountPath: /data
+          name: nfs-volume
+      imagePullPolicy: IfNotPresent
+  volumes:
+    - name: nfs-volume
+      persistentVolumeClaim:
+        claimName: nfs-pvc #使用我们上面定义的pvc
+  restartPolicy: Always
+</code></pre></li></ul><h2 id="七、ConfigMap-amp-Secret"><a href="#七、ConfigMap-amp-Secret" class="headerlink" title="七、ConfigMap &amp; Secret"></a>七、ConfigMap &amp; Secret</h2><h3 id="1-ConfigMap"><a href="#1-ConfigMap" class="headerlink" title="1. ConfigMap"></a>1. ConfigMap</h3><blockquote><p>官网地址：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/configuration/configmap/">https://kubernetes.io/zh-cn/docs/concepts/configuration/configmap/</a></p></blockquote><h4 id="1-1-简介-1"><a href="#1-1-简介-1" class="headerlink" title="1.1 简介"></a>1.1 简介</h4><p>在kubernetes中，ConfigMap是一种用于存储非敏感信息的kubernetes对象。它用于存储配置数据，如键值对、整个配置文件或者JSON数据等。ConfigMap通常用于容器镜像的配置文件、命令行参数和环境变量。</p><p>ConfigMap可以通过三种方式进行配置数据的注入：</p><ol><li>环境变量注入：将配置数据注入到Pod中的容器环境变量中</li><li>配置文件注入：将配置数据注入到Pod中的容器文件系统中，容器可以读取这些文件。</li><li>命令行参数注入：将配置数据注入到容器的命令行参数中。</li></ol><h4 id="1-2-优点"><a href="#1-2-优点" class="headerlink" title="1.2 优点"></a>1.2 优点</h4><ol><li>避免硬编码，将配置数据与应用代码分离</li><li>便于维护和更新，可以单独修改ConfigMap而不需要重新构建镜像</li><li>可以通过多种方式注入配置数据，更加灵活</li><li>可以通过kubernetes的自动化机制对ConfigMap进行版本控制和回滚</li><li>ConfigMap可以被多个Pod共享，减少了配置数据的重复存储</li></ol><h4 id="1-3-定义ConfigMap"><a href="#1-3-定义ConfigMap" class="headerlink" title="1.3 定义ConfigMap"></a>1.3 定义ConfigMap</h4><ul><li><p>基本操作</p><pre><code class="shell">#查看configmap
+kubectl get cm/configmap
+
+#查看详情
+kubectl describe cm my-config
+
+#删除
+kubectl delete cm my-config
+</code></pre></li><li><p>命令行创建</p><p>可以使用<code>kubectl create configmap</code>命令来创建configMap，具体命令如下：</p><pre><code class="shel">kubectl create configmap my-config --from-literal=key1=value1  --from-literal=key2=value2
+</code></pre></li><li><p>通过配置文件创建（推荐）</p><p>可以通过创建YAML文件的方式来定义ConfigMap。例如创建一个名为my-config的configMap，内容如下：</p><pre><code class="yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  key1: &quot;v1&quot;
+  key2: &quot;v2&quot;
+  key3: &quot;v3&quot;
+  key4: &quot;v4&quot;
+</code></pre></li><li><p>通过文件创建</p><pre><code class="shell">echo -n admin &gt; ./username
+echo -n 123456 &gt; ./password
+kubectl create configmap my-config --from-file=./username --from-file=./password
+</code></pre></li><li><p>通过文件夹创建</p><p>可以将多个配置文件当道同一个文件夹下，然后使用<code>kubectl create configmap</code>命令创建</p><pre><code class="shell">kubectl create configmap my-config --from-file=config-files/
+</code></pre></li><li><p>通过环境变量创建</p><p>可以将环境变量的值转换成configMap。例如，使用如下命令将当前环境变量的值转成configmap。</p><pre><code class="shell">kubectl create configmap my-config --from-env-file=env
+</code></pre></li></ul><h4 id="1-4-使用configmap"><a href="#1-4-使用configmap" class="headerlink" title="1.4 使用configmap"></a>1.4 使用configmap</h4><ul><li><p>环境变量中使用</p><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+  labels:
+    app: mypod
+spec:
+  containers:
+    - name: mypod
+      image: busybox
+      command: [&quot;/bin/sh&quot;, &quot;-c&quot;, &quot;echo $BUSY_NAME; sleep 3600; &quot;]
+      env:
+        #name:代表容器中需要的环境变量名称
+        - name: BUSY_NAME
+          #valueFrom:上面环境变量的值来源于哪
+          valueFrom:
+            configMapKeyRef: #值来源于configMap
+              name: my-config #来源于哪个configMap
+              key: name #来源于configMap中的哪个key
+
+#下面这种方式是一次性整个configmap值都注入
+#      envFrom:
+#        - configMapRef:
+#            name: my-config
+
+      imagePullPolicy: IfNotPresent
+  restartPolicy: Always
+</code></pre><p><code>注意：env是指定configmap中的某个key， envFrom是整个configmap都注入</code></p></li><li><p>volume中使用</p><pre><code class="yaml">#创建一个configmap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config2
+data:
+  application.yml: | #将｜后面参数加入到configmap中
+    name: &quot;asda&quot;
+    age: &quot;1231&quot;
+</code></pre><pre><code class="yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+  labels:
+    app: mypod
+spec:
+  containers:
+    - name: mypod
+      image: busybox
+      command: [&quot;/bin/sh&quot;, &quot;-c&quot;, &quot; sleep 3600; &quot;]
+      volumeMounts: #通过volumnmount挂载配置文件
+        - mountPath: /data #挂载容器内路径
+          name: config-volume #绑定的volumn名称
+  volumes:
+    - name: config-volume #创建一个volumn卷
+      configMap:
+        name: my-config2 #来源是名字是my-config2的configmap
+#进入容器，可以看到一个/data/application.yml 文件
+</code></pre></li></ul><h3 id="2-Secret"><a href="#2-Secret" class="headerlink" title="2. Secret"></a>2. Secret</h3><blockquote><p>官网地址：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/configuration/secret/">https://kubernetes.io/zh-cn/docs/concepts/configuration/secret/</a></p></blockquote><h4 id="2-1-简介"><a href="#2-1-简介" class="headerlink" title="2.1 简介"></a>2.1 简介</h4><p>Secret 是一种包含少量敏感信息例如密码、令牌或密钥的对象。 这样的信息可能会被放在 Pod 规约中或者镜像中。 使用 Secret 意味着你不需要在应用程序代码中包含机密数据。</p><p>在kubernetes中，secrets通常被用于以下场景：</p><ul><li>作为卷挂载到pod中，用于存储证书、密钥等敏感文件</li><li>在pod中使用环境变量，用于存储用户名和密码等敏感信息</li><li>用于存储Dokcer镜像仓库的登录信息</li><li>用于存储外部服务的API密钥</li></ul><blockquote><p>注意⚠️：</p><p>secret并不提供强大的安全验证，只是将数据简单存储在base64编码下，并不提供加密或者其他安全措施，因此不要将高度敏感的信息存储在secret中。在处理高度敏感的信息时，需要使用更高级别的保护机制，如使用加密数据的Volume类型，或者使用第三方加密方案。</p></blockquote><h4 id="2-2-定义secret"><a href="#2-2-定义secret" class="headerlink" title="2.2 定义secret"></a>2.2 定义secret</h4><ul><li><p>使用命令行创建</p><pre><code class="shell">kubectl create secret generic my-secret --from-literal=username=admin --from-literal=password=admin123 
+</code></pre></li><li><p>使用YAML创建</p><pre><code class="yaml">apiVersion: v1
+kind: Secret
+metadata:
+  name: my-secret
+data:
+  username: YWRtaW4= #admin的base64编码
+  password: YWRtaW4xMjM= #admin123的base64编码
+</code></pre></li><li><p>使用文件创建</p><pre><code class="shell">echo -n admin &gt; ./username
+echo -n 123456 &gt; ./password
+kubectl create secret generic my-secret --from-file=./username --from-file=./password
+</code></pre></li><li><p>通过环境变量创建</p><pre><code class="shell">kubectl create secret generic my-secret --from-env-file=env
+</code></pre></li></ul><h4 id="2-3-使用"><a href="#2-3-使用" class="headerlink" title="2.3 使用"></a>2.3 使用</h4><p>参考configmap，基本一样。</p><h2 id="八、Ingress"><a href="#八、Ingress" class="headerlink" title="八、Ingress"></a>八、Ingress</h2><blockquote><p>官网：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/ingress/">https://kubernetes.io/zh-cn/docs/concepts/services-networking/ingress/</a></p></blockquote><h3 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h3><p>Ingress 是一种kubernetes资源类型，它允许在kubernetes集群中暴露http和https服务。通过ingress，你可以将流量转发到不同的服务和端点，而无需使用不同的负载均衡器。ingress通常使用Ingress Controller实现。它是一个运行在kubernetes集群中的负载均衡器，它根据ingress规则配置路由规则，并将流量转发到相应的服务器。</p><p>在kubernetes中，一个ingress资源定义了一组规则，这些规则用于指定外部流量如何达到集群中的服务。Ingress资源定义包括域名、服务、路径和其他信息。通过这些信息，Ingress Controller就能将请求路由到正确的服务。同时，Ingress还提供tls选项，可以使用ssl&#x2F;tls来加密传输数据。</p><p>Ingress简单示例：</p><p><img src="/images/k8s07.svg" alt="ingress"></p><h3 id="2-Ingress-和-Service区别"><a href="#2-Ingress-和-Service区别" class="headerlink" title="2. Ingress 和 Service区别"></a>2. Ingress 和 Service区别</h3><p>Ingress 和 Service都是kubernetes中用于将流量路由到应用程序的机制，但它门在路由层面上有所不同：</p><ul><li>Service是kubernetes中抽象的应用程序服务，它公开了一个单一的IP地址和端口，可以用在kubernetes集群内部的Pod之间进行流量路由</li><li>Ingress是kubernetes资源对象，它提供了对集群外部流量路由的规则。Ingress通过一个公共IP地址和端口将流量路由到一个或多个Service</li></ul><h3 id="3-Ingress-Controller"><a href="#3-Ingress-Controller" class="headerlink" title="3. Ingress Controller"></a>3. Ingress Controller</h3><p>Ingress Controller是kubernetes中的一种资源，它负责将外部请求转发到集群内部的Service中，并提供负载均衡、SSL终止等功能。</p><p>Ingress Controller通常会运行在kubernetes集群中，作为一组Deployment和Service的形式部署。</p><p>常见的Ingress Controller包括：</p><ol><li>Nginx Ingress Controller是有kubernetes社区维护的另一个Ingress Controller，它也是使用Nginx作为反向代理实现的，可以支持HTTP和HTTPS等协议，支持负载均衡、路由、HTTPS证书管理等功能</li><li>Ingress Nginx Controller是官方维护的一个Ingress Controller，它是使用Nginx作为反向代理实现的，可以支持HTTP和HTTPS等协议，支持负载均衡、路由、HTTPS证书管理等功能</li><li>Traefik Ingress Controller：基于go开发的Ingress Controller，支持多种路由匹配方式和多种后端服务发现方式。</li><li>Istio Ingress Controller：基于Istio Service Mesh实现的Ingress Controller，提供了更丰富的负载均衡、流量控制和安全功能。</li><li>Kong Ingress Controller：使用Kong作为反向代理实现Ingress功能，支持API管理和gateway功能。</li></ol><h3 id="4-使用Traefik-Ingress-Controller"><a href="#4-使用Traefik-Ingress-Controller" class="headerlink" title="4. 使用Traefik Ingress Controller"></a>4. 使用Traefik Ingress Controller</h3><blockquote><p>地址：<a target="_blank" rel="noopener" href="https://doc.traefik.io/">https://doc.traefik.io/</a></p></blockquote></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2023/06/26/2023-02-02k8s%E5%AD%A6%E4%B9%A0/" title="k8s学习">https://github/zhuchong6.github.io/2023/06/26/2023-02-02k8s学习/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag"># 中间件</a> <a href="/tags/k8s/" rel="tag"># k8s</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2023/02/09/2023-02-09nacos%E5%AD%A6%E4%B9%A0/" rel="prev" title="Nacos学习"><i class="fa fa-chevron-left"></i> Nacos学习</a></div><div class="post-nav-item"><a href="/2023/07/05/2023-07-05react%E5%AD%A6%E4%B9%A0/" rel="next" title="react学习">react学习 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Kubernetes%E5%AD%A6%E4%B9%A0"><span class="nav-number">1.</span> <span class="nav-text">Kubernetes学习</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%88%9D%E8%AF%86K8S"><span class="nav-number">1.1.</span> <span class="nav-text">一、初识K8S</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81k8s"><span class="nav-number">1.1.2.</span> <span class="nav-text">为什么需要k8s</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%BB%84%E4%BB%B6-amp-%E6%9E%B6%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">二、组件&amp;架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%9B%86%E7%BE%A4%E7%BB%84%E4%BB%B6"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 集群组件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E7%BB%84%E4%BB%B6%EF%BC%88Contorl-Plane-Component%EF%BC%89"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">1.1 控制平面组件（Contorl Plane Component）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-Node%E7%BB%84%E4%BB%B6"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">1.2. Node组件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-1-kubelet"><span class="nav-number">1.2.1.2.1.</span> <span class="nav-text">1.2.1 kubelet</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-2-kube-proxy"><span class="nav-number">1.2.1.2.2.</span> <span class="nav-text">1.2.2 kube-proxy</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-3-%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">1.2.1.2.3.</span> <span class="nav-text">1.2.3 容器运行时</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-Addons%EF%BC%88%E6%8F%92%E4%BB%B6%EF%BC%89"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">1.3. Addons（插件）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-1-DNS"><span class="nav-number">1.2.1.3.1.</span> <span class="nav-text">1.3.1 DNS</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-2-Web%E7%95%8C%E9%9D%A2%EF%BC%88%E4%BB%AA%E8%A1%A8%E7%9B%98%EF%BC%89"><span class="nav-number">1.2.1.3.2.</span> <span class="nav-text">1.3.2 Web界面（仪表盘）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-3-%E5%AE%B9%E5%99%A8%E8%B5%84%E6%BA%90%E7%9B%91%E6%8E%A7"><span class="nav-number">1.2.1.3.3.</span> <span class="nav-text">1.3.3 容器资源监控</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-4-%E9%9B%86%E7%BE%A4%E5%B1%82%E9%9D%A2%E6%97%A5%E5%BF%97"><span class="nav-number">1.2.1.3.4.</span> <span class="nav-text">1.3.4 集群层面日志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-5-%E7%BD%91%E7%BB%9C%E6%8F%92%E4%BB%B6"><span class="nav-number">1.2.1.3.5.</span> <span class="nav-text">1.3.5 网络插件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 集群架构详解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Pod-amp-Container"><span class="nav-number">1.3.</span> <span class="nav-text">三、Pod &amp; Container</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AFPod"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. 什么是Pod</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">1.1 简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-Pod%E6%80%8E%E4%B9%88%E7%AE%A1%E7%90%86%E5%A4%9A%E4%B8%AA%E5%AE%B9%E5%99%A8%EF%BC%9F"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">1.2 Pod怎么管理多个容器？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8Pod%EF%BC%9F"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">1.3 如何使用Pod？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Pod%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. Pod的基本操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E6%9F%A5%E7%9C%8BPod"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">2.1 查看Pod</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E5%88%9B%E5%BB%BAPod"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">2.2 创建Pod</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-%E5%88%A0%E9%99%A4Pod"><span class="nav-number">1.3.2.3.</span> <span class="nav-text">2.3 删除Pod</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-%E8%BF%9B%E5%85%A5Pod%E5%AE%B9%E5%99%A8"><span class="nav-number">1.3.2.4.</span> <span class="nav-text">2.4 进入Pod容器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-%E6%9F%A5%E7%9C%8BPod%E6%97%A5%E5%BF%97"><span class="nav-number">1.3.2.5.</span> <span class="nav-text">2.5 查看Pod日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-6-%E6%9F%A5%E7%9C%8BPod%E7%9A%84%E6%8F%8F%E8%BF%B0%E4%BF%A1%E6%81%AF"><span class="nav-number">1.3.2.6.</span> <span class="nav-text">2.6 查看Pod的描述信息</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Pod%E8%BF%90%E8%A1%8C%E5%A4%9A%E4%B8%AA%E5%AE%B9%E5%99%A8"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. Pod运行多个容器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-%E5%88%9B%E5%BB%BAPod"><span class="nav-number">1.3.3.1.</span> <span class="nav-text">3.1 创建Pod</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-%E6%9F%A5%E7%9C%8B%E6%8C%87%E5%AE%9A%E5%AE%B9%E5%99%A8%E6%97%A5%E5%BF%97"><span class="nav-number">1.3.3.2.</span> <span class="nav-text">3.2 查看指定容器日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-%E8%BF%9B%E5%85%A5%E5%AE%B9%E5%99%A8"><span class="nav-number">1.3.3.3.</span> <span class="nav-text">3.3 进入容器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Pod%E7%9A%84Labels%EF%BC%88%E6%A0%87%E7%AD%BE%EF%BC%89"><span class="nav-number">1.3.4.</span> <span class="nav-text">4. Pod的Labels（标签）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-%E8%AF%AD%E6%B3%95"><span class="nav-number">1.3.4.1.</span> <span class="nav-text">4.1 语法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.3.4.2.</span> <span class="nav-text">4.2 示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-%E6%A0%87%E7%AD%BE%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.4.3.</span> <span class="nav-text">4.3 标签基本操作</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Pod%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.3.5.</span> <span class="nav-text">5. Pod的生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.3.5.1.</span> <span class="nav-text">5.1 生命周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-Pod%E9%98%B6%E6%AE%B5"><span class="nav-number">1.3.5.2.</span> <span class="nav-text">5.2 Pod阶段</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Container%E7%89%B9%E6%80%A7"><span class="nav-number">1.3.6.</span> <span class="nav-text">6. Container特性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#6-1-%E5%AE%B9%E5%99%A8%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.3.6.1.</span> <span class="nav-text">6.1 容器的生命周期</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Waiting-%EF%BC%88%E7%AD%89%E5%BE%85%EF%BC%89"><span class="nav-number">1.3.7.</span> <span class="nav-text">Waiting （等待）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Running%EF%BC%88%E8%BF%90%E8%A1%8C%E4%B8%AD%EF%BC%89"><span class="nav-number">1.3.8.</span> <span class="nav-text">Running（运行中）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Terminated%EF%BC%88%E5%B7%B2%E7%BB%88%E6%AD%A2%EF%BC%89"><span class="nav-number">1.3.9.</span> <span class="nav-text">Terminated（已终止）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#6-2-%E5%AE%B9%E5%99%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%9B%9E%E8%B0%83"><span class="nav-number">1.3.9.1.</span> <span class="nav-text">6.2 容器生命周期回调</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-3-%E5%AE%B9%E5%99%A8%E9%87%8D%E5%90%AF%E7%AD%96%E7%95%A5"><span class="nav-number">1.3.9.2.</span> <span class="nav-text">6.3 容器重启策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-4-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AE%B9%E5%99%A8%E5%90%AF%E5%8A%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">1.3.9.3.</span> <span class="nav-text">6.4 自定义容器启动命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-5-%E5%AE%B9%E5%99%A8%E6%8E%A2%E9%92%88"><span class="nav-number">1.3.9.4.</span> <span class="nav-text">6.5 容器探针</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#6-5-1-%E6%8E%A2%E9%92%88%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.9.4.1.</span> <span class="nav-text">6.5.1 探针类型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-5-2-%E6%8E%A2%E9%92%88%E6%9C%BA%E5%88%B6"><span class="nav-number">1.3.9.4.2.</span> <span class="nav-text">6.5.2 探针机制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-5-3-%E6%8E%A2%E9%92%88%E7%BB%93%E6%9E%9C"><span class="nav-number">1.3.9.4.3.</span> <span class="nav-text">6.5.3 探针结果</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-5-4-%E6%8E%A2%E9%92%88%E5%8F%82%E6%95%B0"><span class="nav-number">1.3.9.4.4.</span> <span class="nav-text">6.5.4 探针参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-5-5-%E4%BD%BF%E7%94%A8%E6%8E%A2%E9%92%88"><span class="nav-number">1.3.9.4.5.</span> <span class="nav-text">6.5.5 使用探针</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-6-%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6"><span class="nav-number">1.3.9.5.</span> <span class="nav-text">6.6 资源限制</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#6-6-1-metrics-server"><span class="nav-number">1.3.9.5.1.</span> <span class="nav-text">6.6.1 metrics-server</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-6-2-%E6%8C%87%E5%AE%9Acpu%E3%80%81%E5%86%85%E5%AD%98%E8%AF%B7%E6%B1%82%E5%92%8C%E9%99%90%E5%88%B6"><span class="nav-number">1.3.9.5.2.</span> <span class="nav-text">6.6.2 指定cpu、内存请求和限制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-6-3-%E6%9F%A5%E7%9C%8B%E7%9B%91%E6%8E%A7%E4%BF%A1%E6%81%AF"><span class="nav-number">1.3.9.5.3.</span> <span class="nav-text">6.6.3 查看监控信息</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Pod%E4%B8%AD%E7%9A%84init%E5%AE%B9%E5%99%A8"><span class="nav-number">1.3.10.</span> <span class="nav-text">7. Pod中的init容器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#7-1-init%E5%AE%B9%E5%99%A8%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">1.3.10.1.</span> <span class="nav-text">7.1 init容器的特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-2-%E4%BD%BF%E7%94%A8init%E5%AE%B9%E5%99%A8"><span class="nav-number">1.3.10.2.</span> <span class="nav-text">7.2 使用init容器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Controller%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="nav-number">1.4.</span> <span class="nav-text">四、Controller控制器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-controller%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="nav-number">1.4.1.</span> <span class="nav-text">1. controller控制器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AFcontroller"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">1.1 什么是controller</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-%E5%B8%B8%E8%A7%81%E7%9A%84controller"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">1.2 常见的controller</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-controller%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86pod"><span class="nav-number">1.4.1.3.</span> <span class="nav-text">1.3 controller如何管理pod</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Deployment"><span class="nav-number">1.4.2.</span> <span class="nav-text">2. Deployment</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E5%88%9B%E5%BB%BAdeployment"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">2.1 创建deployment</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E6%9F%A5%E7%9C%8Bdeployment"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">2.2 查看deployment</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-%E6%89%A9%E7%BC%A9deployment"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">2.3 扩缩deployment</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-%E5%9B%9E%E6%BB%9Adeployment"><span class="nav-number">1.4.2.4.</span> <span class="nav-text">2.4 回滚deployment</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-%E5%88%A0%E9%99%A4deployment"><span class="nav-number">1.4.2.5.</span> <span class="nav-text">2.5 删除deployment</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-StatefulSet"><span class="nav-number">1.4.3.</span> <span class="nav-text">3. StatefulSet</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-%E4%BB%80%E4%B9%88%E6%98%AFStatefulSet"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">3.1 什么是StatefulSet</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-StatefulSet%E7%89%B9%E7%82%B9"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">3.2 StatefulSet特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-%E9%99%90%E5%88%B6"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">3.3 限制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-%E4%BD%BF%E7%94%A8StatefulSet"><span class="nav-number">1.4.3.4.</span> <span class="nav-text">3.4 使用StatefulSet</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-DaemonSet"><span class="nav-number">1.4.4.</span> <span class="nav-text">4. DaemonSet</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-%E4%BB%80%E4%B9%88%E6%98%AFDaemonSet%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="nav-number">1.4.4.1.</span> <span class="nav-text">4.1 什么是DaemonSet控制器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-%E4%BD%BF%E7%94%A8DaemonSet"><span class="nav-number">1.4.4.2.</span> <span class="nav-text">4.2 使用DaemonSet</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Job"><span class="nav-number">1.4.5.</span> <span class="nav-text">5. Job</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-%E4%BB%80%E4%B9%88%E6%98%AFJob"><span class="nav-number">1.4.5.1.</span> <span class="nav-text">5.1 什么是Job</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-%E4%BD%BF%E7%94%A8Job"><span class="nav-number">1.4.5.2.</span> <span class="nav-text">5.2 使用Job</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-%E8%87%AA%E5%8A%A8%E6%B8%85%E7%90%86%E5%AE%8C%E6%88%90%E7%9A%84Job"><span class="nav-number">1.4.5.3.</span> <span class="nav-text">5.3 自动清理完成的Job</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E6%8E%A7%E5%88%B6%E5%99%A8%E6%97%A0%E6%B3%95%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.4.6.</span> <span class="nav-text">6. 控制器无法解决的问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81Service"><span class="nav-number">1.5.</span> <span class="nav-text">五、Service</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AFService"><span class="nav-number">1.5.1.</span> <span class="nav-text">1. 什么是Service</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-%E5%AE%9A%E4%B9%89"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">1.1 定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81Service"><span class="nav-number">1.5.1.2.</span> <span class="nav-text">1.2 为什么需要Service</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%89%B9%E6%80%A7"><span class="nav-number">1.5.2.</span> <span class="nav-text">2. 特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Service%E5%92%8CPod%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">1.5.3.</span> <span class="nav-text">3. Service和Pod的关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BD%BF%E7%94%A8Service"><span class="nav-number">1.5.4.</span> <span class="nav-text">4. 使用Service</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%A4%9A%E7%AB%AF%E5%8F%A3"><span class="nav-number">1.5.5.</span> <span class="nav-text">5. 多端口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.5.6.</span> <span class="nav-text">6. 类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#6-1-ClusterIP%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.5.6.1.</span> <span class="nav-text">6.1 ClusterIP类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-2-NodePort%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.5.6.2.</span> <span class="nav-text">6.2 NodePort类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-3-LoadBalancer%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.5.6.3.</span> <span class="nav-text">6.3 LoadBalancer类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-4-ExternalName%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.5.6.4.</span> <span class="nav-text">6.4 ExternalName类型</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-%E5%86%85%E9%83%A8%E9%80%9A%E4%BF%A1"><span class="nav-number">1.5.7.</span> <span class="nav-text">7. 内部通信</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%AD%98%E5%82%A8"><span class="nav-number">1.6.</span> <span class="nav-text">六、存储</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%8D%B7"><span class="nav-number">1.6.1.</span> <span class="nav-text">1 卷</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%8D%B7%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.6.2.</span> <span class="nav-text">2 卷的类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">1.6.3.</span> <span class="nav-text">3 使用方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%B8%B8%E8%A7%81%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.6.4.</span> <span class="nav-text">4 常见类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-EmptyDir"><span class="nav-number">1.6.4.1.</span> <span class="nav-text">4.1 EmptyDir</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-HostPath"><span class="nav-number">1.6.4.2.</span> <span class="nav-text">4.2 HostPath</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-NFS"><span class="nav-number">1.6.4.3.</span> <span class="nav-text">4.3 NFS</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-PV-amp-PVC"><span class="nav-number">1.6.5.</span> <span class="nav-text">5. PV &amp; PVC</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-%E9%97%AE%E9%A2%98"><span class="nav-number">1.6.5.1.</span> <span class="nav-text">5.1 问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-PV-amp-PVC"><span class="nav-number">1.6.5.2.</span> <span class="nav-text">5.2 PV &amp; PVC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">1.6.5.3.</span> <span class="nav-text">5.3 基本使用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81ConfigMap-amp-Secret"><span class="nav-number">1.7.</span> <span class="nav-text">七、ConfigMap &amp; Secret</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-ConfigMap"><span class="nav-number">1.7.1.</span> <span class="nav-text">1. ConfigMap</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-%E7%AE%80%E4%BB%8B-1"><span class="nav-number">1.7.1.1.</span> <span class="nav-text">1.1 简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-%E4%BC%98%E7%82%B9"><span class="nav-number">1.7.1.2.</span> <span class="nav-text">1.2 优点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-%E5%AE%9A%E4%B9%89ConfigMap"><span class="nav-number">1.7.1.3.</span> <span class="nav-text">1.3 定义ConfigMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-4-%E4%BD%BF%E7%94%A8configmap"><span class="nav-number">1.7.1.4.</span> <span class="nav-text">1.4 使用configmap</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Secret"><span class="nav-number">1.7.2.</span> <span class="nav-text">2. Secret</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.7.2.1.</span> <span class="nav-text">2.1 简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E5%AE%9A%E4%B9%89secret"><span class="nav-number">1.7.2.2.</span> <span class="nav-text">2.2 定义secret</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-%E4%BD%BF%E7%94%A8"><span class="nav-number">1.7.2.3.</span> <span class="nav-text">2.3 使用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81Ingress"><span class="nav-number">1.8.</span> <span class="nav-text">八、Ingress</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.8.1.</span> <span class="nav-text">1. 简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Ingress-%E5%92%8C-Service%E5%8C%BA%E5%88%AB"><span class="nav-number">1.8.2.</span> <span class="nav-text">2. Ingress 和 Service区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Ingress-Controller"><span class="nav-number">1.8.3.</span> <span class="nav-text">3. Ingress Controller</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BD%BF%E7%94%A8Traefik-Ingress-Controller"><span class="nav-number">1.8.4.</span> <span class="nav-text">4. 使用Traefik Ingress Controller</span></a></li></ol></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">55</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">17</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">26</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2023</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>

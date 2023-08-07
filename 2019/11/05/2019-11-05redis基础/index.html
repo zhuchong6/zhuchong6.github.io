@@ -1,0 +1,542 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="redis学习Redis简介REmote DIctionary Server(Redis) 是一个由Salvatore Sanfilippo写的key-value存储系统。 Redis是一个开源的使用ANSI C语言编写、遵守BSD协议、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API。 它通常被称为数据结构服务器，因为值（value）可以是 字符串(Str"><meta property="og:type" content="article"><meta property="og:title" content="redis基础"><meta property="og:url" content="https://github/zhuchong6.github.io/2019/11/05/2019-11-05redis%E5%9F%BA%E7%A1%80/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="redis学习Redis简介REmote DIctionary Server(Redis) 是一个由Salvatore Sanfilippo写的key-value存储系统。 Redis是一个开源的使用ANSI C语言编写、遵守BSD协议、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API。 它通常被称为数据结构服务器，因为值（value）可以是 字符串(Str"><meta property="og:locale" content="zh_CN"><meta property="article:published_time" content="2019-11-05T09:11:46.000Z"><meta property="article:modified_time" content="2023-08-07T00:18:37.946Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="中间件"><meta property="article:tag" content="redis"><meta name="twitter:card" content="summary"><link rel="canonical" href="https://github/zhuchong6.github.io/2019/11/05/2019-11-05redis%E5%9F%BA%E7%A1%80/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>redis基础 | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">17</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2019/11/05/2019-11-05redis%E5%9F%BA%E7%A1%80/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">redis基础</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2019-11-05 17:11:46" itemprop="dateCreated datePublished" datetime="2019-11-05T17:11:46+08:00">2019-11-05</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2023-08-07 08:18:37" itemprop="dateModified" datetime="2023-08-07T08:18:37+08:00">2023-08-07</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="redis学习"><a href="#redis学习" class="headerlink" title="redis学习"></a>redis学习</h1><h2 id="Redis简介"><a href="#Redis简介" class="headerlink" title="Redis简介"></a>Redis简介</h2><p>REmote DIctionary Server(Redis) 是一个由Salvatore Sanfilippo写的key-value存储系统。</p><p>Redis是一个开源的使用ANSI C语言编写、遵守BSD协议、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API。</p><p>它通常被称为数据结构服务器，因为值（value）可以是 字符串(String), 哈希(Hash), 列表(list), 集合(sets) 和 有序集合(sorted sets)等类型</p><span id="more"></span><h2 id="Redis安装"><a href="#Redis安装" class="headerlink" title="Redis安装"></a>Redis安装</h2><p>redis可以安装在linux、window等平台上，在这里我们主要学习安装到doker中</p><pre><code class="shell">#1.下载redis镜像
+docker pull redis  
+
+#2.启动redis容器, 
+# -v 绑定宿主机的配置文件到容器内的配置文件，这样以后修改配置，直接改宿主机的配置就行
+# -v 将redis持久化数据目录映射到宿主机，方便以后迁移 
+# -p 将宿主机的3306端口与容器的3306端口映射起来
+docker run -d -v /e/docker-config/redis/redis.conf:/usr/local/etc/redis/redis.conf  -v /e/docker-config/redis/data/:/data -p 6379:6379 --name myredis --restart always redis:latest redis-server /usr/local/etc/redis/redis.conf 
+</code></pre><h2 id="基础数据结构"><a href="#基础数据结构" class="headerlink" title="基础数据结构"></a>基础数据结构</h2><h3 id="字符串（String）"><a href="#字符串（String）" class="headerlink" title="字符串（String）"></a>字符串（String）</h3><h4 id="基本信息"><a href="#基本信息" class="headerlink" title="基本信息"></a>基本信息</h4><p>string是最基本的类型，一个key对应一个value</p><p>string是二进制安全的（在传输数据时，保证二进制数据的信息安全，也就是不被篡改、破译等，如果被攻击，能够及时检测出来）,意味着redis可以存储任何类型的数据，例如图片或者是序列化的Java对象</p><p>栗子：c中<code>strlen()</code>函数如果这样使用<code>strlen(&quot;123\0222&quot;)</code>,结果是3，因为c中是以\0作为结尾分隔符号，只能识别123。简而言之，传过来的是什么就是什么，不会因为其他改变就是二进制安全</p><h4 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h4><h5 id="SET-key-value-EX-seconds-px-milliseconds-NX-XX"><a href="#SET-key-value-EX-seconds-px-milliseconds-NX-XX" class="headerlink" title="SET key value [EX seconds] [px milliseconds] [NX|XX]"></a>SET key value [EX seconds] [px milliseconds] [NX|XX]</h5><blockquote><p>可用版本：&gt;&#x3D;1.0.0</p></blockquote><p>将字符串值<code>value</code>关联到<code>key</code>,如果<code>key</code>已经持有其他值，<code>SET</code> 就覆写旧值， 无视类型;当<code>SET</code>命令对一个带有生存时间（TTL）的键进行设置之后，该键原有的 TTL 将被清除</p><p>从 Redis 2.6.12 版本开始， SET 命令的行为可以通过一系列参数来修改：</p><ul><li><code>EX seconds</code>: 将键的过期时间设置为 <code>seconds</code> 秒, 执行 <code>SET key value EX seconds</code> 的效果等同于执行 <code>SETEX key seconds value</code></li><li><code>PX milliseconds</code>: 将键的过期时间设置为<code>milliseconds</code>毫秒, 执行 <code>SET key value PX milliseconds</code>的效果等同于执行<code>PSETEX key milliseconds value</code>。</li><li><code>NX</code>：只在键不存在时， 才对键进行设置操作。 执行<code>SET key value NX</code>的效果等同于执行<code>SETNX key value</code></li><li><code>XX</code>：只在键已经存在时， 才对键进行设置操作</li></ul><hr><h5 id="GET-key"><a href="#GET-key" class="headerlink" title="GET key"></a>GET key</h5><blockquote><p>可用版本：&gt;&#x3D; 1.0.0</p></blockquote><p>返回与键 <code>key</code> 相关联的字符串值，如果键 <code>key</code> 不存在，那么返回特殊值<code>nil</code>；否则，返回键<code>key</code>的值；如果键 <code>key</code> 的值并非字符串类型，那么返回一个错误，因为 <code>GET</code> 命令只能用于字符串值</p><hr><h5 id="GET-SET-key-value"><a href="#GET-SET-key-value" class="headerlink" title="GET SET key value"></a>GET SET key value</h5><blockquote><p>可用版本：&gt;&#x3D; 1.0.0</p></blockquote><p>将键<code>key</code>的值设为<code>value</code>， 并返回键<code>key</code>在被设置之前的旧值</p><pre><code class="shell"># 没有旧值，返回 nil
+&gt; getset zzz 123  
+null
+&gt; get zzz
+123
+ # 返回旧值 mongodb
+&gt; getset zzz 456
+123
+&gt; get zzz
+456
+</code></pre><hr><h5 id="STRLEN-key"><a href="#STRLEN-key" class="headerlink" title="STRLEN key"></a>STRLEN key</h5><blockquote><p>可用版本：&gt;&#x3D; 1.0.0</p></blockquote><p>STRLEN 命令返回字符串值的长度</p><pre><code class="shell">&gt; set ceshi &quot;123456&quot;
+OK
+&gt; strlen ceshi
+6
+#当key不存在时，返回0
+&gt; strlen nothing
+0
+&gt; set ceshi2 1
+OK
+</code></pre><hr><h5 id="APPEND-key-value"><a href="#APPEND-key-value" class="headerlink" title="APPEND key value"></a>APPEND key value</h5><blockquote><p>可用版本：&gt;&#x3D; 2.0.0</p></blockquote><p>如果键<code>key</code>已经存在并且它的值是一个字符串，<code>APPEND</code>命令将把<code>value</code>追加到键<code>key</code>现有值的末尾。</p><p>如果<code>key</code>不存在，<code>APPEND</code>就简单地将键<code>key</code>的值设为<code>value</code>， 就像执行<code>SET key value</code>一样。</p><pre><code class="shell">#确保test不存在
+&gt; EXISTS  test  
+0
+# 对不存在的 key 进行 APPEND ，等同于 SET myphone &quot;nokia&quot;
+&gt; APPEND test &quot;123&quot;
+3
+# 字符长度
+&gt; GET test
+123
+# 长度从 3 个字符增加到 11 个字符
+&gt; APPEND test &quot; -- 6666&quot;
+11
+&gt; GET test
+123 -- 6666
+</code></pre><hr><h5 id="SETRANGE-key-offset-value"><a href="#SETRANGE-key-offset-value" class="headerlink" title="SETRANGE key offset value"></a>SETRANGE key offset value</h5><blockquote><p>可用版本：&gt;&#x3D; 2.2.0</p></blockquote><p>从偏移量<code>offset</code>开始， 用<code>value</code>参数覆写(overwrite)键<code>key</code>储存的字符串值。</p><p>不存在的键<code>key</code>当作空白字符串处理</p><pre><code class="shell">&gt; SET test2 &quot;12345678&quot;
+OK
+&gt; SETRANGE test2 6 &quot;OOO&quot;
+9
+&gt; GET test2
+123456OOO
+
+&gt; EXISTS emp_str
+0
+# 对不存在的 key 使用 SETRANGE
+&gt; SETRANGE emp_str 6 &quot;TTT&quot;
+9
+# 空白处被&quot;\x00&quot;填充
+&gt; GET emp_str
+\x00\x00\x00\x00\x00\x00TTT
+</code></pre><h5 id="GETRANGE-key-start-end"><a href="#GETRANGE-key-start-end" class="headerlink" title="GETRANGE key start end"></a>GETRANGE key start end</h5><blockquote><p>可用版本：&gt;&#x3D; 2.2.0</p></blockquote><p>返回键<code>key</code>储存的字符串值的指定部分， 字符串的截取范围由<code>start</code>和<code>end</code>两个偏移量决定 (包括 start 和 end 在内)。</p><p>负数偏移量表示从字符串的末尾开始计数，<code>-1</code>表示最后一个字符，<code>-2</code>表示倒数第二个字符， 以此类推。</p><p><code>GETRANGE</code>通过保证子字符串的值域(range)不超过实际字符串的值域来处理超出范围的值域请求。</p><pre><code>&gt; SET RD &quot;hello_redis&quot;
+OK
+# 返回索引0-4的字符，包括4。
+&gt; GETRANGE RD 0 4
+hello
+# 不支持回绕操作
+&gt; GETRANGE RD -1 -5
+&quot;&quot;
+# 负数索引
+&gt; GETRANGE RD -3 -1
+dis
+# 从第一个到最后一个
+&gt; GETRANGE RD 0 -1
+hello_redis
+# 值域范围不超过实际字符串，超过部分自动被符略
+&gt; GETRANGE RD 0 1008611
+hello_redis
+</code></pre><h5 id="INCR-key"><a href="#INCR-key" class="headerlink" title="INCR key"></a>INCR key</h5><blockquote><p>可用版本：&gt;&#x3D; 1.0.0</p></blockquote><p>为键<code>key</code>储存的数字值加上一。如果<code>key</code>不存在，那么它的值会被初始化0，在执行<code>INCR</code>命令,如果<code>key</code>存储的值不能被解释为数字，会返回一个错误</p><h5 id="INCRBY-key-increment"><a href="#INCRBY-key-increment" class="headerlink" title="INCRBY key increment"></a>INCRBY key increment</h5><blockquote><p>可用版本：&gt;&#x3D; 1.0.0</p></blockquote><p>为键<code>key</code>储存的数字值加上增量<code>increment</code>,其他表现与<code>INCR key</code>类似</p><h5 id="INCRBYFLOAT-key-increment"><a href="#INCRBYFLOAT-key-increment" class="headerlink" title="INCRBYFLOAT key increment"></a>INCRBYFLOAT key increment</h5><blockquote><p>可用版本：&gt;&#x3D; 2.6.0</p></blockquote><h5 id="DECR-key"><a href="#DECR-key" class="headerlink" title="DECR key"></a>DECR key</h5><blockquote><p>可用版本：&gt;&#x3D; 1.0.0</p></blockquote><p>为键<code>key</code>储存的数字值减去一，是INCR的反操作</p><h5 id="DECRBY-key-decrement"><a href="#DECRBY-key-decrement" class="headerlink" title="DECRBY key decrement"></a>DECRBY key decrement</h5><blockquote><p>可用版本：&gt;&#x3D; 1.0.0</p></blockquote><p>将键<code>key</code>储存的整数值减去减量<code>decrement</code></p><h5 id="MSET-key-value-key-value-…"><a href="#MSET-key-value-key-value-…" class="headerlink" title="MSET key value [key value …]"></a>MSET key value [key value …]</h5><blockquote><p>可用版本：&gt;&#x3D; 1.0.1</p></blockquote><p>同时为多个键设置值</p><p>如果某个给定键已经存在， 那么<code>MSET</code>将使用新值去覆盖旧值， 如果这不是你所希望的效果， 请考虑使用<code>MSETNX</code>命令， 这个命令只会在所有给定键都不存在的情况下进行设置</p><p><code>MSET</code>是一个原子性(atomic)操作， 所有给定键都会在同一时间内被设置， 不会出现某些键被设置了但是另一些键没有被设置的情况</p><pre><code>#同时对多个键进行设置
+redis&gt; MSET date &quot;z1&quot; time &quot;z2&quot; weather &quot;z3&quot;
+OK
+
+redis&gt; MGET date time weather
+1) &quot;z1&quot;
+2) &quot;z2&quot;
+3) &quot;z3&quot;
+
+#覆盖已有的值
+redis&gt; MGET k1 k2
+1) &quot;hello&quot;
+2) &quot;world&quot;
+
+redis&gt; MSET k1 &quot;good&quot; k2 &quot;bye&quot;
+OK
+
+redis&gt; MGET k1 k2
+1) &quot;good&quot;
+2) &quot;bye&quot;
+</code></pre><h5 id="MSETNX-key-value-key-value-…"><a href="#MSETNX-key-value-key-value-…" class="headerlink" title="MSETNX key value [key value …]"></a>MSETNX key value [key value …]</h5><p>可用版本： &gt;&#x3D; 1.0.1</p><p>当且仅当所有给定键都不存在时， 为所有给定键设置值,<br>即使只有一个给定键已经存在，<code>MSETNX</code>命令也会拒绝执行对所有键的设置操作。</p><p><code>MSETNX</code>是一个原子性(atomic)操作， 所有给定键要么就全部都被设置， 要么就全部都不设置， 不可能出现第三种状态</p><h5 id="MGET-key-key-…"><a href="#MGET-key-key-…" class="headerlink" title="MGET key [key …]"></a>MGET key [key …]</h5><p>可用版本： &gt;&#x3D; 1.0.0</p><p>返回给定的一个或多个字符串键的值,如果给定的字符串键里面， 有某个键不存在， 那么这个键的值将以特殊值<code>nil</code>表示</p><h3 id="哈希表（Hash）"><a href="#哈希表（Hash）" class="headerlink" title="哈希表（Hash）"></a>哈希表（Hash）</h3><h4 id="基本信息-1"><a href="#基本信息-1" class="headerlink" title="基本信息"></a>基本信息</h4><p>哈希类型 是指键值本身又是一个 键值对结构</p><h4 id="常用命令-1"><a href="#常用命令-1" class="headerlink" title="常用命令"></a>常用命令</h4><h5 id="HSET-hash-field-value"><a href="#HSET-hash-field-value" class="headerlink" title="HSET hash field value"></a>HSET hash field value</h5><blockquote><p>可用版本： &gt;&#x3D; 2.0.0</p></blockquote><p>将哈希表<code>hash</code>中域<code>field</code>的值设置为<code>value</code></p><p>如果给定的哈希表并不存在,那么一个新的哈希表将被创建并执行<code>HSET</code>操作</p><p>如果域<code>field</code>已经存在于哈希表中， 那么它的旧值将被新值<code>value</code>覆盖</p><pre><code class="shell">#设置一个新值，返回1
+redis&gt; HSET user name 1
+(integer) 1
+
+redis&gt; HGET user name
+&quot;1&quot;
+
+#对一个已存在的值进行更新，返回0
+redis&gt; HSET user name zxxx
+(integer) 0
+
+redis&gt; HGET user name
+&quot;zxxx&quot;s
+</code></pre><hr><h5 id="HSETNX-hash-field-value"><a href="#HSETNX-hash-field-value" class="headerlink" title="HSETNX hash field value"></a>HSETNX hash field value</h5><blockquote><p>可用版本： &gt;&#x3D; 2.0.0</p></blockquote><p>当且仅当域<code>field</code>尚未存在于哈希表的情况下，将它的值设置为<code>value</code></p><p>如果给定域已经存在于哈希表当中， 那么命令将放弃执行设置操作</p><p>如果哈希表<code>hash</code>不存在， 那么一个新的哈希表将被创建并执行<code>HSETNX</code>命令</p><pre><code class="shell">#设置一个新值
+redis&gt; HSETNX users name zhangshan
+(integer) 1
+
+redis&gt; HGET users name
+&quot;zhangshan&quot;
+
+#设置一个已存在的值
+redis&gt; HSETNX users name lisi
+(integer) 0
+
+redis&gt; HGET users name
+&quot;zhangshan&quot;
+</code></pre><hr><h5 id="HEXISTS-hash-field"><a href="#HEXISTS-hash-field" class="headerlink" title="HEXISTS hash field"></a>HEXISTS hash field</h5><blockquote><p>可用版本： &gt;&#x3D; 2.0.0</p></blockquote><p>检查给定域<code>field</code>是否存在于哈希表<code>hash</code>当中</p><pre><code class="shell">#不存在
+redis&gt; HEXISTS user lisi
+(integer) 0
+
+#存在
+redis&gt; HEXISTS user lisi
+(integer) 1
+</code></pre><hr><h5 id="HDEL-key-field-field-…"><a href="#HDEL-key-field-field-…" class="headerlink" title="HDEL key field [field …]"></a>HDEL key field [field …]</h5><blockquote><p>可用版本： &gt;&#x3D; 2.0.0</p></blockquote><p>删除哈希表<code>key</code>中的一个或多个指定域，不存在的域将被忽略</p><pre><code class="shell">redis&gt; hgetall user
+1) &quot;name&quot;
+2) &quot;zxxx&quot;
+3) &quot;age&quot;
+4) &quot;111&quot;
+5) &quot;role&quot;
+6) &quot;admin&quot;
+
+#删除一个
+redis&gt; HDEL user name
+(integer) 1
+
+#删除不存在的key
+redis&gt; HDEL user not-exists-field
+(integer) 0
+
+#删除多个
+# 删除多个域
+redis&gt; HDEL user zxxx age
+(integer) 2
+</code></pre><hr><h5 id="HLEN-key"><a href="#HLEN-key" class="headerlink" title="HLEN key"></a>HLEN key</h5><blockquote><p>可用版本： &gt;&#x3D; 2.0.0</p></blockquote><p>返回哈希表<code>key</code>中域的数量</p><hr><h5 id="HSTRLEN-key-field"><a href="#HSTRLEN-key-field" class="headerlink" title="HSTRLEN key field"></a>HSTRLEN key field</h5><blockquote><p>可用版本： &gt;&#x3D; 3.2.0</p></blockquote><p>返回哈希表<code>key</code>中，与给定域<code>field</code>相关联的值的字符串长度（string length）</p><p>如果给定的键或者域不存在， 那么命令返回 0 。</p><hr><h6 id="HINCRBY-key-field-increment"><a href="#HINCRBY-key-field-increment" class="headerlink" title="HINCRBY key field increment"></a>HINCRBY key field increment</h6><blockquote><p>可用版本： &gt;&#x3D; 2.0.0</p></blockquote><p>为哈希表<code>key</code>中的域<code>field</code>的值加上增量<code>increment</code></p><p>增量也可以为负数，相当于对给定域进行减法操作</p><p>如果<code>key</code>不存在，一个新的哈希表被创建并执行<code>HINCRBY</code>命令</p><p>如果域<code>field</code>不存在，那么在执行命令前，域的值被初始化为0</p><p>对一个储存字符串值的域<code>field</code>执行<code>HINCRBY</code>命令将造成一个错误</p><pre><code class="shell"># increment 为正数
+
+redis&gt; HEXISTS counter page_view    # 对空域进行设置
+(integer) 0
+
+redis&gt; HINCRBY counter page_view 200
+(integer) 200
+
+redis&gt; HGET counter page_view
+&quot;200&quot;
+
+
+# increment 为负数
+
+redis&gt; HGET counter page_view
+&quot;200&quot;
+
+redis&gt; HINCRBY counter page_view -50
+(integer) 150
+
+redis&gt; HGET counter page_view
+&quot;150&quot;
+
+
+# 尝试对字符串值的域执行HINCRBY命令
+
+redis&gt; HSET myhash string hello,world       # 设定一个字符串值
+(integer) 1
+
+redis&gt; HGET myhash string
+&quot;hello,world&quot;
+
+redis&gt; HINCRBY myhash string 1              # 命令执行失败，错误。
+(error) ERR hash value is not an integer
+
+redis&gt; HGET myhash string                   # 原值不变
+&quot;hello,world&quot;
+</code></pre><hr><h5 id="HINCRBYFLOAT-key-field-increment"><a href="#HINCRBYFLOAT-key-field-increment" class="headerlink" title="HINCRBYFLOAT key field increment"></a>HINCRBYFLOAT key field increment</h5><blockquote><p>可用版本： &gt;&#x3D; 2.6.0</p></blockquote><p>为哈希表<code>key</code>中的域<code>field</code>加上浮点数增量<code>increment</code></p><p>当以下任意一个条件发生时，返回一个错误：</p><ul><li><p>域<code>field</code>的值不是字符串类型(因为<code>redis</code>中的数字和浮点数都以字符串的形式保存，所以它们都属于字符串类型）</p></li><li><p>域<code>field</code>当前的值或给定的增量<code>increment</code>不能解释(parse)为双精度浮点数(double precision floating point number)</p></li></ul><hr><h6 id="HMSET-key-field-value-field-value-…"><a href="#HMSET-key-field-value-field-value-…" class="headerlink" title="HMSET key field value [field value …]"></a>HMSET key field value [field value …]</h6><blockquote><p>可用版本： &gt;&#x3D; 2.0.0</p></blockquote><p>同时将多个<code>field-value</code>(域-值)对设置到哈希表<code>key</code>中</p><p>此命令会覆盖哈希表中已存在的域，如果<code>key</code>不存在，一个空哈希表被创建并执行<code>HMSET</code>操作。</p><hr><h5 id="HKEYS-key"><a href="#HKEYS-key" class="headerlink" title="HKEYS key"></a>HKEYS key</h5><blockquote><p>可用版本： &gt;&#x3D; 2.0.0</p></blockquote><p>返回哈希表<code>key</code>中的所有域</p><h3 id="列表（List）"><a href="#列表（List）" class="headerlink" title="列表（List）"></a>列表（List）</h3><h4 id="基本信息-2"><a href="#基本信息-2" class="headerlink" title="基本信息"></a>基本信息</h4><p>Redis列表是简单的字符串列表，按照插入顺序排序。可以对列表的两端插入和弹出元素（在列表中的字符串都可以称之为元素），除此之外还可以获取指定的元素列表，并且还可以通过索引下标获取指定元素等等</p><h5 id="LPUSH-key-value-value-…"><a href="#LPUSH-key-value-value-…" class="headerlink" title="LPUSH key value [value …]"></a>LPUSH key value [value …]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>将一个或多个值<code>value</code>插入到列表<code>key</code>的表头</p><p>如果有多个<code>value</code>值，那么各个<code>value</code>值按从左到右的顺序依次插入到表头：比如说，对空列表<code>mylist</code>执行命令<code>LPUSH mylist a b c</code>，列表的值将是<code>c b a</code>，这等同于原子性地执行<code>LPUSH mylist a</code>、<code>LPUSH mylist b</code>和<code>LPUSH mylist c</code>三个命令</p><p>如果<code>key</code>不存在，一个空列表会被创建并执行<code>LPUSH</code>操作</p><p>当<code>key</code>存在但不是列表类型时，返回一个错误</p><pre><code class="shell">&gt; lpush list1 zhangshan lisi wangwu
+(integer) 3
+
+&gt; lrange list1 0 -1
+1) &quot;wangwu&quot;
+2) &quot;lisi&quot;
+3) &quot;zhangshan&quot;
+</code></pre><hr><h5 id="LPUSHX-key-value"><a href="#LPUSHX-key-value" class="headerlink" title="LPUSHX key value"></a>LPUSHX key value</h5><blockquote><p>可用版本： &gt;&#x3D; 2.2.0</p></blockquote><p>将值<code>value</code>插入到列表<code>key</code>的表头，当且仅当<code>key</code>存在并且是一个列表。当<code>key</code>不存在时，<code>LPUSHX</code>命令什么也不做。</p><pre><code class="shell">#对不存在的key执行lpushx
+&gt; lrange test 0 -1
+(empty list or set)
+&gt; lpushx test qqq
+(integer) 0
+&gt; lrange test 0 -1
+(empty list or set)
+
+#对存在的key执行lpushx
+&gt; lrange exitlist 0 -1
+1) &quot;qqq&quot;
+&gt; lpushx exitlist &quot;www&quot;
+(integer) 2
+&gt; lrange exitlist 0 -1
+1) &quot;www&quot;
+2) &quot;qqq&quot;
+</code></pre><hr><h5 id="RPUSH-key-value-value-…"><a href="#RPUSH-key-value-value-…" class="headerlink" title="RPUSH key value [value …]"></a>RPUSH key value [value …]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>将一个或多个值<code>value</code>插入到列表<code>key</code>的表尾(最右边)</p><p>如果有多个<code>value</code>值，那么各个<code>value</code>值按从左到右的顺序依次插入到表尾：比如对一个空列表<code>mylist</code>执行<code>RPUSH mylist a b c</code>，得出的结果列表为<code>a b c</code>，等同于执行命令<code>RPUSH mylist a</code>、<code>RPUSH mylist b</code>、<code>RPUSH mylist c</code></p><p>如果<code>key</code>不存在，一个空列表会被创建并执行<code>RPUSH</code>操作</p><p>当<code>key</code>存在但不是列表类型时，返回一个错误</p><pre><code class="shell">&gt; rpush test &quot;a&quot;
+(integer) 1
+&gt; rpush test &quot;b&quot;
+(integer) 2
+&gt; lrange test 0 -1
+1) &quot;a&quot;
+2) &quot;b&quot;
+</code></pre><h5 id="RPUSHX-key-value"><a href="#RPUSHX-key-value" class="headerlink" title="RPUSHX key value"></a>RPUSHX key value</h5><blockquote><p>可用版本： &gt;&#x3D; 2.2.0</p></blockquote><p>将值<code>value</code>插入到列表<code>key</code>的表尾，当且仅当<code>key</code>存在并且是一个列表,当<code>key</code>不存在时，<code>RPUSHX</code>命令什么也不做</p><hr><h5 id="LPOP-key"><a href="#LPOP-key" class="headerlink" title="LPOP key"></a>LPOP key</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>移除并返回列表<code>key</code>的头元素。</p><pre><code class="shell">&gt; lpush test 111
+(integer) 3
+&gt; lpush test 222
+(integer) 4
+&gt; lrange test 0 -1
+1) &quot;222&quot;
+2) &quot;111&quot;
+3) &quot;a&quot;
+4) &quot;b&quot;
+&gt; lpop test
+&quot;222&quot;
+&gt; lrange test 0 -1
+1) &quot;111&quot;
+2) &quot;a&quot;
+3) &quot;b&quot;
+</code></pre><hr><h5 id="RPOP-key"><a href="#RPOP-key" class="headerlink" title="RPOP key"></a>RPOP key</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>移除并返回列表<code>key</code>的尾元素</p><pre><code class="shell">&gt; lrange test 0 -1
+1) &quot;111&quot;
+2) &quot;a&quot;
+3) &quot;b&quot;
+&gt; rpop test
+&quot;b&quot;
+&gt; lrange test 0 -1
+1) &quot;111&quot;
+2) &quot;a&quot;
+</code></pre><hr><h5 id="RPOPLPUSH-source-destination"><a href="#RPOPLPUSH-source-destination" class="headerlink" title="RPOPLPUSH source destination"></a>RPOPLPUSH source destination</h5><blockquote><p>可用版本： &gt;&#x3D; 1.2.0</p></blockquote><p>命令<code>RPOPLPUSH</code>在一个原子时间内，执行以下两个动作：</p><ul><li>将列表<code>source</code>中的最后一个元素(尾元素)弹出，并返回给客户端。</li><li>将<code>source</code>弹出的元素插入到列表<code>destination</code>，作为<code>destination</code>列表的的头元素</li></ul><p>举个例子，你有两个列表<code>source</code>和<code>destination</code>，<code>source</code>列表有元素<code>a, b, c</code>，<code>destination</code>列表有元素<code>x, y, z</code>，执行<code>RPOPLPUSH source destination</code>之后，<code>source</code>列表包含元素<code>a, b</code>，<code>destination</code>列表包含元素<code>c, x, y, z</code>，并且元素<code>c</code>会被返回给客户端。</p><p>如果<code>source</code>不存在，值<code>nil</code>被返回，并且不执行其他动作。</p><p>如果<code>source</code>和<code>destination</code>相同，则列表中的表尾元素被移动到表头，并返回该元素，可以把这种特殊情况视作列表的旋转(rotation)操作。</p><hr><h6 id="LREM-key-count-value"><a href="#LREM-key-count-value" class="headerlink" title="LREM key count value"></a>LREM key count value</h6><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>根据参数<code>count</code>的值，移除列表中与参数<code>value</code>相等的元素</p><p><code>count</code>的值可以是以下几种：</p><ul><li><code>count &gt; 0</code>: 从表头开始向表尾搜索，移除与<code>value</code>相等的元素，数量为<code>count</code></li><li><code>count &lt; 0</code>: 从表尾开始向表头搜索，移除与<code>value</code>相等的元素，数量为<code>count</code>的绝对值</li><li><code>count = 0</code>: 移除表中所有与<code>value</code>相等的值</li></ul><pre><code class="shell"># 先创建一个表，内容排列是
+# morning hello morning helllo morning
+
+redis&gt; LPUSH greet &quot;morning&quot;
+(integer) 1
+redis&gt; LPUSH greet &quot;hello&quot;
+(integer) 2
+redis&gt; LPUSH greet &quot;morning&quot;
+(integer) 3
+redis&gt; LPUSH greet &quot;hello&quot;
+(integer) 4
+redis&gt; LPUSH greet &quot;morning&quot;
+(integer) 5
+
+redis&gt; LRANGE greet 0 4         # 查看所有元素
+1) &quot;morning&quot;
+2) &quot;hello&quot;
+3) &quot;morning&quot;
+4) &quot;hello&quot;
+5) &quot;morning&quot;
+
+redis&gt; LREM greet 2 morning     # 移除从表头到表尾，最先发现的两个 morning
+(integer) 2                     # 两个元素被移除
+
+redis&gt; LLEN greet               # 还剩 3 个元素
+(integer) 3
+
+redis&gt; LRANGE greet 0 2
+1) &quot;hello&quot;
+2) &quot;hello&quot;
+3) &quot;morning&quot;
+
+redis&gt; LREM greet -1 morning    # 移除从表尾到表头，第一个 morning
+(integer) 1
+
+redis&gt; LLEN greet               # 剩下两个元素
+(integer) 2
+
+redis&gt; LRANGE greet 0 1
+1) &quot;hello&quot;
+2) &quot;hello&quot;
+
+redis&gt; LREM greet 0 hello      # 移除表中所有 hello
+(integer) 2                    # 两个 hello 被移除
+
+redis&gt; LLEN greet
+(integer) 0
+</code></pre><hr><h5 id="LLEN-key"><a href="#LLEN-key" class="headerlink" title="LLEN key"></a>LLEN key</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>返回列表<code>key</code>的长度。如果<code>key</code>不存在，则<code>key</code>被解释为一个空列表，返回0;如果<code>key</code>不是列表类型，返回一个错误。</p><hr><h5 id="LINDEX-key-index"><a href="#LINDEX-key-index" class="headerlink" title="LINDEX key index"></a>LINDEX key index</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>返回列表<code>key</code>中，下标为<code>index</code>的元素。</p><p>下标(index)参数<code>start</code>和<code>stop</code>都以0为底，也就是说，以0表示列表的第一个元素，以1表示列表的第二个元素，以此类推。</p><p>你也可以使用负数下标，以-1表示列表的最后一个元素，-2表示列表的倒数第二个元素，以此类推。</p><hr><h5 id="LINSERT-key-BEFORE-AFTER-pivot-value"><a href="#LINSERT-key-BEFORE-AFTER-pivot-value" class="headerlink" title="LINSERT key BEFORE|AFTER pivot value"></a>LINSERT key BEFORE|AFTER pivot value</h5><blockquote><p>可用版本： &gt;&#x3D; 2.2.0</p></blockquote><p>将值<code>value</code>插入到列表<code>key</code>当中，位于值<code>pivot</code>之前或之后。</p><p>当<code>pivot</code>不存在于列表<code>key</code>时，不执行任何操作。</p><p>当<code>key</code>不存在时，<code>key</code>被视为空列表，不执行任何操作。</p><p>如果<code>key</code>不是列表类型，返回一个错误。</p><hr><h5 id="LSET-key-index-value"><a href="#LSET-key-index-value" class="headerlink" title="LSET key index value"></a>LSET key index value</h5><p>将列表<code>key</code>下标为<code>index</code>的元素的值设置为<code>value</code>。</p><p>当<code>index</code>参数超出范围，或对一个空列表(<code>key</code>不存在)进行<code>LSET</code>时，返回一个错误。</p><hr><h5 id="LRANGE-key-start-stop"><a href="#LRANGE-key-start-stop" class="headerlink" title="LRANGE key start stop"></a>LRANGE key start stop</h5><p>返回列表<code>key</code>中指定区间内的元素，区间以偏移量<code>start</code>和<code>stop</code>指定。</p><p>下标(index)参数<code>start</code>和<code>stop</code>都以0为底，也就是说，以0表示列表的第一个元素，以1表示列表的第二个元素，以此类推</p><p>你也可以使用负数下标，以-1表示列表的最后一个元素，-2表示列表的倒数第二个元素，以此类推</p><h3 id="集合（Set）"><a href="#集合（Set）" class="headerlink" title="集合（Set）"></a>集合（Set）</h3><h4 id="基本信息-3"><a href="#基本信息-3" class="headerlink" title="基本信息"></a>基本信息</h4><p>Redis 的 Set 是 String 类型的无序集合。集合成员是唯一的，这就意味着集合中不能出现重复的数据</p><h5 id="SADD-key-member1-member2"><a href="#SADD-key-member1-member2" class="headerlink" title="SADD key member1 [member2]"></a>SADD key member1 [member2]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>将一个或多个<code>member</code>元素加入到集合<code>key</code>当中，已经存在于集合的<code>member</code>元素将被忽略</p><hr><h5 id="SISMEMBER-key-member"><a href="#SISMEMBER-key-member" class="headerlink" title="SISMEMBER key member"></a>SISMEMBER key member</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>判断<code>member</code>元素是否集合<code>key</code>的成员</p><hr><h5 id="SPOP-key"><a href="#SPOP-key" class="headerlink" title="SPOP key"></a>SPOP key</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>移除并返回集合中的一个随机元素。</p><p>如果只想获取一个随机元素，但不想该元素从集合中被移除的话，可以使用<code>SRANDMEMBER key [count]</code>命令</p><hr><h5 id="SRANDMEMBER-key-count"><a href="#SRANDMEMBER-key-count" class="headerlink" title="SRANDMEMBER key [count]"></a>SRANDMEMBER key [count]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>如果命令执行时，只提供了<code>key</code>参数，那么返回集合中的一个随机元素。</p><p>从 Redis 2.6 版本开始，<code>SRANDMEMBER</code>命令接受可选的<code>count</code>参数：</p><p>如果<code>count</code>为正数，且小于集合基数，那么命令返回一个包含<code>count</code>个元素的数组，数组中的元素各不相同。如果<code>count</code>大于等于集合基数，那么返回整个集合。</p><p>如果<code>count</code>为负数，那么命令返回一个数组，数组中的元素可能会重复出现多次，而数组的长度为<code>count</code>的绝对值。</p><p>该操作和<code>SPOP key</code>相似，但<code>SPOP key</code>将随机元素从集合中移除并返回，而 SRANDMEMBER 则仅仅返回随机元素，而不对集合进行任何改动</p><hr><h5 id="SREM-key-member-member-…"><a href="#SREM-key-member-member-…" class="headerlink" title="SREM key member [member …]"></a>SREM key member [member …]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>移除集合<code>key</code>中的一个或多个<code>member</code>元素，不存在的<code>member</code>元素会被忽略</p><hr><h5 id="SMOVE-source-destination-member"><a href="#SMOVE-source-destination-member" class="headerlink" title="SMOVE source destination member"></a>SMOVE source destination member</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>将<code>member</code>元素从<code>source</code>集合移动到<code>destination</code>集合</p><p><code>SMOVE</code>是原子性操作</p><pre><code class="shell">&gt; SMEMBERS songs
+1) &quot;Billie Jean&quot;
+2) &quot;Believe Me&quot;
+
+&gt; SMEMBERS my_songs
+(empty list or set)
+
+&gt; SMOVE songs my_songs &quot;Believe Me&quot;
+(integer) 1
+
+&gt; SMEMBERS songs
+1) &quot;Billie Jean&quot;
+
+&gt; SMEMBERS my_songs
+1) &quot;Believe Me&quot;
+</code></pre><hr><h5 id="SCARD-key"><a href="#SCARD-key" class="headerlink" title="SCARD key"></a>SCARD key</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>返回集合<code>key</code>的基数(集合中元素的数量)</p><hr><h5 id="SMEMBERS-key"><a href="#SMEMBERS-key" class="headerlink" title="SMEMBERS key"></a>SMEMBERS key</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>返回集合<code>key</code>中的所有成员</p><hr><h5 id="SSCAN-key-cursor-MATCH-pattern-COUNT-count"><a href="#SSCAN-key-cursor-MATCH-pattern-COUNT-count" class="headerlink" title="SSCAN key cursor [MATCH pattern] [COUNT count]"></a>SSCAN key cursor [MATCH pattern] [COUNT count]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>迭代集合中键的元素</p><pre><code class="shell">&gt; SADD myset1 &quot;hello&quot;
+(integer) 1
+&gt; SADD myset1 &quot;hi&quot;
+(integer) 1
+&gt; SADD myset1 &quot;bar&quot;
+(integer) 1
+&gt; sscan myset1 0 match h*
+1) &quot;0&quot;
+2) 1) &quot;hello&quot;
+2) &quot;hi&quot;
+</code></pre><hr><h5 id="SINTER-key-key-…"><a href="#SINTER-key-key-…" class="headerlink" title="SINTER key [key …]"></a>SINTER key [key …]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>返回一个集合的全部成员，该集合是所有给定集合的交集</p><pre><code class="shell">&gt; SMEMBERS myset1
+1) &quot;hello&quot;
+2) &quot;hi&quot;
+3) &quot;bar&quot;
+&gt; SMEMBERS myset2
+1) &quot;qqwr&quot;
+2) &quot;hello&quot;
+&gt; SINTER myset1 myset2
+1) &quot;hello&quot;
+</code></pre><hr><h5 id="SINTERSTORE-destination-key-key-…"><a href="#SINTERSTORE-destination-key-key-…" class="headerlink" title="SINTERSTORE destination key [key …]"></a>SINTERSTORE destination key [key …]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>这个命令类似于<code>SINTER key [key …]</code>命令，但它将结果保存到<code>destination</code>集合，而不是简单地返回结果集。如果<code>destination</code>集合已经存在，则将其覆盖<code>destination</code>可以是<code>key</code>本身。</p><hr><h5 id="SUNION-key-key-…"><a href="#SUNION-key-key-…" class="headerlink" title="SUNION key [key …]"></a>SUNION key [key …]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>返回一个集合的全部成员，该集合是所有给定集合的并集</p><pre><code class="shell">&gt; smembers myset1
+1) &quot;hello&quot;
+2) &quot;hi&quot;
+3) &quot;bar&quot;
+&gt; smembers myset2
+1) &quot;qqwr&quot;
+2) &quot;hello&quot;
+&gt; SUNION myset1 myset2
+1) &quot;qqwr&quot;
+2) &quot;hello&quot;
+3) &quot;hi&quot;
+4) &quot;bar&quot;
+</code></pre><hr><h5 id="SUNIONSTORE-destination-key-key-…"><a href="#SUNIONSTORE-destination-key-key-…" class="headerlink" title="SUNIONSTORE destination key [key …]"></a>SUNIONSTORE destination key [key …]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>这个命令类似于<code>SUNION key [key …]</code>命令，但它将结果保存到<code>destination</code>集合，而不是简单地返回结果集。如果<code>destination</code>已经存在，则将其覆盖。<code>destination</code>可以是<code>key</code>本身。</p><hr><h5 id="SDIFF-key-key-…"><a href="#SDIFF-key-key-…" class="headerlink" title="SDIFF key [key …]"></a>SDIFF key [key …]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>返回一个集合的全部成员，该集合是所有给定集合之间的差集</p><pre><code class="shell">&gt; smembers myset1
+1) &quot;hello&quot;
+2) &quot;hi&quot;
+3) &quot;bar&quot;
+&gt; smembers myset2
+1) &quot;qqwr&quot;
+2) &quot;hello&quot;
+&gt; SDIFF myset1 myset2
+1) &quot;hi&quot;
+2) &quot;bar&quot;
+</code></pre><hr><h5 id="SDIFFSTORE-destination-key-key-…"><a href="#SDIFFSTORE-destination-key-key-…" class="headerlink" title="SDIFFSTORE destination key [key …]"></a>SDIFFSTORE destination key [key …]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.0.0</p></blockquote><p>这个命令的作用和<code>SDIFF key [key …]</code>类似，但它将结果保存到 destination 集合，而不是简单地返回结果集。如果<code>destination</code>已经存在，则将其覆盖。<code>destination</code>可以是<code>key</code>本身。</p><h3 id="有序集合（ZSet）"><a href="#有序集合（ZSet）" class="headerlink" title="有序集合（ZSet）"></a>有序集合（ZSet）</h3><h4 id="基本信息-4"><a href="#基本信息-4" class="headerlink" title="基本信息"></a>基本信息</h4><p>Redis有序集合和集合一样也是string类型元素的集合,且不允许重复的成员。</p><p>不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。</p><p>有序集合的成员是唯一的,但分数(score)却可以重复</p><h5 id="ZADD-key-score-member-score-member-score-member-…"><a href="#ZADD-key-score-member-score-member-score-member-…" class="headerlink" title="ZADD key score member [[score member] [score member] …]"></a>ZADD key score member [[score member] [score member] …]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.2.0</p></blockquote><p>将一个或多个<code>member</code>元素及其<code>score</code>值加入到有序集<code>key</code>当中</p><p>如果某个<code>member</code>已经是有序集的成员，那么更新这个<code>member</code>的<code>score</code>值，并通过重新插入这个<code>member</code>元素，来保证该<code>member</code>在正确的位置上。</p><p><code>score</code>值可以是整数值或双精度浮点数</p><pre><code class="shell">&gt; ZADD rank 9 baidu.com 8 bing.com
+(integer) 2
+&gt; ZRANGE rank 0 -1 WITHSCORES
+1) &quot;bing.com&quot;
+2) 8.0
+3) &quot;baidu.com&quot;
+4) 9.0
+</code></pre><hr><h5 id="ZSCORE-key-member"><a href="#ZSCORE-key-member" class="headerlink" title="ZSCORE key member"></a>ZSCORE key member</h5><blockquote><p>可用版本： &gt;&#x3D; 1.2.0</p></blockquote><p>返回有序集<code>key</code>中，成员<code>member</code>的<code>score</code>值;不存在，返回<code>nil</code></p><pre><code class="shell">&gt; ZRANGE rank 0 -1 WITHSCORES
+1) &quot;bing.com&quot;
+2) 8.0
+3) &quot;baidu.com&quot;
+4) 9.0
+&gt; ZSCORE key bing.com
+(nil)
+&gt; ZSCORE rank bing.com
+8.0
+</code></pre><h5 id="ZINCRBY-key-increment-member"><a href="#ZINCRBY-key-increment-member" class="headerlink" title="ZINCRBY key increment member"></a>ZINCRBY key increment member</h5><blockquote><p>可用版本： &gt;&#x3D; 1.2.0</p></blockquote><p>为有序集<code>key</code>的成员<code>member</code>的<code>score</code>值加上增量<code>increment</code>。</p><p>可以通过传递一个负数值<code>increment</code>，让<code>score</code>减去相应的值，比如<code>ZINCRBY key -5 member</code>，就是让<code>member</code>的<code>score</code>值减去 5 。</p><p>当<code>key</code>不存在，或<code>member</code>不是<code>key</code>的成员时，<code>ZINCRBY key increment member</code>等同于<code>ZADD key increment member</code>。</p><hr><h5 id="ZCARD-key"><a href="#ZCARD-key" class="headerlink" title="ZCARD key"></a>ZCARD key</h5><blockquote><p>可用版本： &gt;&#x3D; 1.2.0</p></blockquote><p>获取有序集合的成员数</p><hr><h5 id="ZCOUNT-key-min-max"><a href="#ZCOUNT-key-min-max" class="headerlink" title="ZCOUNT key min max"></a>ZCOUNT key min max</h5><blockquote><p>可用版本： &gt;&#x3D; 2.0.0</p></blockquote><p>计算在有序集合中指定区间分数的成员数</p><pre><code class="shell"># 测试数据
+&gt; ZRANGE salary 0 -1 WITHSCORES    
+1) &quot;jack&quot;
+2) &quot;2000&quot;
+3) &quot;peter&quot;
+4) &quot;3500&quot;
+5) &quot;tom&quot;
+6) &quot;5000&quot;
+# 计算薪水在 2000-5000 之间的人数
+&gt; ZCOUNT salary 2000 5000          
+(integer) 3
+# 计算薪水在 3000-5000 之间的人数
+&gt; ZCOUNT salary 3000 5000          
+(integer) 2
+</code></pre><hr><h5 id="ZRANGE-key-start-stop-WITHSCORES"><a href="#ZRANGE-key-start-stop-WITHSCORES" class="headerlink" title="ZRANGE key start stop [WITHSCORES]"></a>ZRANGE key start stop [WITHSCORES]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.2.0</p></blockquote><p>通过索引区间返回有序集合指定区间内的成员</p><pre><code class="shell"># 显示整个有序集成员
+&gt; ZRANGE salary 0 -1 WITHSCORES 
+1) &quot;jack&quot;
+2) &quot;3500&quot;
+3) &quot;tom&quot;
+4) &quot;5000&quot;
+5) &quot;boss&quot;
+6) &quot;10086&quot;
+# 显示有序集下标区间 1 至 2 的成员
+&gt; ZRANGE salary 1 2 WITHSCORES              
+1) &quot;tom&quot;
+2) &quot;5000&quot;
+3) &quot;boss&quot;
+4) &quot;10086&quot;
+ # 测试 end 下标超出最大下标时的情况
+&gt; ZRANGE salary 0 200000 WITHSCORES        
+1) &quot;jack&quot;
+2) &quot;3500&quot;
+3) &quot;tom&quot;
+4) &quot;5000&quot;
+5) &quot;boss&quot;
+6) &quot;10086&quot;
+# 测试当给定区间不存在于有序集时的情况
+&gt; ZRANGE salary 200000 3000000 WITHSCORES                  
+(empty list or set)
+</code></pre><hr><h5 id="ZREVRANGE-key-start-stop-WITHSCORES"><a href="#ZREVRANGE-key-start-stop-WITHSCORES" class="headerlink" title="ZREVRANGE key start stop [WITHSCORES]"></a>ZREVRANGE key start stop [WITHSCORES]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.2.0</p></blockquote><p>返回有序集中指定区间内的成员，通过索引，分数从高到低</p><hr><h5 id="ZRANK-key-member"><a href="#ZRANK-key-member" class="headerlink" title="ZRANK key member"></a>ZRANK key member</h5><blockquote><p>可用版本： &gt;&#x3D; 2.0.0</p></blockquote><p>返回有序集合中指定成员的索引。如果成员是有序集<code>key</code>的成员，返回<code>member</code>的排名。如果成员不是有序集<code>key</code>的成员，返回<code>nil</code>。</p><hr><h5 id="ZREVRANK-key-member"><a href="#ZREVRANK-key-member" class="headerlink" title="ZREVRANK key member"></a>ZREVRANK key member</h5><blockquote><p>可用版本： &gt;&#x3D; 2.0.0</p></blockquote><p>返回有序集合中指定成员的排名，有序集成员按分数值递减(从大到小)排序</p><hr><h5 id="ZREM-key-member-member-…"><a href="#ZREM-key-member-member-…" class="headerlink" title="ZREM key member [member …]"></a>ZREM key member [member …]</h5><blockquote><p>可用版本： &gt;&#x3D; 1.2.0</p></blockquote><p>移除有序集合中的一个或多个成员</p><h2 id="高级数据结构"><a href="#高级数据结构" class="headerlink" title="高级数据结构"></a>高级数据结构</h2><h3 id="HyperLogLog"><a href="#HyperLogLog" class="headerlink" title="HyperLogLog"></a>HyperLogLog</h3><h4 id="基本信息-5"><a href="#基本信息-5" class="headerlink" title="基本信息"></a>基本信息</h4><p>HyperLogLog 是用来做基数统计的算法，HyperLogLog 的优点是，在输入元素的数量或者体积非常非常大时，计算基数所需的空间总是固定 的、并且是很小的</p><h5 id="PFADD-key-element-element-…"><a href="#PFADD-key-element-element-…" class="headerlink" title="PFADD key element [element …]"></a>PFADD key element [element …]</h5><blockquote><p>可用版本： &gt;&#x3D; 2.8.9</p></blockquote><p>添加指定元素到 HyperLogLog 中</p><pre><code class="shell">&gt; PFADD myloglog a b c d e f g h i j
+(integer) 0
+&gt; PFCOUNT myloglog
+(integer) 10
+</code></pre><hr><h5 id="PFCOUNT-key-key-…"><a href="#PFCOUNT-key-key-…" class="headerlink" title="PFCOUNT key [key …]"></a>PFCOUNT key [key …]</h5><blockquote><p>可用版本： &gt;&#x3D; 2.8.9</p></blockquote><p>返回给定 HyperLogLog 的基数值，如果多个 HyperLogLog 则返回基数估值之和</p><pre><code class="shell">&gt; PFADD hll foo bar zap
+(integer) 1
+&gt; PFADD hll zap zap zap
+(integer) 0
+&gt; PFADD hll foo bar
+(integer) 0
+&gt; PFCOUNT hll
+(integer) 3
+</code></pre><hr><h5 id="PFMERGE-destkey-sourcekey-sourcekey-…"><a href="#PFMERGE-destkey-sourcekey-sourcekey-…" class="headerlink" title="PFMERGE destkey sourcekey [sourcekey …]"></a>PFMERGE destkey sourcekey [sourcekey …]</h5><blockquote><p>可用版本： &gt;&#x3D; 2.8.9</p></blockquote><p>将多个HyperLogLog合并为一个HyperLogLog，合并后的HyperLogLog的基数估算值是通过对所有 给定HyperLogLog进行并集计算得出的</p><pre><code class="shell">&gt; PFADD hll1 foo bar zap a
+(integer) 1
+&gt; PFADD hll2 a b c foo
+(integer) 1
+&gt; PFMERGE hll3 hll1 hll2
+&quot;OK&quot;
+&gt; PFCOUNT hll3
+(integer) 6
+</code></pre><h3 id="地理位置（GEO）"><a href="#地理位置（GEO）" class="headerlink" title="地理位置（GEO）"></a>地理位置（GEO）</h3><h4 id="基本信息-6"><a href="#基本信息-6" class="headerlink" title="基本信息"></a>基本信息</h4><p>这个功能可以将用户给定的地理位置（经度和纬度）信息储存起来，并对这些信息进行操作</p><h5 id="GEOADD-key-longitude-latitude-member-longitude-latitude-member-…"><a href="#GEOADD-key-longitude-latitude-member-longitude-latitude-member-…" class="headerlink" title="GEOADD key longitude latitude member [longitude latitude member …]"></a>GEOADD key longitude latitude member [longitude latitude member …]</h5><blockquote><p>可用版本： &gt;&#x3D; 3.2.0</p></blockquote><p>将给定的空间元素（纬度、经度、名字）添加到指定的键里面。 这些数据会以有序集合的形式被储存在键里面</p><pre><code class="shell">&gt; GEOADD Sicily 13.361389 38.115556 &quot;Palermo&quot; 15.087269 37.502669 &quot;Catania&quot;
+(integer) 2
+</code></pre><hr><h5 id="GEOPOS-key-member-member-…"><a href="#GEOPOS-key-member-member-…" class="headerlink" title="GEOPOS key member [member …]"></a>GEOPOS key member [member …]</h5><blockquote><p>可用版本： &gt;&#x3D; 3.2.0</p></blockquote><p>从键里面返回所有给定位置元素的位置（经度和纬度）</p><pre><code class="shell">&gt; GEOADD Sicily 13.361389 38.115556 &quot;Palermo&quot; 15.087269 37.502669 &quot;Catania&quot;
+(integer) 2
+
+&gt; GEOPOS Sicily Palermo Catania NonExisting
+1) 1) &quot;13.361389338970184&quot;
+   2) &quot;38.115556395496299&quot;
+2) 1) &quot;15.087267458438873&quot;
+   2) &quot;37.50266842333162&quot;
+3) (nil)
+</code></pre><hr><h5 id="GEODIST-key-member1-member2-unit"><a href="#GEODIST-key-member1-member2-unit" class="headerlink" title="GEODIST key member1 member2 [unit]"></a>GEODIST key member1 member2 [unit]</h5><blockquote><p>可用版本： &gt;&#x3D; 3.2.0</p></blockquote><p>返回两个给定位置之间的距离。</p><p>如果两个位置之间的其中一个不存在， 那么命令返回空值。</p><p>指定单位的参数<code>unit</code>必须是以下单位的其中一个</p><ul><li>m 表示单位为米</li><li>km 表示单位为千米。</li><li>mi 表示单位为英里。</li><li>ft 表示单位为英尺。</li></ul><p>如果用户没有显式地指定单位参数， 那么<code>GEODIST</code>默认使用米作为单位</p><pre><code class="shell">&gt; GEOADD Sicily 13.361389 38.115556 &quot;Palermo&quot; 15.087269 37.502669 &quot;Catania&quot;
+(integer) 2
+
+&gt; GEODIST Sicily Palermo Catania
+&quot;166274.15156960039&quot;
+
+&gt; GEODIST Sicily Palermo Catania km
+&quot;166.27415156960038&quot;
+
+&gt; GEODIST Sicily Palermo Catania mi
+&quot;103.31822459492736&quot;
+
+&gt; GEODIST Sicily Foo Bar
+(nil)
+</code></pre><hr><h5 id="GEORADIUS-key-longitude-latitude-radius-m-km-ft-mi-WITHCOORD-WITHDIST-WITHHASH-ASC-DESC-COUNT-count"><a href="#GEORADIUS-key-longitude-latitude-radius-m-km-ft-mi-WITHCOORD-WITHDIST-WITHHASH-ASC-DESC-COUNT-count" class="headerlink" title="GEORADIUS key longitude latitude radius m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [ASC|DESC] [COUNT count]"></a>GEORADIUS key longitude latitude radius m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [ASC|DESC] [COUNT count]</h5><blockquote><p>可用版本： &gt;&#x3D; 3.2.0</p></blockquote><p>以给定的经纬度为中心， 返回键包含的位置元素当中， 与中心的距离不超过给定最大距离的所有位置元素</p><pre><code class="shell">&gt; GEOADD Sicily 13.361389 38.115556 &quot;Palermo&quot; 15.087269 37.502669 &quot;Catania&quot;
+(integer) 2
+
+&gt; GEORADIUS Sicily 15 37 200 km WITHDIST
+1) 1) &quot;Palermo&quot;
+   2) &quot;190.4424&quot;
+2) 1) &quot;Catania&quot;
+   2) &quot;56.4413&quot;
+
+&gt; GEORADIUS Sicily 15 37 200 km WITHCOORD
+1) 1) &quot;Palermo&quot;
+   2) 1) &quot;13.361389338970184&quot;
+      2) &quot;38.115556395496299&quot;
+2) 1) &quot;Catania&quot;
+   2) 1) &quot;15.087267458438873&quot;
+      2) &quot;37.50266842333162&quot;
+
+&gt; GEORADIUS Sicily 15 37 200 km WITHDIST WITHCOORD
+1) 1) &quot;Palermo&quot;
+   2) &quot;190.4424&quot;
+   3) 1) &quot;13.361389338970184&quot;
+      2) &quot;38.115556395496299&quot;
+2) 1) &quot;Catania&quot;
+   2) &quot;56.4413&quot;
+   3) 1) &quot;15.087267458438873&quot;
+      2) &quot;37.50266842333162&quot;
+</code></pre><h5 id="GEORADIUSBYMEMBER-key-member-radius-m-km-ft-mi-WITHCOORD-WITHDIST-WITHHASH-ASC-DESC-COUNT-count"><a href="#GEORADIUSBYMEMBER-key-member-radius-m-km-ft-mi-WITHCOORD-WITHDIST-WITHHASH-ASC-DESC-COUNT-count" class="headerlink" title="GEORADIUSBYMEMBER key member radius m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [ASC|DESC] [COUNT count]"></a>GEORADIUSBYMEMBER key member radius m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [ASC|DESC] [COUNT count]</h5><blockquote><p>可用版本： &gt;&#x3D; 3.2.0</p></blockquote><p>这个命令和<code>GEORADIUS</code>命令一样， 都可以找出位于指定范围内的元素， 但是<code>GEORADIUSBYMEMBER</code>的中心点是由给定的位置元素决定的， 而不是像<code>GEORADIUS</code>那样， 使用输入的经度和纬度来决定中心点。</p><pre><code class="shell">&gt; GEOADD Sicily 13.583333 37.316667 &quot;Agrigento&quot;
+(integer) 1
+
+&gt; GEOADD Sicily 13.361389 38.115556 &quot;Palermo&quot; 15.087269 37.502669 &quot;Catania&quot;
+(integer) 2
+
+&gt; GEORADIUSBYMEMBER Sicily Agrigento 100 km
+1) &quot;Agrigento&quot;
+2) &quot;Palermo&quot;
+</code></pre><hr><h5 id="GEOHASH-key-member-member-…"><a href="#GEOHASH-key-member-member-…" class="headerlink" title="GEOHASH key member [member …]"></a>GEOHASH key member [member …]</h5><blockquote><p>可用版本： &gt;&#x3D; 3.2.0</p></blockquote><p>返回一个或多个位置元素的 Geohash 表示。</p><pre><code class="shell">&gt; GEOADD Sicily 13.361389 38.115556 &quot;Palermo&quot; 15.087269 37.502669 &quot;Catania&quot;
+(integer) 2
+
+&gt; GEOHASH Sicily Palermo Catania
+1) &quot;sqc8b49rny0&quot;
+2) &quot;sqdtr74hyu0&quot;
+</code></pre><h3 id="位图（bitmaps）"><a href="#位图（bitmaps）" class="headerlink" title="位图（bitmaps）"></a>位图（bitmaps）</h3><h4 id="基本信息-7"><a href="#基本信息-7" class="headerlink" title="基本信息"></a>基本信息</h4><p>Bitmaps 并不是实际的数据类型，而是定义在String类型上的一个面向字节操作的集合，Bitmaps 的最大优势之一在存储信息时极其节约空间</p><h5 id="SETBIT-key-offset-value"><a href="#SETBIT-key-offset-value" class="headerlink" title="SETBIT key offset value"></a>SETBIT key offset value</h5><blockquote><p>可用版本： &gt;&#x3D; 2.2.0</p></blockquote><p>对<code>key</code>所储存的字符串值，设置或清除指定偏移量上的位(bit)</p><pre><code class="shell">&gt; SETBIT bit 10086 1
+(integer) 0
+
+&gt; GETBIT bit 10086
+(integer) 1
+</code></pre><h5 id="GETBIT-key-offset"><a href="#GETBIT-key-offset" class="headerlink" title="GETBIT key offset"></a>GETBIT key offset</h5><blockquote><p>可用版本： &gt;&#x3D; 2.2.0</p></blockquote><p>对<code>key</code>所储存的字符串值，获取指定偏移量上的位(bit)</p><pre><code class="shell">&gt; SETBIT bit 10086 1
+(integer) 0
+
+&gt; GETBIT bit 10086
+(integer) 1
+</code></pre><h5 id="BITCOUNT-key-start-end"><a href="#BITCOUNT-key-start-end" class="headerlink" title="BITCOUNT key [start] [end]"></a>BITCOUNT key [start] [end]</h5><blockquote><p>可用版本： &gt;&#x3D; 2.6.0</p></blockquote><p>计算给定字符串中，被设置为1的比特位的数量</p><p>一般情况下，给定的整个字符串都会被进行计数，通过指定额外的<code>start</code>或<code>end</code>参数，可以让计数只在特定的位上进行</p><p><code>start</code>和<code>end</code>参数的设置,可以使用负数值： 比如-1表示最后一个字节，-2表示倒数第二个字节，以此类推</p><pre><code class="shell">&gt; BITCOUNT bits
+(integer) 0
+
+&gt; SETBIT bits 0 1          # 0001
+(integer) 0
+
+&gt; BITCOUNT bits
+(integer) 1
+
+&gt; SETBIT bits 3 1          # 1001
+(integer) 0
+
+&gt; BITCOUNT bits
+(integer) 2
+</code></pre><h5 id="BITPOS-key-bit-start-end"><a href="#BITPOS-key-bit-start-end" class="headerlink" title="BITPOS key bit [start] [end]"></a>BITPOS key bit [start] [end]</h5><blockquote><p>可用版本： &gt;&#x3D; 2.8.7</p></blockquote><p>返回位图中第一个值为<code>bit</code>的二进制位的位置</p><p>在默认情况下， 命令将检测整个位图， 但用户也可以通过可选的<code>start</code>参数和<code>end</code>参数指定要检测的范围</p><pre><code class="shell">&gt; SETBIT bits 3 1    # 1000
+(integer) 0
+
+&gt; BITPOS bits 0
+(integer) 0
+
+&gt; BITPOS bits 1
+(integer) 3
+</code></pre></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2019/11/05/2019-11-05redis%E5%9F%BA%E7%A1%80/" title="redis基础">https://github/zhuchong6.github.io/2019/11/05/2019-11-05redis基础/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag"># 中间件</a> <a href="/tags/redis/" rel="tag"># redis</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2019/10/30/2019-10-30docker%E6%90%AD%E5%BB%BAredis%E9%9B%86%E7%BE%A4/" rel="prev" title="docker搭建redis集群"><i class="fa fa-chevron-left"></i> docker搭建redis集群</a></div><div class="post-nav-item"><a href="/2020/03/20/2020-03-21redis%E9%AB%98%E7%BA%A7/" rel="next" title="redis高级">redis高级 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#redis%E5%AD%A6%E4%B9%A0"><span class="nav-number">1.</span> <span class="nav-text">redis学习</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">Redis简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E5%AE%89%E8%A3%85"><span class="nav-number">1.2.</span> <span class="nav-text">Redis安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.3.</span> <span class="nav-text">基础数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%EF%BC%88String%EF%BC%89"><span class="nav-number">1.3.1.</span> <span class="nav-text">字符串（String）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">基本信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">常用命令</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#SET-key-value-EX-seconds-px-milliseconds-NX-XX"><span class="nav-number">1.3.1.2.1.</span> <span class="nav-text">SET key value [EX seconds] [px milliseconds] [NX|XX]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GET-key"><span class="nav-number">1.3.1.2.2.</span> <span class="nav-text">GET key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GET-SET-key-value"><span class="nav-number">1.3.1.2.3.</span> <span class="nav-text">GET SET key value</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#STRLEN-key"><span class="nav-number">1.3.1.2.4.</span> <span class="nav-text">STRLEN key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#APPEND-key-value"><span class="nav-number">1.3.1.2.5.</span> <span class="nav-text">APPEND key value</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SETRANGE-key-offset-value"><span class="nav-number">1.3.1.2.6.</span> <span class="nav-text">SETRANGE key offset value</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GETRANGE-key-start-end"><span class="nav-number">1.3.1.2.7.</span> <span class="nav-text">GETRANGE key start end</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#INCR-key"><span class="nav-number">1.3.1.2.8.</span> <span class="nav-text">INCR key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#INCRBY-key-increment"><span class="nav-number">1.3.1.2.9.</span> <span class="nav-text">INCRBY key increment</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#INCRBYFLOAT-key-increment"><span class="nav-number">1.3.1.2.10.</span> <span class="nav-text">INCRBYFLOAT key increment</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DECR-key"><span class="nav-number">1.3.1.2.11.</span> <span class="nav-text">DECR key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DECRBY-key-decrement"><span class="nav-number">1.3.1.2.12.</span> <span class="nav-text">DECRBY key decrement</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MSET-key-value-key-value-%E2%80%A6"><span class="nav-number">1.3.1.2.13.</span> <span class="nav-text">MSET key value [key value …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MSETNX-key-value-key-value-%E2%80%A6"><span class="nav-number">1.3.1.2.14.</span> <span class="nav-text">MSETNX key value [key value …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MGET-key-key-%E2%80%A6"><span class="nav-number">1.3.1.2.15.</span> <span class="nav-text">MGET key [key …]</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E8%A1%A8%EF%BC%88Hash%EF%BC%89"><span class="nav-number">1.3.2.</span> <span class="nav-text">哈希表（Hash）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF-1"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">基本信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4-1"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">常用命令</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#HSET-hash-field-value"><span class="nav-number">1.3.2.2.1.</span> <span class="nav-text">HSET hash field value</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HSETNX-hash-field-value"><span class="nav-number">1.3.2.2.2.</span> <span class="nav-text">HSETNX hash field value</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HEXISTS-hash-field"><span class="nav-number">1.3.2.2.3.</span> <span class="nav-text">HEXISTS hash field</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HDEL-key-field-field-%E2%80%A6"><span class="nav-number">1.3.2.2.4.</span> <span class="nav-text">HDEL key field [field …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HLEN-key"><span class="nav-number">1.3.2.2.5.</span> <span class="nav-text">HLEN key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HSTRLEN-key-field"><span class="nav-number">1.3.2.2.6.</span> <span class="nav-text">HSTRLEN key field</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#HINCRBY-key-field-increment"><span class="nav-number">1.3.2.2.6.1.</span> <span class="nav-text">HINCRBY key field increment</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HINCRBYFLOAT-key-field-increment"><span class="nav-number">1.3.2.2.7.</span> <span class="nav-text">HINCRBYFLOAT key field increment</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#HMSET-key-field-value-field-value-%E2%80%A6"><span class="nav-number">1.3.2.2.7.1.</span> <span class="nav-text">HMSET key field value [field value …]</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HKEYS-key"><span class="nav-number">1.3.2.2.8.</span> <span class="nav-text">HKEYS key</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%97%E8%A1%A8%EF%BC%88List%EF%BC%89"><span class="nav-number">1.3.3.</span> <span class="nav-text">列表（List）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF-2"><span class="nav-number">1.3.3.1.</span> <span class="nav-text">基本信息</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#LPUSH-key-value-value-%E2%80%A6"><span class="nav-number">1.3.3.1.1.</span> <span class="nav-text">LPUSH key value [value …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LPUSHX-key-value"><span class="nav-number">1.3.3.1.2.</span> <span class="nav-text">LPUSHX key value</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RPUSH-key-value-value-%E2%80%A6"><span class="nav-number">1.3.3.1.3.</span> <span class="nav-text">RPUSH key value [value …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RPUSHX-key-value"><span class="nav-number">1.3.3.1.4.</span> <span class="nav-text">RPUSHX key value</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LPOP-key"><span class="nav-number">1.3.3.1.5.</span> <span class="nav-text">LPOP key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RPOP-key"><span class="nav-number">1.3.3.1.6.</span> <span class="nav-text">RPOP key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RPOPLPUSH-source-destination"><span class="nav-number">1.3.3.1.7.</span> <span class="nav-text">RPOPLPUSH source destination</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#LREM-key-count-value"><span class="nav-number">1.3.3.1.7.1.</span> <span class="nav-text">LREM key count value</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LLEN-key"><span class="nav-number">1.3.3.1.8.</span> <span class="nav-text">LLEN key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LINDEX-key-index"><span class="nav-number">1.3.3.1.9.</span> <span class="nav-text">LINDEX key index</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LINSERT-key-BEFORE-AFTER-pivot-value"><span class="nav-number">1.3.3.1.10.</span> <span class="nav-text">LINSERT key BEFORE|AFTER pivot value</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LSET-key-index-value"><span class="nav-number">1.3.3.1.11.</span> <span class="nav-text">LSET key index value</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LRANGE-key-start-stop"><span class="nav-number">1.3.3.1.12.</span> <span class="nav-text">LRANGE key start stop</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E5%90%88%EF%BC%88Set%EF%BC%89"><span class="nav-number">1.3.4.</span> <span class="nav-text">集合（Set）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF-3"><span class="nav-number">1.3.4.1.</span> <span class="nav-text">基本信息</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#SADD-key-member1-member2"><span class="nav-number">1.3.4.1.1.</span> <span class="nav-text">SADD key member1 [member2]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SISMEMBER-key-member"><span class="nav-number">1.3.4.1.2.</span> <span class="nav-text">SISMEMBER key member</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SPOP-key"><span class="nav-number">1.3.4.1.3.</span> <span class="nav-text">SPOP key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SRANDMEMBER-key-count"><span class="nav-number">1.3.4.1.4.</span> <span class="nav-text">SRANDMEMBER key [count]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SREM-key-member-member-%E2%80%A6"><span class="nav-number">1.3.4.1.5.</span> <span class="nav-text">SREM key member [member …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SMOVE-source-destination-member"><span class="nav-number">1.3.4.1.6.</span> <span class="nav-text">SMOVE source destination member</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SCARD-key"><span class="nav-number">1.3.4.1.7.</span> <span class="nav-text">SCARD key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SMEMBERS-key"><span class="nav-number">1.3.4.1.8.</span> <span class="nav-text">SMEMBERS key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SSCAN-key-cursor-MATCH-pattern-COUNT-count"><span class="nav-number">1.3.4.1.9.</span> <span class="nav-text">SSCAN key cursor [MATCH pattern] [COUNT count]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SINTER-key-key-%E2%80%A6"><span class="nav-number">1.3.4.1.10.</span> <span class="nav-text">SINTER key [key …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SINTERSTORE-destination-key-key-%E2%80%A6"><span class="nav-number">1.3.4.1.11.</span> <span class="nav-text">SINTERSTORE destination key [key …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SUNION-key-key-%E2%80%A6"><span class="nav-number">1.3.4.1.12.</span> <span class="nav-text">SUNION key [key …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SUNIONSTORE-destination-key-key-%E2%80%A6"><span class="nav-number">1.3.4.1.13.</span> <span class="nav-text">SUNIONSTORE destination key [key …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SDIFF-key-key-%E2%80%A6"><span class="nav-number">1.3.4.1.14.</span> <span class="nav-text">SDIFF key [key …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SDIFFSTORE-destination-key-key-%E2%80%A6"><span class="nav-number">1.3.4.1.15.</span> <span class="nav-text">SDIFFSTORE destination key [key …]</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88%EF%BC%88ZSet%EF%BC%89"><span class="nav-number">1.3.5.</span> <span class="nav-text">有序集合（ZSet）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF-4"><span class="nav-number">1.3.5.1.</span> <span class="nav-text">基本信息</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ZADD-key-score-member-score-member-score-member-%E2%80%A6"><span class="nav-number">1.3.5.1.1.</span> <span class="nav-text">ZADD key score member [[score member] [score member] …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZSCORE-key-member"><span class="nav-number">1.3.5.1.2.</span> <span class="nav-text">ZSCORE key member</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZINCRBY-key-increment-member"><span class="nav-number">1.3.5.1.3.</span> <span class="nav-text">ZINCRBY key increment member</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZCARD-key"><span class="nav-number">1.3.5.1.4.</span> <span class="nav-text">ZCARD key</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZCOUNT-key-min-max"><span class="nav-number">1.3.5.1.5.</span> <span class="nav-text">ZCOUNT key min max</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZRANGE-key-start-stop-WITHSCORES"><span class="nav-number">1.3.5.1.6.</span> <span class="nav-text">ZRANGE key start stop [WITHSCORES]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZREVRANGE-key-start-stop-WITHSCORES"><span class="nav-number">1.3.5.1.7.</span> <span class="nav-text">ZREVRANGE key start stop [WITHSCORES]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZRANK-key-member"><span class="nav-number">1.3.5.1.8.</span> <span class="nav-text">ZRANK key member</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZREVRANK-key-member"><span class="nav-number">1.3.5.1.9.</span> <span class="nav-text">ZREVRANK key member</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZREM-key-member-member-%E2%80%A6"><span class="nav-number">1.3.5.1.10.</span> <span class="nav-text">ZREM key member [member …]</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AB%98%E7%BA%A7%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.4.</span> <span class="nav-text">高级数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HyperLogLog"><span class="nav-number">1.4.1.</span> <span class="nav-text">HyperLogLog</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF-5"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">基本信息</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#PFADD-key-element-element-%E2%80%A6"><span class="nav-number">1.4.1.1.1.</span> <span class="nav-text">PFADD key element [element …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#PFCOUNT-key-key-%E2%80%A6"><span class="nav-number">1.4.1.1.2.</span> <span class="nav-text">PFCOUNT key [key …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#PFMERGE-destkey-sourcekey-sourcekey-%E2%80%A6"><span class="nav-number">1.4.1.1.3.</span> <span class="nav-text">PFMERGE destkey sourcekey [sourcekey …]</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%EF%BC%88GEO%EF%BC%89"><span class="nav-number">1.4.2.</span> <span class="nav-text">地理位置（GEO）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF-6"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">基本信息</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#GEOADD-key-longitude-latitude-member-longitude-latitude-member-%E2%80%A6"><span class="nav-number">1.4.2.1.1.</span> <span class="nav-text">GEOADD key longitude latitude member [longitude latitude member …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GEOPOS-key-member-member-%E2%80%A6"><span class="nav-number">1.4.2.1.2.</span> <span class="nav-text">GEOPOS key member [member …]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GEODIST-key-member1-member2-unit"><span class="nav-number">1.4.2.1.3.</span> <span class="nav-text">GEODIST key member1 member2 [unit]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GEORADIUS-key-longitude-latitude-radius-m-km-ft-mi-WITHCOORD-WITHDIST-WITHHASH-ASC-DESC-COUNT-count"><span class="nav-number">1.4.2.1.4.</span> <span class="nav-text">GEORADIUS key longitude latitude radius m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [ASC|DESC] [COUNT count]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GEORADIUSBYMEMBER-key-member-radius-m-km-ft-mi-WITHCOORD-WITHDIST-WITHHASH-ASC-DESC-COUNT-count"><span class="nav-number">1.4.2.1.5.</span> <span class="nav-text">GEORADIUSBYMEMBER key member radius m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [ASC|DESC] [COUNT count]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GEOHASH-key-member-member-%E2%80%A6"><span class="nav-number">1.4.2.1.6.</span> <span class="nav-text">GEOHASH key member [member …]</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%8D%E5%9B%BE%EF%BC%88bitmaps%EF%BC%89"><span class="nav-number">1.4.3.</span> <span class="nav-text">位图（bitmaps）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF-7"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">基本信息</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#SETBIT-key-offset-value"><span class="nav-number">1.4.3.1.1.</span> <span class="nav-text">SETBIT key offset value</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GETBIT-key-offset"><span class="nav-number">1.4.3.1.2.</span> <span class="nav-text">GETBIT key offset</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#BITCOUNT-key-start-end"><span class="nav-number">1.4.3.1.3.</span> <span class="nav-text">BITCOUNT key [start] [end]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#BITPOS-key-bit-start-end"><span class="nav-number">1.4.3.1.4.</span> <span class="nav-text">BITPOS key bit [start] [end]</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">55</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">17</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">26</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2023</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>

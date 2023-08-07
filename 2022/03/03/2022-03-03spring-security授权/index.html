@@ -1,0 +1,626 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="回顾之前我们学习了spring-security的认证过程，具体可以看这里这里 这次，我们来学习下security的授权过程。"><meta property="og:type" content="article"><meta property="og:title" content="spring-security授权"><meta property="og:url" content="https://github/zhuchong6.github.io/2022/03/03/2022-03-03spring-security%E6%8E%88%E6%9D%83/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="回顾之前我们学习了spring-security的认证过程，具体可以看这里这里 这次，我们来学习下security的授权过程。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://github/images/filtersecurityinterceptor.png"><meta property="og:image" content="https://github/images/authorizationfilter.png"><meta property="article:published_time" content="2022-03-03T15:07:11.000Z"><meta property="article:modified_time" content="2023-08-07T00:18:37.950Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="Java"><meta property="article:tag" content="Spring"><meta property="article:tag" content="微服务"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://github/images/filtersecurityinterceptor.png"><link rel="canonical" href="https://github/zhuchong6.github.io/2022/03/03/2022-03-03spring-security%E6%8E%88%E6%9D%83/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>spring-security授权 | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">17</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2022/03/03/2022-03-03spring-security%E6%8E%88%E6%9D%83/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">spring-security授权</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2022-03-03 23:07:11" itemprop="dateCreated datePublished" datetime="2022-03-03T23:07:11+08:00">2022-03-03</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2023-08-07 08:18:37" itemprop="dateModified" datetime="2023-08-07T08:18:37+08:00">2023-08-07</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h1><p>之前我们学习了spring-security的认证过程，具体可以看这里<a target="_blank" rel="noopener" href="https://zhuchong6.github.io/2022/02/18/2022-02-18spring-security/#more">这里</a></p><p>这次，我们来学习下security的授权过程。</p><span id="more"></span><h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>和之前一样，我们先回忆下security的过滤器，因为security的认证授权都是基于过滤器机制的,<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-security-filters">security所有拦截器</a>。</p><p>其中比较关键的一个拦截器<code>FilterSecurityInterceptor</code>,是作为控制用户授权的核心过滤器。具体流程图请看下图：</p><p><img src="/images/filtersecurityinterceptor.png" alt="鉴权流程"></p><ol><li><code>FilterSecurityInterceptor</code>从<code>SecurityContextHolder</code>中获取<code>Authentication</code>对象</li><li>根据<code>HttpServletRequest</code>，<code>HttpServletRequest</code>和<code>FilterChain</code>来创建一个<code>FilterInvocation</code>对象</li><li>接下来吧<code>FilterInvocation</code>作为参数，从<code>SecurityMetadataSource</code>中获取<code>ConfigAttribute</code>对象</li><li>最后，它将<code>Authentication</code>、<code>FilterInvocation</code>和<code>ConfigAttribute</code>传递给<code>AccessDecisionManager</code></li></ol><p>具体可以参考源码：</p><pre><code class="java">protected InterceptorStatusToken beforeInvocation(Object object) &#123;
+        Assert.notNull(object, &quot;Object was null&quot;);
+        if (!getSecureObjectClass().isAssignableFrom(object.getClass())) &#123;
+            throw new IllegalArgumentException(&quot;Security invocation attempted for object &quot; + object.getClass().getName()
+                    + &quot; but AbstractSecurityInterceptor only configured to support secure objects of type: &quot;
+                    + getSecureObjectClass());
+        &#125;
+  //这个Object对象其实就是传入的FilterInvocation
+        Collection&lt;ConfigAttribute&gt; attributes = this.obtainSecurityMetadataSource().getAttributes(object);
+        if (CollectionUtils.isEmpty(attributes)) &#123;
+            Assert.isTrue(!this.rejectPublicInvocations,
+                    () -&gt; &quot;Secure object invocation &quot; + object
+                            + &quot; was denied as public invocations are not allowed via this interceptor. &quot;
+                            + &quot;This indicates a configuration error because the &quot;
+                            + &quot;rejectPublicInvocations property is set to &#39;true&#39;&quot;);
+            if (this.logger.isDebugEnabled()) &#123;
+                this.logger.debug(LogMessage.format(&quot;Authorized public object %s&quot;, object));
+            &#125;
+            publishEvent(new PublicInvocationEvent(object));
+            return null; // no further work post-invocation
+        &#125;
+        if (SecurityContextHolder.getContext().getAuthentication() == null) &#123;
+            credentialsNotFound(this.messages.getMessage(&quot;AbstractSecurityInterceptor.authenticationNotFound&quot;,
+                    &quot;An Authentication object was not found in the SecurityContext&quot;), object, attributes);
+        &#125;
+        Authentication authenticated = authenticateIfRequired();
+        if (this.logger.isTraceEnabled()) &#123;
+            this.logger.trace(LogMessage.format(&quot;Authorizing %s with attributes %s&quot;, object, attributes));
+        &#125;
+        // 这一步就是认证的流程
+        attemptAuthorization(object, attributes, authenticated);
+        if (this.logger.isDebugEnabled()) &#123;
+            this.logger.debug(LogMessage.format(&quot;Authorized %s with attributes %s&quot;, object, attributes));
+        &#125;
+        if (this.publishAuthorizationSuccess) &#123;
+            publishEvent(new AuthorizedEvent(object, attributes, authenticated));
+        &#125;
+
+        // Attempt to run as a different user
+        Authentication runAs = this.runAsManager.buildRunAs(authenticated, object, attributes);
+        if (runAs != null) &#123;
+            SecurityContext origCtx = SecurityContextHolder.getContext();
+            SecurityContext newCtx = SecurityContextHolder.createEmptyContext();
+            newCtx.setAuthentication(runAs);
+            SecurityContextHolder.setContext(newCtx);
+
+            if (this.logger.isDebugEnabled()) &#123;
+                this.logger.debug(LogMessage.format(&quot;Switched to RunAs authentication %s&quot;, runAs));
+            &#125;
+            // need to revert to token.Authenticated post-invocation
+            return new InterceptorStatusToken(origCtx, true, attributes, object);
+        &#125;
+        this.logger.trace(&quot;Did not switch RunAs authentication since RunAsManager returned null&quot;);
+        // no further work post-invocation
+        return new InterceptorStatusToken(SecurityContextHolder.getContext(), false, attributes, object);
+
+    &#125;
+</code></pre><pre><code class="java">//认证流程代码
+    private void attemptAuthorization(Object object, Collection&lt;ConfigAttribute&gt; attributes,
+            Authentication authenticated) &#123;
+        try &#123;
+      //决策管理器，进行决策
+      //默认策略AffirmativeBased----只要有一个成功就认证成功
+      //ConsensusBased----成功大于失败才认证成功
+      //UnanimousBased----所有都成功才认证成功
+            this.accessDecisionManager.decide(authenticated, object, attributes);
+        &#125;
+        catch (AccessDeniedException ex) &#123;
+            if (this.logger.isTraceEnabled()) &#123;
+                this.logger.trace(LogMessage.format(&quot;Failed to authorize %s with attributes %s using %s&quot;, object,
+                        attributes, this.accessDecisionManager));
+            &#125;
+            else if (this.logger.isDebugEnabled()) &#123;
+                this.logger.debug(LogMessage.format(&quot;Failed to authorize %s with attributes %s&quot;, object, attributes));
+            &#125;
+            publishEvent(new AuthorizationFailureEvent(object, attributes, authenticated, ex));
+            throw ex;
+        &#125;
+    &#125;
+</code></pre><h1 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h1><h2 id="FilterSecurityInterceptor授权过程"><a href="#FilterSecurityInterceptor授权过程" class="headerlink" title="FilterSecurityInterceptor授权过程"></a>FilterSecurityInterceptor授权过程</h2><p>经过上述的分析，我们基本明白security授权的一般流程。那么，我们可以实战感受下。</p><p>需求：从数据库动态读取权限信息，然后进行认证。</p><p>由上面的授权原理流程图，我们可以看出<code>SecurityMetadataSource</code>中获取的<code>ConfigAttribute</code>存储的就是与计算机安全相关的属性，换句话说就是我们需要的权限信息，所以需要重写<code>SecurityMetadataSource</code>类：</p><pre><code class="java">/**
+ * @author by zhuhcong
+ * @descr sms自定义的权限数据源
+ * @date 2022/3/7 18:14
+ */
+@Slf4j
+@Component
+public class SmsRoleSecurityMetadataSource implements FilterInvocationSecurityMetadataSource &#123;
+
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+    /**
+     * 假设从数据库中加载
+     */
+    private final Map&lt;String,String&gt; urlRoleMap = new HashMap&lt;String,String&gt;()&#123;&#123;
+        put("/open/**","ROLE_ANONYMOUS");
+        put("/health","ROLE_ANONYMOUS");
+        put("/restart","ROLE_ADMIN");
+        put("/demo","ROLE_USER");
+        put("/index", "ROLE_USER");
+    &#125;&#125;;
+
+    @Override
+    public Collection&lt;ConfigAttribute&gt; getAttributes(Object object) throws IllegalArgumentException &#123;
+        //根据 请求获取 需要的权限
+        FilterInvocation filterInvocation = (FilterInvocation) object;
+        String url = filterInvocation.getRequestUrl();
+        log.info(&quot;【请求 url : &#123;&#125;】&quot;, url);
+        for (Map.Entry&lt;String, String&gt; entry : urlRoleMap.entrySet()) &#123;
+            if (antPathMatcher.match(entry.getKey(), url)) &#123;
+                return SecurityConfig.createList(entry.getValue());
+            &#125;
+        &#125;
+        return null;
+    &#125;
+    /**
+     * 全部权限返回admin角色
+     * @return
+     */
+    @Override
+    public Collection&lt;ConfigAttribute&gt; getAllConfigAttributes() &#123;
+        return SecurityConfig.createList(&quot;ADMIN&quot;);
+    &#125;
+
+    @Override
+    public boolean supports(Class&lt;?&gt; clazz) &#123;
+        return true;
+    &#125;
+&#125;
+</code></pre><p>然后，我们可以看到访问决策管理器，决定是否能授权。这里，其实可以使用内置的几个类，但是我们这里自己实现一个加深下理解。</p><pre><code class="java">//自定义策略，如果url匹配就放行，不匹配就不放行
+/**
+ * @author by zhuhcong
+ * @descr 访问决策投票,参考系统默认实现类RoleVoter
+ * @date 2022/3/7 20:29
+ */
+public class SmsRoleBasedVoter implements AccessDecisionVoter&lt;Object&gt; &#123;
+    @Override
+    public boolean supports(ConfigAttribute attribute) &#123;
+        return true;
+    &#125;
+
+    @Override
+    public boolean supports(Class&lt;?&gt; clazz) &#123;
+        return true;
+    &#125;
+
+    @Override
+    public int vote(Authentication authentication, Object object, Collection&lt;ConfigAttribute&gt; attributes) &#123;
+        if(authentication == null)&#123;
+            return ACCESS_DENIED;
+        &#125;
+        Collection&lt;? extends GrantedAuthority&gt; authorities = authentication.getAuthorities();
+        for (ConfigAttribute attribute : attributes) &#123;
+            if(attribute.getAttribute() == null)&#123;
+                continue;
+            &#125;
+            if (this.supports(attribute)) &#123;
+                for (GrantedAuthority authority : authorities) &#123;
+                    if(attribute.getAttribute().equals(authority.getAuthority()))&#123;
+                        return ACCESS_GRANTED;
+                    &#125;
+                &#125;
+            &#125;
+        &#125;
+        return ACCESS_DENIED;
+    &#125;
+&#125;
+</code></pre><p>自此，我们完成自定义部分。但是，还没有完，我们需要将这些自定义部分加入到配置中去，这样才能生效。</p><pre><code class="java">/**
+ * 管家部分在 ++++标记的位置
+ * @author zhuchong
+ */
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter &#123;
+    @Autowired
+    private MyAuthenticationProvider myAuthenticationProvider;
+
+    @Autowired
+    private SmsAuthenticationProvider smsAuthenticationProvider;
+
+    @Autowired
+    private SmsRoleSecurityMetadataSource smsRoleSecurityMetadataSource;
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() &#123;
+        return new BCryptPasswordEncoder();
+    &#125;
+
+    @Bean
+    public SmsLoginAuthenticationFilter smsLoginAuthenticationFilter() throws Exception&#123;
+        SmsLoginAuthenticationFilter filter = new SmsLoginAuthenticationFilter();
+
+        //对这个filter设置AuthenticationManager，取默认的ProviderManager
+        filter.setAuthenticationManager(authenticationManagerBean());
+        //设置成功的处理器，由于要返回json，所以进行一些处理
+        filter.setAuthenticationSuccessHandler((request, response, authentication) -&gt; &#123;
+            //登录成功时返回给前端的数据
+            Map result = new HashMap();
+            result.put(&quot;success&quot;, &quot;sms登录成功&quot;);
+            response.setContentType(&quot;application/json;charset=utf-8&quot;);
+            response.getWriter().write(JsonUtil.jsonToString(result));
+        &#125;);
+        //设置失败的处理器，由于要返回json，所以进行一些处理
+        filter.setAuthenticationFailureHandler((request, response, exception) -&gt; &#123;
+            Map result = new HashMap();
+
+            if (exception instanceof UsernameNotFoundException) &#123;
+                result.put(&quot;fail&quot;, exception.getMessage());
+            &#125; else if (exception instanceof BadCredentialsException) &#123;
+                result.put(&quot;fail&quot;, &quot;sms密码错误&quot; + exception.getMessage());
+            &#125; else &#123;
+                result.put(&quot;fail&quot;, &quot;sms其他异常&quot;);
+            &#125;
+            response.setContentType(&quot;application/json;charset=utf-8&quot;);
+            response.getWriter().write(JsonUtil.jsonToString(result));
+        &#125;);
+
+        return filter;
+    &#125;
+
+    @Bean
+    public MyLoginAuthenticationFilter myLoginAuthenticationFilter() throws Exception &#123;
+        MyLoginAuthenticationFilter filter = new MyLoginAuthenticationFilter();
+
+        //对这个filter设置AuthenticationManager，取默认的
+        filter.setAuthenticationManager(authenticationManagerBean());
+        //设置成功的处理器，由于要返回json，所以进行一些处理
+        filter.setAuthenticationSuccessHandler((request, response, authentication) -&gt; &#123;
+            //登录成功时返回给前端的数据
+            Map result = new HashMap();
+            result.put(&quot;success&quot;, &quot;登录成功&quot;);
+            response.setContentType(&quot;application/json;charset=utf-8&quot;);
+            response.getWriter().write(JsonUtil.jsonToString(result));
+        &#125;);
+        //设置失败的处理器，由于要返回json，所以进行一些处理
+        filter.setAuthenticationFailureHandler((request, response, exception) -&gt; &#123;
+            Map result = new HashMap();
+
+            if (exception instanceof UsernameNotFoundException) &#123;
+                result.put(&quot;fail&quot;, exception.getMessage());
+            &#125; else if (exception instanceof BadCredentialsException) &#123;
+                result.put(&quot;fail&quot;, &quot;密码错误&quot; + exception.getMessage());
+            &#125; else &#123;
+                result.put(&quot;fail&quot;, &quot;其他异常&quot;);
+            &#125;
+            response.setContentType(&quot;application/json;charset=utf-8&quot;);
+            response.getWriter().write(JsonUtil.jsonToString(result));
+        &#125;);
+        return filter;
+    &#125;
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception &#123;
+        //关闭跨域和csrf防护
+        http.cors().and().csrf().disable();
+        //对请求url进行防护
+        http
+//                .authorizeRequests()
+//                .antMatchers(&quot;/index&quot;).hasRole(&quot;USER&quot;)
+//                .antMatchers(&quot;hello&quot;).hasRole(&quot;admin&quot;)
+//                .and()
+                .authorizeRequests()
+                //放行这些路径
+                .antMatchers(&quot;/smsLogin&quot;,&quot;/verityCode&quot;,&quot;/login&quot;)
+                .permitAll()
+                .and()
+
+                .authorizeRequests()
+                .anyRequest().authenticated()
+                //修改accessManager  ++++
+                .accessDecisionManager(customizeAccessDecisionManager())
+                //放入自定义的权限拦截器 ++++
+                .withObjectPostProcessor(new ObjectPostProcessor&lt;FilterSecurityInterceptor&gt;() &#123;
+
+                    @Override
+                    public &lt;O extends FilterSecurityInterceptor&gt; O postProcess(O object) &#123;
+                        object.setSecurityMetadataSource(smsRoleSecurityMetadataSource);
+                        return object;
+                    &#125;
+                &#125;)
+
+                .and()
+                .formLogin()
+                .permitAll()
+
+                .and()
+                .logout()
+                .permitAll()
+                .logoutSuccessHandler((request, response, authentication) -&gt; &#123;
+                    //登出成功时返回给前端的数据
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;注销成功&quot;);
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;)
+                .deleteCookies(&quot;JSESSIONID&quot;)
+
+                .and()
+                .exceptionHandling()
+                .accessDeniedHandler((request, response, exception) -&gt; &#123;
+                    //访问拒绝时返回给前端的数据
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;无权访问，need Authorities!!&quot;);
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;)
+                .authenticationEntryPoint((request, response, exception) -&gt; &#123;
+                    //访问有权限url时进行拦截
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;需要登录!!&quot;);
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;)
+                .and()
+                .sessionManagement()
+                .maximumSessions(1)     //最多只能一个用户登录一个账号
+                .expiredSessionStrategy(event -&gt; &#123;
+                    //session策略的返回
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;您的账号在异地登录，建议修改密码!!&quot;);
+                    HttpServletResponse response = event.getResponse();
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;);
+        //把filter添加到UsernamePasswordAuthenticationFilter这个过滤器位置
+        http.addFilterAt(myLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(smsLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        //把自定义的AuthenticationProvider设置进去
+        http.authenticationProvider(myAuthenticationProvider)
+                .authenticationProvider(smsAuthenticationProvider);
+    &#125;
+
+      //++++
+    private AccessDecisionManager customizeAccessDecisionManager() &#123;
+
+        List&lt;AccessDecisionVoter&lt;? extends Object&gt;&gt; decisionVoterList
+                = Arrays.asList(
+                new SmsRoleBasedVoter()
+        );
+        return new AffirmativeBased(decisionVoterList);
+    &#125;
+&#125;
+</code></pre><p>全部完成之后，就可以启动程序进行验证，具体验证流程可以参考<a target="_blank" rel="noopener" href="https://zhuchong6.github.io/2022/02/18/2022-02-18spring-security/#more">认证篇</a>。</p><h2 id="AuthorizationFilter授权过程-Spring推荐"><a href="#AuthorizationFilter授权过程-Spring推荐" class="headerlink" title="AuthorizationFilter授权过程(Spring推荐)"></a>AuthorizationFilter授权过程(Spring推荐)</h2><p>我们可以看出上面的流程有点复杂，spring官方并不推荐这种方式。新的流程更加简洁易用，具体如下</p><p><img src="/images/authorizationfilter.png" alt="新流程"></p><p>可以看出，关键在于第三部的校验，比之前的简洁很多，具体源码可以看这里：</p><pre><code class="java">    public AuthorizationDecision check(Supplier&lt;Authentication&gt; authentication, HttpServletRequest request) &#123;
+        if (this.logger.isTraceEnabled()) &#123;
+            this.logger.trace(LogMessage.format(&quot;Authorizing %s&quot;, request));
+        &#125;
+    //    遍历需要授权的的url，我们配置放行的url也回出现在这个map中
+        for (Map.Entry&lt;RequestMatcher, AuthorizationManager&lt;RequestAuthorizationContext&gt;&gt; mapping : this.mappings
+                .entrySet()) &#123;
+
+            RequestMatcher matcher = mapping.getKey();
+            MatchResult matchResult = matcher.matcher(request);
+            if (matchResult.isMatch()) &#123;
+                AuthorizationManager&lt;RequestAuthorizationContext&gt; manager = mapping.getValue();
+                if (this.logger.isTraceEnabled()) &#123;
+                    this.logger.trace(LogMessage.format(&quot;Checking authorization on %s using %s&quot;, request, manager));
+                &#125;
+        //如果，不是白名单中的url，AuthorizationManager进行一个处理
+        //默认的实现类是AuthenticatedAuthorizationManager，它是只要认证通过就会放行，默认显然不满足我们的需求
+        //显而易见，我们需要自定义的地方就在这
+                return manager.check(authentication,
+                        new RequestAuthorizationContext(request, matchResult.getVariables()));
+            &#125;
+        &#125;
+        this.logger.trace(&quot;Abstaining since did not find matching RequestMatcher&quot;);
+        return null;
+    &#125;
+</code></pre><p>其实，逻辑很简单，只需要跟着断点走一遍，即可。</p><p>下面来进行一个实战，代码如下：</p><pre><code class="java">@Component
+public final class SmsAuthorizationFilterManager implements AuthorizationManager&lt;RequestAuthorizationContext&gt; &#123;
+
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    /**
+     * 假设从数据库中加载
+     */
+    private final Map&lt;String,String&gt; urlRoleMap = new HashMap&lt;String,String&gt;()&#123;&#123;
+        put("/open/**","ROLE_ANONYMOUS");
+        put("/health","ROLE_ANONYMOUS");
+        put("/restart","ROLE_ADMIN");
+        put("/demo","ROLE_USER");
+        put("/index", "ROLE_USER");
+    &#125;&#125;;
+
+
+    @Override
+    public AuthorizationDecision check(Supplier&lt;Authentication&gt; authentication, RequestAuthorizationContext object) &#123;
+        HttpServletRequest request = object.getRequest();
+                //空信息直接返回授权失败
+        if(authentication.get() == null)&#123;
+            return new AuthorizationDecision(false);
+        &#125;
+
+        Collection&lt;? extends GrantedAuthority&gt; authorities = authentication.get().getAuthorities();
+                //没有角色信息直接回回授权失败
+        if(authorities==null || authorities.size()==0)&#123;
+            return new AuthorizationDecision(false);
+        &#125;
+                //这一步就是每次比对，看有没有url匹配，如果有返回授权成功，否者失败
+        for(GrantedAuthority grantedAuthority : authorities)&#123;
+            String authority = grantedAuthority.getAuthority();
+            String role = urlRoleMap.get(request.getRequestURI());
+            boolean match = antPathMatcher.match(authority, role);
+            if(match)&#123;
+                return new AuthorizationDecision(true);
+            &#125;
+        &#125;
+        return new AuthorizationDecision(false);
+
+    &#125;
+
+
+    @Override
+    public void verify(Supplier&lt;Authentication&gt; authentication, RequestAuthorizationContext object) &#123;
+        AuthorizationManager.super.verify(authentication, object);
+    &#125;
+
+&#125;
+</code></pre><p>接下来，还是配置类把这个类加载到配置中去。</p><pre><code class="java">@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter &#123;
+    @Autowired
+    private MyAuthenticationProvider myAuthenticationProvider;
+
+    @Autowired
+    private SmsAuthenticationProvider smsAuthenticationProvider;
+
+    @Autowired
+    private SmsRoleSecurityMetadataSource smsRoleSecurityMetadataSource;
+
+    @Autowired
+    private SmsAuthorizationFilterManager smsAuthorizationFilterManager;
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() &#123;
+        return new BCryptPasswordEncoder();
+    &#125;
+
+    @Bean
+    public SmsLoginAuthenticationFilter smsLoginAuthenticationFilter() throws Exception&#123;
+        SmsLoginAuthenticationFilter filter = new SmsLoginAuthenticationFilter();
+
+        //对这个filter设置AuthenticationManager，取默认的ProviderManager
+        filter.setAuthenticationManager(authenticationManagerBean());
+        //设置成功的处理器，由于要返回json，所以进行一些处理
+        filter.setAuthenticationSuccessHandler((request, response, authentication) -&gt; &#123;
+            //登录成功时返回给前端的数据
+            Map result = new HashMap();
+            result.put(&quot;success&quot;, &quot;sms登录成功&quot;);
+            response.setContentType(&quot;application/json;charset=utf-8&quot;);
+            response.getWriter().write(JsonUtil.jsonToString(result));
+        &#125;);
+        //设置失败的处理器，由于要返回json，所以进行一些处理
+        filter.setAuthenticationFailureHandler((request, response, exception) -&gt; &#123;
+            Map result = new HashMap();
+
+            if (exception instanceof UsernameNotFoundException) &#123;
+                result.put(&quot;fail&quot;, exception.getMessage());
+            &#125; else if (exception instanceof BadCredentialsException) &#123;
+                result.put(&quot;fail&quot;, &quot;sms密码错误&quot; + exception.getMessage());
+            &#125; else &#123;
+                result.put(&quot;fail&quot;, &quot;sms其他异常&quot;);
+            &#125;
+            response.setContentType(&quot;application/json;charset=utf-8&quot;);
+            response.getWriter().write(JsonUtil.jsonToString(result));
+        &#125;);
+
+        return filter;
+    &#125;
+
+    @Bean
+    public MyLoginAuthenticationFilter myLoginAuthenticationFilter() throws Exception &#123;
+        MyLoginAuthenticationFilter filter = new MyLoginAuthenticationFilter();
+
+        //对这个filter设置AuthenticationManager，取默认的
+        filter.setAuthenticationManager(authenticationManagerBean());
+        //设置成功的处理器，由于要返回json，所以进行一些处理
+        filter.setAuthenticationSuccessHandler((request, response, authentication) -&gt; &#123;
+            //登录成功时返回给前端的数据
+            Map result = new HashMap();
+            result.put(&quot;success&quot;, &quot;登录成功&quot;);
+            response.setContentType(&quot;application/json;charset=utf-8&quot;);
+            response.getWriter().write(JsonUtil.jsonToString(result));
+        &#125;);
+        //设置失败的处理器，由于要返回json，所以进行一些处理
+        filter.setAuthenticationFailureHandler((request, response, exception) -&gt; &#123;
+            Map result = new HashMap();
+
+            if (exception instanceof UsernameNotFoundException) &#123;
+                result.put(&quot;fail&quot;, exception.getMessage());
+            &#125; else if (exception instanceof BadCredentialsException) &#123;
+                result.put(&quot;fail&quot;, &quot;密码错误&quot; + exception.getMessage());
+            &#125; else &#123;
+                result.put(&quot;fail&quot;, &quot;其他异常&quot;);
+            &#125;
+            response.setContentType(&quot;application/json;charset=utf-8&quot;);
+            response.getWriter().write(JsonUtil.jsonToString(result));
+        &#125;);
+        return filter;
+    &#125;
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception &#123;
+        //关闭跨域和csrf防护
+        http.cors().and().csrf().disable();
+        //对请求url进行防护
+        http
+          //主要这块改动
+                .authorizeHttpRequests(auth-&gt;auth.mvcMatchers(&quot;/smsLogin&quot;,&quot;/verityCode&quot;,&quot;/login&quot;,&quot;logout&quot;)
+                        .permitAll()
+                                       //通过access把我们刚才定义的Manager设置进去
+                        .anyRequest().access(smsAuthorizationFilterManager)
+
+                )
+//                .authorizeRequests()
+//                .antMatchers(&quot;/index&quot;).hasRole(&quot;USER&quot;)
+//                .antMatchers(&quot;hello&quot;).hasRole(&quot;admin&quot;)
+//                .and()
+//                .authorizeRequests()
+//                //放行这些路径
+//                .antMatchers(&quot;/smsLogin&quot;,&quot;/verityCode&quot;,&quot;/login&quot;)
+//                .permitAll()
+//                .and()
+//
+//                .authorizeRequests()
+//                .anyRequest().authenticated()
+//                //修改accessManager
+//                .accessDecisionManager(customizeAccessDecisionManager())
+//                //放入自定义的权限拦截器
+//                .withObjectPostProcessor(new ObjectPostProcessor&lt;FilterSecurityInterceptor&gt;() &#123;
+//
+//                    @Override
+//                    public &lt;O extends FilterSecurityInterceptor&gt; O postProcess(O object) &#123;
+//                        object.setSecurityMetadataSource(smsRoleSecurityMetadataSource);
+//                        return object;
+//                    &#125;
+//                &#125;)
+//
+//                .and()
+                .formLogin()
+                .disable()
+
+
+                .logout()
+//                .permitAll()
+                .logoutSuccessHandler((request, response, authentication) -&gt; &#123;
+                    //登出成功时返回给前端的数据
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;注销成功&quot;);
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;)
+                .deleteCookies(&quot;JSESSIONID&quot;)
+
+                .and()
+                .exceptionHandling()
+                .accessDeniedHandler((request, response, exception) -&gt; &#123;
+                    //访问拒绝时返回给前端的数据
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;无权访问，need Authorities!!&quot;);
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;)
+                .authenticationEntryPoint((request, response, exception) -&gt; &#123;
+                    //访问有权限url时进行拦截
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;需要登录!!&quot;);
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;)
+                .and()
+                .sessionManagement()
+                .maximumSessions(1)     //最多只能一个用户登录一个账号
+                .expiredSessionStrategy(event -&gt; &#123;
+                    //session策略的返回
+                    Map result = new HashMap();
+                    result.put(&quot;success&quot;, &quot;您的账号在异地登录，建议修改密码!!&quot;);
+                    HttpServletResponse response = event.getResponse();
+                    response.setContentType(&quot;application/json;charset=utf-8&quot;);
+                    response.getWriter().write(JsonUtil.jsonToString(result));
+                &#125;);
+        //把filter添加到UsernamePasswordAuthenticationFilter这个过滤器位置
+        http.addFilterAt(myLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(smsLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        //把自定义的AuthenticationProvider设置进去
+        http.authenticationProvider(myAuthenticationProvider)
+                .authenticationProvider(smsAuthenticationProvider);
+    &#125;
+
+    private AccessDecisionManager customizeAccessDecisionManager() &#123;
+
+        List&lt;AccessDecisionVoter&lt;? extends Object&gt;&gt; decisionVoterList
+                = Arrays.asList(
+                new SmsRoleBasedVoter()
+        );
+        return new AffirmativeBased(decisionVoterList);
+    &#125;
+&#125;
+</code></pre><p>完成之后可以，启动项目进行验证。</p><p>至此，security的认证授权流程，及其实现过程已经完结。</p><p>我已将代码上传到github上，有兴趣可以去看下<a target="_blank" rel="noopener" href="https://github.com/zhuchong6/spring-all">代码</a></p></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2022/03/03/2022-03-03spring-security%E6%8E%88%E6%9D%83/" title="spring-security授权">https://github/zhuchong6.github.io/2022/03/03/2022-03-03spring-security授权/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/Java/" rel="tag"># Java</a> <a href="/tags/Spring/" rel="tag"># Spring</a> <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag"># 微服务</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2022/03/02/2022-09-25SPI%E6%9C%BA%E5%88%B6/" rel="prev" title="Java SPI机制"><i class="fa fa-chevron-left"></i> Java SPI机制</a></div><div class="post-nav-item"><a href="/2022/04/20/2022-04-20seata%E5%AD%A6%E4%B9%A0/" rel="next" title="Seata">Seata <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9E%E9%A1%BE"><span class="nav-number">1.</span> <span class="nav-text">回顾</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E6%88%98"><span class="nav-number">3.</span> <span class="nav-text">实战</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#FilterSecurityInterceptor%E6%8E%88%E6%9D%83%E8%BF%87%E7%A8%8B"><span class="nav-number">3.1.</span> <span class="nav-text">FilterSecurityInterceptor授权过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AuthorizationFilter%E6%8E%88%E6%9D%83%E8%BF%87%E7%A8%8B-Spring%E6%8E%A8%E8%8D%90"><span class="nav-number">3.2.</span> <span class="nav-text">AuthorizationFilter授权过程(Spring推荐)</span></a></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">55</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">17</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">26</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2023</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="前言我们常说Java是跨平台的语言，主要原因是有JVM。可以说，只要有能运行JVM的平台，Java代码基本可以无缝移植，而跨平台的基石便是Class文件。  本文旨在解析Class文件数据结构，加深对jvm的理解。 环境：  操作系统：win10 JDK版本：1.8.0_291  本文所有内容都是基于以上环境的，如果有异议的地方欢迎邮件交流。"><meta property="og:type" content="article"><meta property="og:title" content="Class文件结构"><meta property="og:url" content="https://github/zhuchong6.github.io/2021/10/21/2021-10-21Class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="前言我们常说Java是跨平台的语言，主要原因是有JVM。可以说，只要有能运行JVM的平台，Java代码基本可以无缝移植，而跨平台的基石便是Class文件。  本文旨在解析Class文件数据结构，加深对jvm的理解。 环境：  操作系统：win10 JDK版本：1.8.0_291  本文所有内容都是基于以上环境的，如果有异议的地方欢迎邮件交流。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://github/images/10-2101.png"><meta property="og:image" content="https://github/images/10-21constant_pool_struct.png"><meta property="article:published_time" content="2021-10-21T08:30:39.000Z"><meta property="article:modified_time" content="2023-08-07T00:18:37.950Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="JVM"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://github/images/10-2101.png"><link rel="canonical" href="https://github/zhuchong6.github.io/2021/10/21/2021-10-21Class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>Class文件结构 | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">17</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2021/10/21/2021-10-21Class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">Class文件结构</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2021-10-21 16:30:39" itemprop="dateCreated datePublished" datetime="2021-10-21T16:30:39+08:00">2021-10-21</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2023-08-07 08:18:37" itemprop="dateModified" datetime="2023-08-07T08:18:37+08:00">2023-08-07</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我们常说Java是跨平台的语言，主要原因是有JVM。可以说，只要有能运行JVM的平台，Java代码基本可以无缝移植，而跨平台的基石便是Class文件。</p><p><img src="/images/10-2101.png"></p><p>本文旨在解析Class文件数据结构，加深对jvm的理解。</p><p>环境：</p><blockquote><p>操作系统：win10</p><p>JDK版本：1.8.0_291</p></blockquote><p>本文所有内容都是基于以上环境的，如果有异议的地方欢迎邮件交流。</p><span id="more"></span><h2 id="Class类文件结构"><a href="#Class类文件结构" class="headerlink" title="Class类文件结构"></a>Class类文件结构</h2><p>Class文件是一组以8bit为基础的字节流，多数据项之间严格按照数据紧凑的排列在Class文件中，没有分割符。如果数据项占用超过8bit，那么以<code>Big-Endian</code>方式分割成若干个8bit存储。</p><blockquote><p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%AD%97%E8%8A%82%E5%BA%8F#%E5%AD%97%E8%8A%82%E9%A1%BA%E5%BA%8F">Big-Endian见wiki</a></p></blockquote><p>根据JVM规定，Class文件采用一种类型C结构体的伪结构体来存储数据，这种结构体中只有两种数据类型：<code>无符号数</code>和<code>表</code></p><ul><li>无符号数：以u1、u2、u4、u8代表1Byte、2Byte、4Byte、8Byte的无符号数，用于描述数字、索引、数量或者按照UTF-8编码构成的字符串</li><li>表:_info结尾，由多个无符号数和其他表构成的复合数据结构，用于描述有层次关系的符合数据结构</li></ul><blockquote><p>1Byte &#x3D; 8bit</p></blockquote><p>下面Class文件结构伪代码:</p><pre><code class="java">ClassFile &#123;
+    u4             magic;
+    u2             minor_version;
+    u2             major_version;
+    u2             constant_pool_count;
+    cp_info        constant_pool[constant_pool_count-1];
+    u2             access_flags;
+    u2             this_class;
+    u2             super_class;
+    u2             interfaces_count;
+    u2             interfaces[interfaces_count];
+    u2             fields_count;
+    field_info     fields[fields_count];
+    u2             methods_count;
+    method_info    methods[methods_count];
+    u2             attributes_count;
+    attribute_info attributes[attributes_count];
+&#125;
+</code></pre><p>属性解释：</p><ul><li><p>magic</p><p>魔数，标识文件类型，值是0xCAFEBABE</p></li><li><p>minor_version,major_version</p><p>major_version：主版本号；minor_version：次版本号。高版本JDK能向下兼容以前的版本的Class文件，不能兼容之后的，例如：JDK1.0.2能支持的版本号为45.0-45.3，不能支持45.65535版本Class文件；JDK1.1.*能支持45.0-45.65535</p></li><li><p>constant_pool_count</p><p>代表常量池容量计数值，这个技术值从1开始，而不是0。假设这个值是10，那么代表常量池有9个常量，索引范围是1-9。而0则是为了满足某些指向常量池索引表达为“不引用任何常量池项”的特定情况</p></li><li><p>constant_pool[]</p><p>代表实际存放常量池的数组，大小是constant_pool_count，索引范围(1-constant_pool_count-1),具体如下图：</p><p><img src="/images/10-21constant_pool_struct.png" alt="常量池结构"></p><blockquote><p>cp_info的结构</p><p>常量池通用结构：</p><pre><code class="java">cp_info&#123;
+u1 tag;
+u1 info[];
+&#125;
+</code></pre><p>JVM虚拟机规定了不同的tag值和不同类型的字面量对应关系如下:</p><table><thead><tr><th><strong>Constant Type</strong></th><th><strong>Value</strong></th><th>涵义</th></tr></thead><tbody><tr><td>CONSTANT_Class</td><td>7</td><td>类或者接口的全限定名</td></tr><tr><td>CONSTANT_Fieldref</td><td>9</td><td>表示类中的字段</td></tr><tr><td>CONSTANT_Methodref</td><td>10</td><td>表示类中方法</td></tr><tr><td>CONSTANT_InterfaceMethodref</td><td>11</td><td>表示类中实现的接口的方法</td></tr><tr><td>CONSTANT_String</td><td>8</td><td>表示java.lang.String类型的常量对象</td></tr><tr><td>CONSTANT_Integer</td><td>3</td><td>表示4字节(int)的数值常量</td></tr><tr><td>CONSTANT_Float</td><td>4</td><td>表示4字节(float)的数值常量</td></tr><tr><td>CONSTANT_Long</td><td>5</td><td>表示8字节(long)的数值常量</td></tr><tr><td>CONSTANT_Double</td><td>6</td><td>表示8字节(double)的数值常量</td></tr><tr><td>CONSTANT_NameAndType</td><td>12</td><td>表示字段或者方法的名称或者类型</td></tr><tr><td>CONSTANT_Utf8</td><td>1</td><td>表示字符串常量的值</td></tr><tr><td>CONSTANT_MethodHandle</td><td>15</td><td>表示方法句柄</td></tr><tr><td>CONSTANT_MethodType</td><td>16</td><td>表示方法类型</td></tr><tr><td>CONSTANT_InvokeDynamic</td><td>18</td><td>表示invokedynamic指令所用到的引导方法(Bootstrap Method)、引导方法使用到动态调用名称（Dynamic Invocation Name）、参数和请求返回类型、以及可选择性附加被称为静态参数（Static Arguments）的常量序列</td></tr></tbody></table><ul><li><strong>CONSTANT_Class_info</strong></li></ul><pre><code>CONSTANT_Class_info&#123;
+    //值为7
+    u1 tag;
+    //指向一个CONSTANT_Utf8_info结构体的索引，这个结构体存储具体的值
+    u2 name_index;
+&#125;
+</code></pre><ul><li><strong>CONSTANT_Fieldref_info，CONSTANT_Methodref_info，CONSTANT_InterfaceMethodref_info</strong></li></ul><pre><code>CONSTANT_Fieldref_info &#123;
+       //值为9
+    u1 tag;
+    //指向CONSTANT_Class_info结构体的索引，类型可以是类也可以是接口
+    u2 class_index;
+    //指向一个CONSTANT_NameAndType_info结构体的索引，并且这个结构体中描述符必须是字段描述符
+    u2 name_and_type_index;
+&#125;
+
+CONSTANT_Methodref_info &#123;
+       //值为10
+    u1 tag;
+    //指向CONSTANT_Class_info结构体的索引，类型必须是类，不可以是接口
+    u2 class_index;
+    //指向一个CONSTANT_NameAndType_info结构体的索引，并且这个结构体中描述符必须是方法描述符;如果以&#39;&lt;&#39;(&#39;\u003c&#39;)开头，一定是&lt;init&gt;这个特殊方法，返回值是void。
+    u2 name_and_type_index;
+&#125;
+
+CONSTANT_InterfaceMethodref_info &#123;
+       //值为11
+    u1 tag;
+    //指向CONSTANT_Class_info结构体的索引，类型必须是接口，不可以是类
+    u2 class_index;
+    //指向一个CONSTANT_NameAndType_info结构体的索引，并且这个结构体中描述符必须是方法描述符
+    u2 name_and_type_index;
+&#125;
+</code></pre><ul><li><strong>CONSTANT_String_info</strong></li></ul><pre><code>CONSTANT_String_info &#123;
+       //值为8
+    u1 tag;
+    //指向一个CONSTANT_Utf8_info结构体的索引，这个结构体存储具体的值
+    u2 string_index;
+&#125;
+</code></pre><ul><li><strong>CONSTANT_Integer_info，CONSTANT_Float_info</strong></li></ul><pre><code>CONSTANT_Integer_info &#123;
+       //值为3
+    u1 tag;
+    //存储整数值
+    u4 bytes;
+&#125;
+
+CONSTANT_Float_info &#123;
+       //值为4
+    u1 tag;
+    //存储浮点值
+    u4 bytes;
+&#125;
+</code></pre><ul><li><strong>CONSTANT_Long_info，CONSTANT_Double_info</strong></li></ul><p>具体可见<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4">LONG如何存储</a></p><pre><code>CONSTANT_Long_info &#123;
+       //值为5
+    u1 tag;
+    //高4位
+    u4 high_bytes;
+    //低4位
+    u4 low_bytes;
+&#125;
+
+CONSTANT_Double_info &#123;
+       //值为6
+    u1 tag;
+    u4 high_bytes;
+    u4 low_bytes;
+&#125;
+</code></pre><ul><li><strong>CONSTANT_NameAndType_info</strong></li></ul><pre><code>CONSTANT_NameAndType_info &#123;
+     	 //值为12
+    u1 tag;
+    //指向一个CONSTANT_Utf8_info结构体的索引,包含特殊方法&lt;init&gt;,或者方法和字段的非全限定名，即短名。
+    u2 name_index;
+    //指向一个CONSTANT_Utf8_info结构体的索引,代表字段或者方法
+    u2 descriptor_index;
+&#125;
+</code></pre><ul><li><strong>CONSTANT_Utf8_info</strong></li></ul><pre><code>CONSTANT_Utf8_info &#123;
+         //值为12
+    u1 tag;
+    //长度
+    u2 length;
+    //字节数组
+    u1 bytes[length];
+&#125;
+</code></pre><ul><li><strong>CONSTANT_MethodHandle_info</strong></li></ul><pre><code>CONSTANT_MethodHandle_info &#123;
+      //值为15
+    u1 tag;
+    //值在1-9之间，值表示方法句柄的类型及其字节码行为
+    u1 reference_kind;
+    //值是常量池的有效索引
+    //如果reference_kind项的值为1（REF_getField）、2（REF_getStatic）、3（REF_putField）或4（REF_putStatic），那么常量池在reference_index索引处的项必须是CONSTANT_Fieldref_info结构，表示由一个字段创建的方法句柄
+    //如果reference_kind项的值是5（REF_invokeVirtual）、6（REF_invokeStatic）、7（REF_invokeSpecial）或8（REF_newInvokeSpecial），那么常量池在reference_index索引处的项必须是CONSTANT_Methodref_info结构，表示由类的方法或构造函数创建的方法句柄
+    //如果reference_kind项的值是9（REF_invokeInterface），那么常量池在reference_index索引处的项必须是CONSTANT_InterfaceMethodref_info结构，表示由接口方法创建的方法句柄
+    //如果reference_kind项的值是5（REF_invokeVirtual）、6（REF_invokeStatic）、7（REF_invokeSpecial）或9（REF_invokeInterface），那么方法句柄对应的方法不能为实例初始化（）方法或类初始化方法（）
+    //如果reference_kind项的值是8（REF_newInvokeSpecial），那么方法句柄对应的方法必须为实例初始化&lt;init&gt;
+    u2 reference_index;
+&#125; 
+</code></pre><ul><li><strong>CONSTANT_MethodType_info</strong></li></ul><pre><code>CONSTANT_MethodType_info &#123;
+    //值为16
+   u1 tag;
+   //必须是CONSTANT_Utf8_info结构，代表方法的描述符
+   u2 descriptor_index;
+&#125;
+</code></pre><ul><li><strong>CONSTANT_InvokeDynamic_info</strong></li></ul><pre><code>// 表示invokedynamic指令所使用到的引导方法（Bootstrap Method）、引导方法使用到动态调用名称（Dynamic Invocation Name）、参数和请求返回类型、以及可以选择性的附加被称为静态参数（Static Arguments）的常量序列。
+CONSTANT_InvokeDynamic_info &#123; 
+    //值为18
+   u1 tag;
+   //对当前Class文件中引导方法表的bootstrap_methods[]数组的有效索引
+   u2 bootstrap_method_attr_index;
+   对当前常量池的有效索引，常量池在该索引处的项必须是CONSTANT_NameAndType_info 结构，表示方法名和方法描述符
+   u2 name_and_type_index;
+&#125;
+</code></pre><p>综上，就是1.8版本jvm字节码部分常量池所有类型，像最后三个有点抽象，暂时先放在一边，等后续我们在详谈</p></blockquote></li><li><p>access_flags</p><table><thead><tr><th>标志名称</th><th>标志值</th><th>含义</th><th>适用范围</th></tr></thead><tbody><tr><td>ACC_PUBLIC</td><td>0x0001</td><td>声明为public，可以从包外访问</td><td>所有类型</td></tr><tr><td>ACC_FINAL</td><td>0x0010</td><td>声明为final，不允许有子类</td><td>类</td></tr><tr><td>ACC_SUPER</td><td>0x0020</td><td>调用Invokescial指令对超类方法进行处理</td><td>类和接口</td></tr><tr><td>ACC_INTERFACE</td><td>0x0200</td><td>声明是接口类型而不是类</td><td>接口</td></tr><tr><td>ACC_ABSTRACT</td><td>0x0400</td><td>声明是抽象类型，不能被实例化</td><td>接口或抽象类</td></tr><tr><td>ACC_SYNTHETIC</td><td>0x1000</td><td>声明是由编译器生成的，不出现在源码中</td><td>所有类型</td></tr><tr><td>ACC_ANNOTATION</td><td>0x2000</td><td>声明为注解类型</td><td>注解</td></tr><tr><td>ACC_ENUM</td><td>0x4000</td><td>声明为枚举类型</td><td>枚举</td></tr></tbody></table></li><li><p>this_class</p><p>指向一个CONSTANT_Class_info的常量池索引，代表该类或者接口信息</p></li><li><p>super_class</p><p>如果值是0，那么代表Object类；如果不是0，值为一个指向CONSTANT_Class_info的索引，代表该类的父类</p></li><li><p>interfaces_count</p><p>接口计数器，代表实现接口数量，如果没事实现接口计数器值是0</p></li><li><p>interfaces[]</p><p>接口索引数组，每个索引指向一个CONSTANT_Class_info结构，代表接口信息，按照源码中从左到右排序</p></li><li><p>fields_count</p><p>字段计数器，代表field_info结构的数量</p></li><li><p>fields[]</p><p>field_info的集合，代表类或者接口的完整描述。注意，只包含本身类中的，不包含继承的字段。</p><blockquote><p>field_info结构</p><p>每个字段都是由field_info结构来描述，并且一个类文件中不能有两个字段具有相同的名称和描述符</p><blockquote><p><strong>字段描述符</strong></p><p>字段描述符表示类、实例或局部变量的类型</p><pre><code>FieldDescriptor:
+    FieldType
+    
+FieldType:
+  BaseType
+  ObjectType
+  ArrayType
+  
+BaseType:
+  (one of)
+  B C D F I J S Z
+  
+ObjectType:
+  L ClassName ;
+  
+ArrayType:
+  [ ComponentType
+  
+ComponentType:
+  FieldType
+</code></pre><p>下面的表格解释上面的作用</p><table><thead><tr><th>FieldType术语</th><th>类型</th><th>解释</th></tr></thead><tbody><tr><td>B</td><td>byte</td><td>有符号的byte类型，-127-128</td></tr><tr><td>C</td><td>char</td><td><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%9F%BA%E6%9C%AC%E5%A4%9A%E6%96%87%E7%A7%8D%E5%B9%B3%E9%9D%A2/10788078?fr=aladdin">基本多语言平面</a>中的Unicode字符编码点，使用UTF-16编码</td></tr><tr><td>D</td><td>double</td><td>双精度浮点</td></tr><tr><td>F</td><td>float</td><td>单精度浮点</td></tr><tr><td>I</td><td>int</td><td>整数</td></tr><tr><td>J</td><td>long</td><td>长整数</td></tr><tr><td>L ClassName ;</td><td>reference</td><td>类ClassName的实例</td></tr><tr><td>S</td><td>short</td><td>带符号的short类型</td></tr><tr><td>Z</td><td>boolean</td><td>true or false</td></tr><tr><td>[</td><td>reference</td><td>一维数组，二维数组用[[表示</td></tr></tbody></table></blockquote><p>field_info结构：</p><pre><code>field_info &#123;
+  u2             access_flags;
+  u2             name_index;
+  u2             descriptor_index;
+  u2             attributes_count;
+  attribute_info attributes[attributes_count];
+&#125;
+</code></pre><p>access_flags:</p><p>​ 表示字段的访问权限和属性，具体如下表：</p><table><thead><tr><th>名称</th><th>值</th><th>解释</th></tr></thead><tbody><tr><td>ACC_PUBLIC</td><td>0x0001</td><td>声明public，可以从包外访问</td></tr><tr><td>ACC_PRIVATE</td><td>0x0002</td><td>声明privcate，仅能在定义类中使用</td></tr><tr><td>ACC_PROTECTED</td><td>0x0004</td><td>声明protected，可以在子类中访问</td></tr><tr><td>ACC_STATIC</td><td>0x0008</td><td>声明static</td></tr><tr><td>ACC_FINAL</td><td>0x0010</td><td>声明final，在对象构造之后，不能直接赋值</td></tr><tr><td>ACC_VOLATILE</td><td>0x0040</td><td>声明volatile，不能被缓存</td></tr><tr><td>ACC_TRANSIENT</td><td>0x0080</td><td>声明transient，不能由持久化对象管理器写入或者读取</td></tr><tr><td>ACC_SYNTHETIC</td><td>0x1000</td><td>声明synthetic，不存在源码中，表示编译器生成</td></tr><tr><td>ACC_ENUM</td><td>0x4000</td><td>声明为enum的元素</td></tr></tbody></table><p>name_index</p><p>​ 指向一个CONSTANT_Utf8_info结构的索引，代表一个有效的非全限定名（方法、字段、局部变量和形式参数的名称存储为非限定名称）</p><p>descriptor_index</p><p>​ 指向一个CONSTANT_Utf8_info结构的索引，代表一个有效的<strong>字段描述符</strong></p><p>attributes_count</p><p>​ 表示该字段附加属性的数量</p><p>attributes[]</p><p>​ 表示该字段附加属性列表，每一个项都是一个attribute_info结构，具体见后面attributes部分</p></blockquote></li><li><p>methods_count</p><p>methods_count项的值给出了method_info结构在方法表中的数量</p></li><li><p>methods[]</p><p>method_info结构表示该类或接口类型声明的所有方法，包括实例方法、类方法、实例初始化方法和任何类或接口初始化方法；不包括从父类或者父接口继承的方法。</p><blockquote><p>method_info结构</p><p>每个方法都是有method_info结构描述，一个类文件中的两个方法不能有相同的名称和描述符</p><blockquote><p>方法描述符</p><p>MethodDescriptor:</p><p>​ ( {ParameterDescriptor} ) ReturnDescriptor</p><p>ParameterDescriptor:</p><p>​ FieldType</p><p>ReturnDescriptor:</p><p>​ FieldType<br>​ VoidDescriptor</p><p>VoidDescriptor:</p><p>​ v（表示方法不返回任何值）</p><p>方法：Object m(int i, double d, Thread t) {…}</p><p>方法描述符：(IDLjava&#x2F;lang&#x2F;Thread;)Ljava&#x2F;lang&#x2F;Object;</p></blockquote><p>Method_info结构:</p><pre><code>method_info &#123;
+   u2             access_flags;
+   u2             name_index;
+   u2             descriptor_index;
+   u2             attributes_count;
+   attribute_info attributes[attributes_count];
+&#125;
+</code></pre><p>access_flags:</p><p>​ 表示方法的访问权限和属性，具体如下表：</p><table><thead><tr><th>名称</th><th>值</th><th>解释</th></tr></thead><tbody><tr><td>ACC_PUBLIC</td><td>0x0001</td><td>声明public，可以包外访问</td></tr><tr><td>ACC_PRIVATE</td><td>0x0002</td><td>声明private，只有类内能访问</td></tr><tr><td>ACC_PROTECTED</td><td>0x0004</td><td>声明protected,子类可以访问</td></tr><tr><td>ACC_STATIC</td><td>0x0008</td><td>声明static</td></tr><tr><td>ACC_FINAL</td><td>0x0010</td><td>声明final，不能被重写</td></tr><tr><td>ACC_SYNCHRONIZED</td><td>0x0020</td><td>声明synchronized，使用时被monitor包裹</td></tr><tr><td>ACC_BRIDGE</td><td>0x0040</td><td>声明一个桥接方法，由编译器生产</td></tr><tr><td>ACC_VARARGS</td><td>0x0080</td><td>声明具有可变数量的参数。</td></tr><tr><td>ACC_NATIVE</td><td>0x0100</td><td>声明native，用除了java的其他语言实现</td></tr><tr><td>ACC_ABSTRACT</td><td>0x0400</td><td>声明为abstract;没有提供任何实现。</td></tr><tr><td>ACC_STRICT</td><td>0x0800</td><td>声明strictfp，浮点模式是FP-strict</td></tr><tr><td>ACC_SYNTHETIC</td><td>0x1000</td><td>声明synthetic，不存在源码中，表示编译器生成</td></tr></tbody></table><p>name_index</p><p>​ 指向一个CONSTANT_Utf8_info结构的索引，代表一个有效的非全限定名（方法、字段、局部变量和形式参数的名称存储为非限定名称）</p><p>descriptor_index</p><p>指向一个CONSTANT_Utf8_info结构的索引，代表一个有效的<strong>字段描述符</strong></p><p>attributes_count</p><p>表示该方法附加属性的数量</p><p>attributes[]</p><p>表示该字段附加属性列表，每一个项都是一个attribute_info结构，具体见后面attributes部分</p></blockquote></li><li><p>attributes_count</p><p>attributes数量</p></li><li><p>attributes[]</p><p><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7">attribute_info</a>集合，在Class文件，字段表，方法表中都可以携带自己的属性表集合，用以描述某些场景的专用信息，jdk8中一共有23项属性，具体如下：</p><table><thead><tr><th>属性名</th><th>使用位置</th><th>出现版本</th><th>解释</th></tr></thead><tbody><tr><td>ConstantValue</td><td>字段表</td><td>1.0.2</td><td>final关键字定义的常量值</td></tr><tr><td>Code</td><td>方法表</td><td>1.0.2</td><td>Java方法包裹代码编译成的字节码指令，native方法没有</td></tr><tr><td>StackMapTable</td><td>Code属性</td><td>6</td><td>在类型检查的验证中使用</td></tr><tr><td>Exceptions</td><td>方法表</td><td>1.0.2</td><td>Exceptions属性指示方法可能抛出哪些已检查异常</td></tr><tr><td>InnerClasses</td><td>类文件</td><td>1.1</td><td>内部类列表</td></tr><tr><td>EnclosingMethod</td><td>类文件</td><td>5.0</td><td>当且仅当类表示局部类或匿名类时，类必须具有EnclosingMethod属性</td></tr><tr><td>Synthetic</td><td>类、方法表、字段表</td><td>1.1</td><td>标识方法或字段为编译器自动生成</td></tr><tr><td>Signature</td><td>类、方法表、字段表</td><td>5.0</td><td>支持泛型下的方法签名，任何类、接口、初始化方法或者成员的泛型签名如果包含类型变量(Type Variables)或者参数化类型(Parameterized Type),该属性记录泛型签名信息</td></tr><tr><td>SourceFile</td><td>类文件</td><td>1.0.2</td><td>记录源文件名称</td></tr><tr><td>SourceDebugExtension</td><td>类文件</td><td>5.0</td><td>存储额外的调试信息</td></tr><tr><td>LineNumberTable</td><td>Code属性</td><td>1.0.2</td><td>Java源码行号和字节码指令对应关系</td></tr><tr><td>LocalVariableTable</td><td>Code属性</td><td>1.0.2</td><td>方法的局部变量描述，调试期间用于确定局部变量的值</td></tr><tr><td>LocalVariableTypeTable</td><td>Code属性</td><td>5.0</td><td>在方法执行期间，调试器可以使用它来确定给定局部变量的值</td></tr><tr><td>Deprecated</td><td>类、方法表、字段表</td><td>1.1</td><td>标记类、接口、方法、字段被废弃</td></tr><tr><td>RuntimeVisibleAnnotations</td><td>类、方法表、字段表</td><td>5.0</td><td>运行时可见注解</td></tr><tr><td>RuntimeInvisibleAnnotations</td><td>类、方法表、字段表</td><td>5.0</td><td>运行时不可见注解</td></tr><tr><td>RuntimeVisibleParameterAnnotations</td><td>方法表</td><td>5.0</td><td>运行时可见方法参数注解</td></tr><tr><td>RuntimeInvisibleParameterAnnotations</td><td>方法表</td><td>5.0</td><td>运行时不可见方法参数注解</td></tr><tr><td>RuntimeVisibleTypeAnnotations</td><td>类、方法表、字段表、Code属性</td><td>8</td><td>运行时可见类型注解</td></tr><tr><td>RuntimeInvisibleTypeAnnotations</td><td>类、方法表、字段表、Code属性</td><td>8</td><td>运行时不可见类型注解</td></tr><tr><td>AnnotationDefault</td><td>方法表</td><td>5.0</td><td>记录注解类元素的默认值</td></tr><tr><td>BootstrapMethods</td><td>类文件</td><td>7</td><td>保存invokedynamic指令引用的引导方法说明符</td></tr><tr><td>MethodParameters</td><td>方法表</td><td>8</td><td>记录了关于方法的形式参数的信息，比如它们的名称。</td></tr></tbody></table></li></ul><p>以上，就是本次的全部内容。</p><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se8/html/">Oracle JVM规范</a></p></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2021/10/21/2021-10-21Class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/" title="Class文件结构">https://github/zhuchong6.github.io/2021/10/21/2021-10-21Class文件结构/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/JVM/" rel="tag"># JVM</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2021/05/12/2021-05-12MVCC-%E6%95%B0%E6%8D%AE%E5%BA%93%E9%AB%98%E5%B9%B6%E5%8F%91%E7%9A%84%E5%85%B3%E9%94%AE/" rel="prev" title="MVCC-数据库高并发的关键"><i class="fa fa-chevron-left"></i> MVCC-数据库高并发的关键</a></div><div class="post-nav-item"><a href="/2021/10/29/2021-10-29%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/" rel="next" title="分布式事务">分布式事务 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Class%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">1.1.</span> <span class="nav-text">Class类文件结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">1.2.</span> <span class="nav-text">参考文献</span></a></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">55</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">17</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">26</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2023</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>

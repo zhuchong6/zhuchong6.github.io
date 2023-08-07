@@ -1,0 +1,146 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="RocketMq基础前言最近，由于业务发展，项目准备引入消息中间件。经过一系列讨论，在加上我们业务偏金融属性，最终选择RocketMq作为消息中间件。所以，趁着有空，学习下如何使用。"><meta property="og:type" content="article"><meta property="og:title" content="RocketMq基础(一)"><meta property="og:url" content="https://github/zhuchong6.github.io/2020/06/04/2020-06-04RocketMq%E5%AD%A6%E4%B9%A0/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="RocketMq基础前言最近，由于业务发展，项目准备引入消息中间件。经过一系列讨论，在加上我们业务偏金融属性，最终选择RocketMq作为消息中间件。所以，趁着有空，学习下如何使用。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://github/images/rocketmq_architecture_1.png"><meta property="og:image" content="https://github/images/rocketmq_architecture_2.png"><meta property="article:published_time" content="2020-06-04T10:11:46.000Z"><meta property="article:modified_time" content="2023-08-07T00:18:37.946Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="中间件"><meta property="article:tag" content="MQ"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://github/images/rocketmq_architecture_1.png"><link rel="canonical" href="https://github/zhuchong6.github.io/2020/06/04/2020-06-04RocketMq%E5%AD%A6%E4%B9%A0/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>RocketMq基础(一) | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">17</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2020/06/04/2020-06-04RocketMq%E5%AD%A6%E4%B9%A0/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">RocketMq基础(一)</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2020-06-04 18:11:46" itemprop="dateCreated datePublished" datetime="2020-06-04T18:11:46+08:00">2020-06-04</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2023-08-07 08:18:37" itemprop="dateModified" datetime="2023-08-07T08:18:37+08:00">2023-08-07</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/RocketMq/" itemprop="url" rel="index"><span itemprop="name">RocketMq</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="RocketMq基础"><a href="#RocketMq基础" class="headerlink" title="RocketMq基础"></a>RocketMq基础</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近，由于业务发展，项目准备引入消息中间件。经过一系列讨论，在加上我们业务偏金融属性，最终选择RocketMq作为消息中间件。所以，趁着有空，学习下如何使用。</p><span id="more"></span><h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p><img src="/images/rocketmq_architecture_1.png" alt="rocketmq架构图"></p><p>这个是从官方文档扣的图，可以看出主要分为四个模块，具体如下：</p><ul><li><p>Producer：消息发布的角色，支持分布式集群方式部署。Producer通过MQ的负载均衡模块选择相应的Broker集群队列进行消息投递，投递的过程支持快速失败并且低延迟</p></li><li><p>Consumer：消息消费的角色，支持分布式集群方式部署。支持以push推，pull拉两种模式（本质上都是拉模型）对消息进行消费。同时也支持集群方式和广播方式的消费，它提供实时消息订阅机制，可以满足大多数用户的需求。</p></li><li><p>NameServer：NameServer是一个非常简单的Topic路由注册中心，其角色类似Dubbo中的zookeeper，支持Broker的动态注册与发现。主要包括两个功能：Broker管理，NameServer接受Broker集群的注册信息并且保存下来作为路由信息的基本数据。然后提供心跳检测机制，检查Broker是否还存活；路由信息管理，每个NameServer将保存关于Broker集群的整个路由信息和用于客户端查询的队列信息。NameServer通常也是集群的方式部署，<code>各实例间相互不进行信息通讯</code>(意思是每个实例存的都是全部的信息)</p></li><li><p>BrokerServer：Broker主要负责消息的存储、投递和查询以及服务高可用保证，为了实现这些功能，Broker包含了以下几个重要子模块：</p><ol><li>Remoting Module：整个Broker的实体，负责处理来自clients端的请求。</li><li>Client Manager：负责管理客户端(Producer&#x2F;Consumer)和维护Consumer的Topic订阅信息</li><li>Store Service：提供方便简单的API接口处理消息存储到物理硬盘和查询功能。</li><li>HA Service：高可用服务，提供Master Broker 和 Slave Broker之间的数据同步功能</li><li>Index Service：根据特定的Message key对投递到Broker的消息进行索引服务，以提供消息的快速查询</li></ol></li></ul><p><img src="/images/rocketmq_architecture_2.png" alt="rocketmq_architecture_2"></p><h2 id="消息发送流程"><a href="#消息发送流程" class="headerlink" title="消息发送流程"></a>消息发送流程</h2><p>从上面可以看出消息的流转过程：producer-&gt;broker-&gt;comsumer,下面我就大概分析下消息的传导过程：</p><h3 id="生产者-producer"><a href="#生产者-producer" class="headerlink" title="生产者(producer)"></a>生产者(producer)</h3><p>生产者新建消息，并通过网络发送到broker，这个过程有三种发送的方式，具体如下：</p><p>1.同步发送</p><pre><code class="java">public class Producer &#123;
+    public static void main(String[] args) throws MQClientException, InterruptedException &#123;
+        //初始化生产者组
+        DefaultMQProducer producer = new DefaultMQProducer(&quot;please_rename_unique_group_name&quot;);
+        //设置namespace server地址
+        producer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);
+        //设置重试次数
+        producer.setRetryTimesWhenSendFailed(3);
+        producer.start();
+
+        for (int i = 0; i &lt; 1000; i++) &#123;
+            try &#123;
+                //创建一个消息实例
+                Message msg = new Message(&quot;TopicTest&quot; /* 消息主题 */,
+                    &quot;TagA&quot; /* 消息标签 */,
+                    (&quot;Hello RocketMQ &quot; + i).getBytes(RemotingHelper.DEFAULT_CHARSET) /* 消息内容 */
+                );
+                //同步发送消息
+                SendResult sendResult = producer.send(msg);
+                System.out.printf(&quot;%s%n&quot;, sendResult);
+            &#125; catch (UnsupportedEncodingException e)&#123;
+                e.printStackTrace();
+            &#125; catch (MQClientException e)&#123;
+                e.printStackTrace();
+            &#125; catch (RemotingException e)&#123;
+                e.printStackTrace();
+            &#125; catch(MQBrokerException e)&#123;
+                e.printStackTrace();
+            &#125; catch (InterruptedException e)&#123;
+                e.printStackTrace();
+            &#125;
+        &#125;
+        producer.shutdown();
+    &#125;
+&#125;
+</code></pre><p><code>send</code>是一个同步操作，只要不抛出异常，代表消息<code>发送成功</code>。抛出异常，代表发送动作失败，需要对异常消息进行处理，避免消息丢失</p><p><code>发送成功</code>只代表broker收到了消息，broker有没有保存对于producer是不确定的。因此，broker在不同的配置下，会返回不同的响应状态：</p><ul><li><p><strong>SendStatus.SEND_OK:</strong><br>消息发送成功。要注意的是消息发送成功也不意味着它是可靠的。要确保不会丢失任何消息，还应启用同步Master服务器或同步刷盘，即SYNC_MASTER或SYNC_FLUSH。</p></li><li><p><strong>SendStatus.FLUSH_DISK_TIMEOUT:</strong><br>消息发送成功但是服务器刷盘超时。此时消息已经进入服务器队列（内存），只有服务器宕机，消息才会丢失。消息存储配置参数中可以设置刷盘方式和同步刷盘时间长度，如果Broker服务器设置了刷盘方式为同步刷盘，即FlushDiskType&#x3D;SYNC_FLUSH（默认为异步刷盘方式），当Broker服务器未在同步刷盘时间内（默认为5s）完成刷盘，则将返回该状态——刷盘超时。</p></li><li><p><strong>SendStatus.FLUSH_SLAVE_TIMEOUT:</strong><br>消息发送成功，但是服务器同步到Slave时超时。此时消息已经进入服务器队列，只有服务器宕机，消息才会丢失。如果Broker服务器的角色是同步Master，即SYNC_MASTER（默认是异步Master即ASYNC_MASTER），并且从Broker服务器未在同步刷盘时间（默认为5秒）内完成与主服务器的同步，则将返回该状态——数据同步到Slave服务器超时。</p></li><li><p><strong>SendStatus.SLAVE_NOT_AVAILABLE:</strong><br>消息发送成功，但是此时Slave不可用。如果Broker服务器的角色是同步Master，即SYNC_MASTER（默认是异步Master服务器即ASYNC_MASTER），但没有配置slave Broker服务器，则将返回该状态——无Slave服务器可用。</p></li></ul><p>2.异步发送</p><pre><code class="java">public class AsyncProducer &#123;
+    public static void main(
+        String[] args) throws MQClientException, InterruptedException, UnsupportedEncodingException &#123;
+        DefaultMQProducer producer = new DefaultMQProducer(&quot;Jodie_Daily_test&quot;);
+        producer.start();
+        //设置重试次数
+        producer.setRetryTimesWhenSendAsyncFailed(3);
+        int messageCount = 100;
+        final CountDownLatch countDownLatch = new CountDownLatch(messageCount);
+        for (int i = 0; i &lt; messageCount; i++) &#123;
+            try &#123;
+                final int index = i;
+                Message msg = new Message(&quot;Jodie_topic_1023&quot;,
+                    &quot;TagA&quot;,
+                    &quot;OrderID188&quot;,
+                    &quot;Hello world&quot;.getBytes(RemotingHelper.DEFAULT_CHARSET));
+                //异步发送消息，主线程不会被阻塞，会立即返回    
+                producer.send(msg, new SendCallback() &#123;
+                    @Override
+                    public void onSuccess(SendResult sendResult) &#123;
+                        //消息发送成功
+                        countDownLatch.countDown();
+                        System.out.printf(&quot;%-10d OK %s %n&quot;, index, sendResult.getMsgId());
+                    &#125;
+
+                    @Override
+                    public void onException(Throwable e) &#123;
+                        //消息发送失败，可以持久化这条数据，进行补偿
+                        countDownLatch.countDown();
+                        System.out.printf(&quot;%-10d Exception %s %n&quot;, index, e);
+                        e.printStackTrace();
+                    &#125;
+                &#125;);
+            &#125; catch (Exception e) &#123;
+                e.printStackTrace();
+            &#125;
+        &#125;
+        countDownLatch.await(5, TimeUnit.SECONDS);
+        producer.shutdown();
+    &#125;
+&#125;
+</code></pre><p><code>异步发送消息</code>一定要注意重写回调方法，在回调钟对消息结果进行相应的处理。</p><p>3.单向发送</p><pre><code class="java">public class OnewayProducer &#123;
+    public static void main(String[] args) throws Exception&#123;
+        DefaultMQProducer producer = new DefaultMQProducer(&quot;please_rename_unique_group_name&quot;);
+        producer.setNamesrvAddr(&quot;localhost:9876&quot;);
+        producer.start();
+        for (int i = 0; i &lt; 100; i++) &#123;
+            Message msg = new Message(&quot;TopicTest&quot;,
+                &quot;TagA&quot;,
+                (&quot;Hello RocketMQ &quot; +
+                    i).getBytes(RemotingHelper.DEFAULT_CHARSET) 
+            );
+            producer.sendOneway(msg);
+        &#125;
+        Thread.sleep(5000);        
+        producer.shutdown();
+    &#125;
+&#125;
+</code></pre><p><code>单向消息</code>主要用于消息中等可靠性的情况，比如日志发送等场景。</p><h3 id="存储-broker"><a href="#存储-broker" class="headerlink" title="存储(broker)"></a>存储(broker)</h3><p>broker作用是接受从生产者发送的消息，并持久化消息，然后返回响应给producer。</p><p>在持久化的过程中，为了消息落盘过程的不丢失和性能，提供了两种刷盘策略：</p><ul><li>异步刷盘：默认的策略，消息可能只是被写入了内存的PAGECACHE，写操作的返回快<br>吞吐量大；当内存里的消息量积累到一定程度时，统一触发写磁盘操作，快速写入</li><li>同步刷盘：消息写入内存的PAGECACHE后，立刻通知刷盘线程刷盘，然后等待刷盘完成，刷盘线程执行完成后唤醒等待的线程，返回消息写成功的状态。相比异步刷盘会损失性能，但是更加可靠</li></ul><h3 id="消费者-consumer"><a href="#消费者-consumer" class="headerlink" title="消费者(consumer)"></a>消费者(consumer)</h3><p>消费者主要作用是从broker中拉取消息，然后进行消费（执行特定业务），具体代码如下：</p><pre><code class="java">public class Consumer &#123;
+    public static void main(String[] args) throws InterruptedException, MQClientException &#123;
+        // 实例化消费者
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(&quot;please_rename_unique_group_name&quot;);
+        // 设置NameServer的地址
+        consumer.setNamesrvAddr(&quot;localhost:9876&quot;);
+        // 订阅一个或者多个Topic，以及Tag来过滤需要消费的消息
+        consumer.subscribe(&quot;TopicTest&quot;, &quot;*&quot;);
+        // 注册回调实现类来处理从broker拉取回来的消息
+        consumer.registerMessageListener(new MessageListenerConcurrently() &#123;
+            @Override
+            public ConsumeConcurrentlyStatus consumeMessage(List&lt;MessageExt&gt; msgs, ConsumeConcurrentlyContext context) &#123;
+                System.out.printf(&quot;%s Receive New Messages: %s %n&quot;, Thread.currentThread().getName(), msgs);
+                //标记该消息稍后重新消费
+                //return  ConsumeConcurrentlyStatus.RECONSUME_LATER
+                // 标记该消息已经被成功消费
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            &#125;
+        &#125;);
+        // 启动消费者实例
+        consumer.start();
+        System.out.printf(&quot;Consumer Started.%n&quot;);
+    &#125;
+&#125;
+</code></pre><p><code>注意</code>,只有业务执行成功才返回<code>CONSUME_SUCCESS</code>,否则返回<code>RECONSUME_LATER</code>,代表重试消费消息。</p><p>目前，我们知道了消息的流转，以及整体架构。下篇文章，我们详细聊聊消息的存储问题。</p></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2020/06/04/2020-06-04RocketMq%E5%AD%A6%E4%B9%A0/" title="RocketMq基础(一)">https://github/zhuchong6.github.io/2020/06/04/2020-06-04RocketMq学习/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag"># 中间件</a> <a href="/tags/MQ/" rel="tag"># MQ</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2020/05/30/2020-05-30redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" rel="prev" title="redis分布式锁"><i class="fa fa-chevron-left"></i> redis分布式锁</a></div><div class="post-nav-item"><a href="/2020/11/07/2020-11-07es%E5%88%9D%E6%AD%A5-md/" rel="next" title="es学习(一)-简介">es学习(一)-简介 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RocketMq%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">RocketMq基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%B5%81%E7%A8%8B"><span class="nav-number">1.3.</span> <span class="nav-text">消息发送流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85-producer"><span class="nav-number">1.3.1.</span> <span class="nav-text">生产者(producer)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E5%82%A8-broker"><span class="nav-number">1.3.2.</span> <span class="nav-text">存储(broker)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85-consumer"><span class="nav-number">1.3.3.</span> <span class="nav-text">消费者(consumer)</span></a></li></ol></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">55</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">17</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">26</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2023</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>

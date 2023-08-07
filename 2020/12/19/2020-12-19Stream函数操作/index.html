@@ -1,0 +1,553 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="Java Stream基础操作概述jdk8之前，操作集合中的元素，一般都是通过for或者iterator去遍历，代码特别冗长。jdk8提供了Stream，让我对更加方便的操作集合 Stream构造方式stream本身的public static&lt;T&gt; Builder&lt;T&gt; builder(); public static &lt;T&gt; Stream&lt;T&gt;"><meta property="og:type" content="article"><meta property="og:title" content="Stream函数操作"><meta property="og:url" content="https://github/zhuchong6.github.io/2020/12/19/2020-12-19Stream%E5%87%BD%E6%95%B0%E6%93%8D%E4%BD%9C/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="Java Stream基础操作概述jdk8之前，操作集合中的元素，一般都是通过for或者iterator去遍历，代码特别冗长。jdk8提供了Stream，让我对更加方便的操作集合 Stream构造方式stream本身的public static&lt;T&gt; Builder&lt;T&gt; builder(); public static &lt;T&gt; Stream&lt;T&gt;"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://github/images/fork_join.png"><meta property="og:image" content="https://github/images/work_steal.png"><meta property="article:published_time" content="2020-12-19T08:30:39.000Z"><meta property="article:modified_time" content="2023-08-07T00:18:37.946Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="Java"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://github/images/fork_join.png"><link rel="canonical" href="https://github/zhuchong6.github.io/2020/12/19/2020-12-19Stream%E5%87%BD%E6%95%B0%E6%93%8D%E4%BD%9C/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>Stream函数操作 | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">17</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2020/12/19/2020-12-19Stream%E5%87%BD%E6%95%B0%E6%93%8D%E4%BD%9C/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">Stream函数操作</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2020-12-19 16:30:39" itemprop="dateCreated datePublished" datetime="2020-12-19T16:30:39+08:00">2020-12-19</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2023-08-07 08:18:37" itemprop="dateModified" datetime="2023-08-07T08:18:37+08:00">2023-08-07</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="Java-Stream基础操作"><a href="#Java-Stream基础操作" class="headerlink" title="Java Stream基础操作"></a>Java Stream基础操作</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>jdk8之前，操作集合中的元素，一般都是通过for或者iterator去遍历，代码特别冗长。jdk8提供了Stream，让我对更加方便的操作集合</p><h2 id="Stream构造方式"><a href="#Stream构造方式" class="headerlink" title="Stream构造方式"></a>Stream构造方式</h2><h3 id="stream本身的"><a href="#stream本身的" class="headerlink" title="stream本身的"></a>stream本身的</h3><pre><code class="java">public static&lt;T&gt; Builder&lt;T&gt; builder();
+public static &lt;T&gt; Stream&lt;T&gt; concat(Stream&lt;? extends T&gt; a, Stream&lt;? extends T&gt; b);
+public static&lt;T&gt; Stream&lt;T&gt; empty();
+public static&lt;T&gt; Stream&lt;T&gt; generate(Supplier&lt;T&gt; s);
+public static&lt;T&gt; Stream&lt;T&gt; iterate(final T seed, final UnaryOperator&lt;T&gt; f);
+public static&lt;T&gt; Stream&lt;T&gt; of(T t);
+public static&lt;T&gt; Stream&lt;T&gt; of(T... values);
+</code></pre><span id="more"></span><h3 id="Collection接口提供"><a href="#Collection接口提供" class="headerlink" title="Collection接口提供"></a>Collection接口提供</h3><pre><code class="java">default Stream&lt;E&gt; stream();
+</code></pre><p>默认方法，也就是任意Collection的之类，都能通过调用stream方法获取Stream对象，常见的比如<code>List.stream()</code></p><h2 id="Stream中间操作"><a href="#Stream中间操作" class="headerlink" title="Stream中间操作"></a>Stream中间操作</h2><h3 id="filter过滤操作"><a href="#filter过滤操作" class="headerlink" title="filter过滤操作"></a>filter过滤操作</h3><pre><code class="java">Stream&lt;T&gt; filter(Predicate&lt;? super T&gt; predicate);
+</code></pre><ul><li>predicate函数时接口，可以使用lambda替代，也可以使用传统实现的方式来入参。如果有复杂的逻辑可以用传统是实现接口方式，并用predicate提供的接口来组合</li></ul><pre><code class="java">List&lt;String&gt; demo = Arrays.asList(&quot;q&quot;, &quot;w&quot;, &quot;e&quot;);
+Predicate&lt;String&gt; f1 = e -&gt; e.equals(&quot;q&quot;);
+Predicate&lt;String&gt; f2 = e -&gt; e.equals(&quot;w&quot;);
+demo.stream().filter(f1.or(f2)).forEach(System.out::println);
+//或者
+demo.stream().filter(e-&gt;e.equals(&quot;q&quot;)||e.equals(&quot;w&quot;)).forEach(System.out::println);
+-------result--------
+a
+b
+a
+b
+</code></pre><h3 id="map映射转化"><a href="#map映射转化" class="headerlink" title="map映射转化"></a>map映射转化</h3><pre><code class="java">&lt;R&gt; Stream&lt;R&gt; map(Function&lt;? super T, ? extends R&gt; mapper)
+IntStream mapToInt(ToIntFunction&lt;? super T&gt; mapper);
+LongStream mapToLong(ToLongFunction&lt;? super T&gt; mapper);
+DoubleStream mapToDouble(ToDoubleFunction&lt;? super T&gt; mapper);
+</code></pre><pre><code>class User &#123;
+
+    private Long id;
+
+    private String name;
+
+    public User(Long id, String name) &#123;
+        this.id = id;
+        this.name = name;
+    &#125;
+
+    public Long getId() &#123;
+        return id;
+    &#125;
+
+    public User setId(Long id) &#123;
+        this.id = id;
+        return this;
+    &#125;
+
+    public String getName() &#123;
+        return name;
+    &#125;
+
+    public User setName(String name) &#123;
+        this.name = name;
+        return this;
+    &#125;
+&#125;
+
+static void mapTest()&#123;
+    List&lt;User&gt; users = Arrays.asList(new User(1L, &quot;11&quot;), new User(2L, &quot;22&quot;));
+    users.stream().map(e-&gt;e.getId()).forEach(System.out::println);
+&#125;
+---result---
+1
+2
+</code></pre><h3 id="peek数据处理"><a href="#peek数据处理" class="headerlink" title="peek数据处理"></a>peek数据处理</h3><pre><code class="java">Stream&lt;T&gt; peek(Consumer&lt;? super T&gt; action);
+</code></pre><ul><li>和map的区别是，map有返回值，这个没有</li></ul><pre><code>public static void main(String[] args) &#123;
+    List&lt;User&gt; demo = Arrays.asList(new User(1L,&quot;11&quot;), new User(2L,&quot;22&quot;), new User(3L,&quot;33&quot;));
+// id平方，User 转为 Integer(id)
+demo.stream().peek(user -&gt; user.setId(user.id * user.id)).map(User::getId).forEach(System.out::println);
+-------result--------
+1
+4
+9
+</code></pre><h3 id="flatMap"><a href="#flatMap" class="headerlink" title="flatMap"></a>flatMap</h3><p>这个没有好的翻译，暂时不翻译。为了更好的了解这个操作的意义，我们假设张三有经理和财务两个角色，两个角色对应不同权限，那么张三的权限&#x3D;经理权限+财务权限，相关类如下：</p><pre><code>class Role&#123;
+    private List&lt;Private&gt; private;//权限集合
+&#125;
+
+class Private&#123;
+    private String name;//权限名称
+&#125;
+
+//经理角色
+Private p1 = new Private().setName(&quot;发布任务&quot;);
+Private p2 = new Private().setName(&quot;制定计划&quot;);
+List&lt;Private&gt; provates = Arrays.asList(p1,p2);
+Role manager = new Role().setPrivates(provates);
+
+//财务角色
+Private p3 = new Private().setName(&quot;做预算&quot;);
+Private p4 = new Private().setName(&quot;发工资&quot;);
+List&lt;Private&gt; provates2 = Arrays.asList(p3,p4);
+Role caiwu = new Role().setPrivates(provates2);
+//张三角色集合
+List&lt;Role&gt; roles = Arrays.asList(manager,caiwu);
+//计算张三所有权限
+roles.stream().flatMap(e-&gt;e.getPrivates().stream()).forEach(e-&gt; System.out.println(e.getName()));
+---result----
+发布任务
+制定计划
+做预算
+发工资
+</code></pre><p>由上面的demo，可以看出flatMap的作用是，将多个provates列表，压缩成一个</p><h3 id="distinct-去重"><a href="#distinct-去重" class="headerlink" title="distinct 去重"></a>distinct 去重</h3><pre><code class="java">Stream&lt;T&gt; distinct();
+</code></pre><pre><code>List&lt;Integer&gt; demo = Arrays.asList(1, 1, 2);
+demo.stream().distinct().forEach(System.out::println);
+-------result--------
+1
+2
+</code></pre><p>如果是对象去重，需要重写对象的equals和hashcode方法</p><h3 id="sorted-排序"><a href="#sorted-排序" class="headerlink" title="sorted 排序"></a>sorted 排序</h3><pre><code class="java">Stream&lt;T&gt; sorted();
+Stream&lt;T&gt; sorted(Comparator&lt;? super T&gt; comparator);
+</code></pre><pre><code>List&lt;Integer&gt; demo = Arrays.asList(5, 1, 2);
+//默认升序
+demo.stream().sorted().forEach(System.out::println);
+//降序
+Comparator&lt;Integer&gt; comparator = Comparator.&lt;Integer, Integer&gt;comparing(item -&gt; item).reversed();
+demo.stream().sorted(comparator).forEach(System.out::println);
+-------默认升序 result--------
+1
+2
+5
+-------降序 result--------
+5
+2
+1
+</code></pre><h3 id="limit和skip"><a href="#limit和skip" class="headerlink" title="limit和skip"></a>limit和skip</h3><pre><code class="java">//截取前maxSize个元素
+Stream&lt;T&gt; limit(long maxSize);
+//跳过前n个流
+Stream&lt;T&gt; skip(long n);
+</code></pre><pre><code>List&lt;Integer&gt; demo = Arrays.asList(1, 2, 3, 4, 5, 6);
+//跳过前两个，然后限制截取两个
+demo.stream().skip(2).limit(2).forEach(System.out::println);
+-------result--------
+3
+4
+</code></pre><h2 id="Stream终止操作"><a href="#Stream终止操作" class="headerlink" title="Stream终止操作"></a>Stream终止操作</h2><h3 id="遍历消费"><a href="#遍历消费" class="headerlink" title="遍历消费"></a>遍历消费</h3><pre><code class="java">//遍历消费
+void forEach(Consumer&lt;? super T&gt; action);
+//顺序遍历消费,和forEach的区别是forEachOrdered在多线程parallelStream执行，保证顺序
+void forEachOrdered(Consumer&lt;? super T&gt; action);
+</code></pre><pre><code>List&lt;String&gt; strings = Arrays.asList(&quot;AA&quot;, &quot;BB&quot;, &quot;CC&quot;, &quot;DD&quot;);
+strings.parallelStream().forEach(System.out::print);
+System.out.println();
+strings.parallelStream().forEachOrdered(System.out::print);
+----------result----------
+CCDDBBAA
+AABBCCDD
+</code></pre><h3 id="转换成数组"><a href="#转换成数组" class="headerlink" title="转换成数组"></a>转换成数组</h3><pre><code class="java">//流转成Object数组
+Object[] toArray();
+//流转成Ａ[]数组，指定类型A
+&lt;A&gt; A[] toArray(IntFunction&lt;A[]&gt; generator)
+</code></pre><pre><code>List&lt;String&gt; strings = Arrays.asList(&quot;AA&quot;, &quot;BB&quot;, &quot;CC&quot;, &quot;DD&quot;);
+Object[] objects = strings.stream().toArray();
+String[] strings1 = strings.stream().toArray(String[]::new);
+</code></pre><h3 id="最大最小"><a href="#最大最小" class="headerlink" title="最大最小"></a>最大最小</h3><pre><code class="java">//获取最小值
+Optional&lt;T&gt; min(Comparator&lt;? super T&gt; comparator)
+//获取最大值
+Optional&lt;T&gt; max(Comparator&lt;? super T&gt; comparator)
+</code></pre><pre><code>List&lt;Integer&gt; integers = Arrays.asList(1, 2, 3, 45, 6);
+Optional&lt;Integer&gt; max = integers.stream().max(Comparator.comparing(i -&gt; i));
+Optional&lt;Integer&gt; min = integers.stream().min(Comparator.comparing(i -&gt; i));
+System.out.println(&quot;max=&quot;+max.get()+&quot;,min=&quot;+min.get());
+--------result-------
+max=45,min=1
+</code></pre><h3 id="合并"><a href="#合并" class="headerlink" title="合并"></a>合并</h3><pre><code class="java">//两两合并
+Optional&lt;T&gt; reduce(BinaryOperator&lt;T&gt; accumulator)
+//两两合并，带初始值的
+T reduce(T identity, BinaryOperator&lt;T&gt; accumulator)
+//如果是stream的话与第二个完全一样，parallelStream会在合并一次
+&lt;U&gt; U reduce(U identity, BiFunction&lt;U, ? super T, U&gt; accumulator, BinaryOperator&lt;U&gt; combiner)
+</code></pre><pre><code>List&lt;Integer&gt; integers = Arrays.asList(1, 2, 3, 45, 6);
+Optional&lt;Integer&gt; reduce = integers.stream().reduce((v1, v2) -&gt; v1 + v2);
+Integer reduce1 = integers.stream().reduce(1, (v1, v2) -&gt; v1 + v2);
+String reduce2 = integers.stream().reduce(&quot;初始值&quot;, (v1, v2) -&gt; v1 + &quot;第一次&quot; + v2, (v3, v4) -&gt; v3 + &quot;第二次&quot; + v4);
+String reduce3 = integers.parallelStream().reduce(&quot;a&quot;, (v1, v2) -&gt; v1 + &quot;-&quot; + v2, (v3, v4) -&gt; v3 + &quot;第二次&quot; + v4);
+System.out.println(reduce.get());
+System.out.println(reduce1);
+System.out.println(reduce2);
+--------result--------
+57
+58
+初始值第一次1第一次2第一次3第一次45第一次6
+a-1第二次a-2第二次a-3第二次a-45第二次a-6
+</code></pre><h3 id="计数"><a href="#计数" class="headerlink" title="计数"></a>计数</h3><pre><code class="java">//统计元素个数
+long count()
+</code></pre><h3 id="聚合处理"><a href="#聚合处理" class="headerlink" title="聚合处理"></a>聚合处理</h3><pre><code class="java">/**
+ * supplier:返回结果类型的生产者
+ * accumulator:元素消费者（处理并加入R）
+ * combiner: 返回结果 R 怎么组合（多线程执行时，会产生多个返回值R，需要合并）
+ */
+&lt;R&gt; R collect(Supplier&lt;R&gt; supplier, BiConsumer&lt;R, ? super T&gt; accumulator, BiConsumer&lt;R, R&gt; combiner);
+/**
+ * collector一般是由 supplier、accumulator、combiner、finisher、characteristics组合成的聚合类
+ * Collectors 可提供一些内置的聚合类或者方法
+ */
+&lt;R, A&gt; R collect(Collector&lt;? super T, A, R&gt; collector);
+</code></pre><p>具体可以看下面</p><h2 id="Collector-聚合类-的操作"><a href="#Collector-聚合类-的操作" class="headerlink" title="Collector(聚合类)的操作"></a>Collector(聚合类)的操作</h2><h3 id="接口Collector和实现类CollectorImpl"><a href="#接口Collector和实现类CollectorImpl" class="headerlink" title="接口Collector和实现类CollectorImpl"></a>接口Collector和实现类CollectorImpl</h3><pre><code class="java">//返回值类型的生产者
+Supplier&lt;A&gt; supplier();
+//流元素消费者
+BiConsumer&lt;A, T&gt; accumulator();
+//返回值合并器（多个线程操作时，会产生多个返回值，需要合并）
+BinaryOperator&lt;A&gt; combiner();
+//返回值转化器（最后一步处理，实际返回结果，一般原样返回）
+Function&lt;A, R&gt; finisher();
+//流的特性
+Set&lt;Characteristics&gt; characteristics();
+
+public static&lt;T, A, R&gt; Collector&lt;T, A, R&gt; of(Supplier&lt;A&gt; supplier,
+    BiConsumer&lt;A, T&gt; accumulator, BinaryOperator&lt;A&gt; combiner,
+    Function&lt;A, R&gt; finisher, Characteristics... characteristics)
+</code></pre><h3 id="转换成List-Set"><a href="#转换成List-Set" class="headerlink" title="转换成List, Set"></a>转换成List, Set</h3><pre><code class="java">//流转化成List
+public static &lt;T&gt; Collector&lt;T, ?, List&lt;T&gt;&gt; toList()
+//流转化成Set
+public static &lt;T&gt; Collector&lt;T, ?, Set&lt;T&gt;&gt; toSet()
+</code></pre><pre><code class="java">List&lt;Integer&gt; demo = Arrays.asList(1, 2, 3);
+List&lt;Integer&gt; col = demo.stream().collect(Collectors.toList());
+Set&lt;Integer&gt; set = demo.stream().collect(Collectors.toSet());
+</code></pre><h3 id="转换成Map"><a href="#转换成Map" class="headerlink" title="转换成Map"></a>转换成Map</h3><pre><code class="java">//流转化成Map
+public static &lt;T, K, U&gt; Collector&lt;T, ?, Map&lt;K,U&gt;&gt; toMap(
+    Function&lt;? super T, ? extends K&gt; keyMapper,
+    Function&lt;? super T, ? extends U&gt; valueMapper)
+/**
+ * mergeFunction:相同的key,值怎么合并
+ */
+public static &lt;T, K, U&gt; Collector&lt;T, ?, Map&lt;K,U&gt;&gt; toMap(
+    Function&lt;? super T, ? extends K&gt; keyMapper,
+    Function&lt;? super T, ? extends U&gt; valueMapper,
+    BinaryOperator&lt;U&gt; mergeFunction)
+/**
+ * mergeFunction:相同的key,值怎么合并
+ * mapSupplier：返回值Map的生产者
+ */
+public static &lt;T, K, U, M extends Map&lt;K, U&gt;&gt; Collector&lt;T, ?, M&gt; toMap(
+    Function&lt;? super T, ? extends K&gt; keyMapper,
+    Function&lt;? super T, ? extends U&gt; valueMapper,
+    BinaryOperator&lt;U&gt; mergeFunction,
+    Supplier&lt;M&gt; mapSupplier)
+</code></pre><pre><code>List&lt;User&gt; users = Arrays.asList(new User(1), new User(2), new User(3), new User(1));
+//Map&lt;Integer, Integer&gt; collect = users.stream().collect(Collectors.toMap(e -&gt; e.getId(), f -&gt; f.getId()));
+//System.out.println(collect);
+Map&lt;Integer, Integer&gt; collect1 = users.stream().collect(Collectors.toMap(User::getId, User::getId, (v1,v2)-&gt;v1+v2, HashMap::new ));
+System.out.println(collect1);
+--------result------------
+&#123;1=2, 2=2, 3=3&#125;
+</code></pre><h3 id="字符流聚合"><a href="#字符流聚合" class="headerlink" title="字符流聚合"></a>字符流聚合</h3><pre><code class="java">//多个字符串拼接成一个字符串
+public static Collector&lt;CharSequence, ?, String&gt; joining();
+//多个字符串拼接成一个字符串（指定分隔符）
+public static Collector&lt;CharSequence, ?, String&gt; joining(CharSequence delimiter);
+//多个字符串拼接，指定分隔符，前缀，后缀
+public static Collector&lt;CharSequence, ?, String&gt; joining(CharSequence 		delimiter,CharSequence prefix,CharSequence suffix)
+</code></pre><pre><code>List&lt;String&gt; integers = Arrays.asList(&quot;1&quot;,&quot;2&quot;,&quot;3&quot;);
+String collect = integers.stream().collect(Collectors.joining());
+String collect1 = integers.stream().collect(Collectors.joining(&quot;|&quot;));
+String collect2 = integers.stream().collect(Collectors.joining(&quot;|&quot;,&quot;[&quot;,&quot;]&quot;));
+System.out.println(collect);
+System.out.println(collect1);
+System.out.println(collect2);
+--------result----------
+123
+1|2|3
+[1|2|3]
+</code></pre><h3 id="映射、聚合流"><a href="#映射、聚合流" class="headerlink" title="映射、聚合流"></a>映射、聚合流</h3><pre><code class="java">/**
+ * mapper:映射处理器,相当于map功能
+ * downstream:映射处理后需要再次聚合处理
+ */
+public static &lt;T, U, A, R&gt; Collector&lt;T, ?, R&gt; mapping(Function&lt;? super T, ? extends U&gt; mapper, Collector&lt;? super U, A, R&gt; downstream);
+</code></pre><pre><code>List&lt;String&gt; integers = Arrays.asList(&quot;1&quot;,&quot;2&quot;,&quot;3&quot;);
+List collect = integers.stream().collect(Collectors.mapping(e-&gt;e+&quot;8&quot;, Collectors.toList()));
+System.out.println(collect);
+--------result--------
+[18, 28, 38]
+</code></pre><h3 id="聚合、转换"><a href="#聚合、转换" class="headerlink" title="聚合、转换"></a>聚合、转换</h3><pre><code class="java">/**
+ * downstream:聚合处理
+ * finisher:结果转换处理
+ */
+public static&lt;T,A,R,RR&gt; Collector&lt;T,A,RR&gt; collectingAndThen(Collector&lt;T,A,R&gt; downstream,
+        Function&lt;R, RR&gt; finisher); 
+</code></pre><pre><code>List&lt;String&gt; integers = Arrays.asList(&quot;1&quot;,&quot;2&quot;,&quot;3&quot;);
+//聚合成List,最后提取数组的size作为返回值
+Integer size =integers.stream().collect(Collectors.collectingAndThen(Collectors.toList(), List::size));
+System.out.println(size);
+---------result---------
+3
+</code></pre><h3 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h3><pre><code class="java">/**
+ * classifier 指定T类型某一属性作为Key值分组
+ * 分组后，使用List作为每个流的容器
+ */
+public static &lt;T, K&gt; Collector&lt;T, ?, Map&lt;K, List&lt;T&gt;&gt;&gt; groupingBy(
+        Function&lt;? super T, ? extends K&gt; classifier);           
+/**
+ * classifier: 流分组器
+ * downstream: 每组流的聚合处理器
+ */
+public static &lt;T, K, A, D&gt; Collector&lt;T, ?, Map&lt;K, D&gt;&gt; groupingBy(
+        Function&lt;? super T, ? extends K&gt; classifier， 
+        Collector&lt;? super T, A, D&gt; downstream);
+/**
+ * classifier: 流分组器
+ * mapFactory: 返回值map的工厂（Map的子类）
+ * downstream: 每组流的聚合处理器
+ */
+public static &lt;T, K, D, A, M extends Map&lt;K, D&gt;&gt; Collector&lt;T, ?, M&gt; groupingBy(
+        Function&lt;? super T, ? extends K&gt; classifier,
+        Supplier&lt;M&gt; mapFactory,
+        Collector&lt;? super T, A, D&gt; downstream);
+
+///////////////////用法和上面一样
+/**
+ * classifier: 分组器 ； 分组后，使用List作为每个流的容器
+ */
+public static &lt;T, K&gt; Collector&lt;T, ?, ConcurrentMap&lt;K, List&lt;T&gt;&gt;&gt; groupingByConcurrent(
+        Function&lt;? super T, ? extends K&gt; classifier);
+/**
+ * classifier: 分组器
+ * downstream: 流的聚合处理器
+ */
+public static &lt;T, K, A, D&gt; Collector&lt;T, ?, ConcurrentMap&lt;K, D&gt;&gt; groupingByConcurrent(
+        Function&lt;? super T, ? extends K&gt; classifier, Collector&lt;? super T, A, D&gt; downstream)
+/**
+ * classifier: 分组器
+ * mapFactory: 返回值类型map的生产工厂（ConcurrentMap的子类）
+ * downstream: 流的聚合处理器
+ */
+public static &lt;T, K, A, D, M extends ConcurrentMap&lt;K, D&gt;&gt; Collector&lt;T, ?, M&gt; groupingByConcurrent(
+        Function&lt;? super T, ? extends K&gt; classifier, 
+        Supplier&lt;M&gt; mapFactory,
+        Collector&lt;? super T, A, D&gt; downstream);
+</code></pre><pre><code>List&lt;Integer&gt; integers = Arrays.asList(1,2,3,4,5,6,7,8,9,10);
+HashMap&lt;Integer, List&lt;String&gt;&gt; collect = integers.stream().collect(Collectors.groupingBy(i -&gt; i % 3,HashMap::new,Collectors.mapping(String::valueOf, Collectors.toList())));
+System.out.println(collect);
+-------------result----------
+&#123;0=[3, 6, 9], 1=[1, 4, 7, 10], 2=[2, 5, 8]&#125;
+</code></pre><h3 id="流拆分"><a href="#流拆分" class="headerlink" title="流拆分"></a>流拆分</h3><pre><code class="java">public static &lt;T&gt; Collector&lt;T, ?, Map&lt;Boolean, List&lt;T&gt;&gt;&gt; partitioningBy(
+        Predicate&lt;? super T&gt; predicate)
+/**
+ * predicate: 二分器
+ * downstream: 流的聚合处理器
+ */
+public static &lt;T, D, A&gt; Collector&lt;T, ?, Map&lt;Boolean, D&gt;&gt; partitioningBy(
+        Predicate&lt;? super T&gt; predicate, Collector&lt;? super T, A, D&gt; downstream)
+</code></pre><pre><code>List&lt;Integer&gt; integers = Arrays.asList(1,2,3,4,5,6,7,8,9,10);
+        Map&lt;Boolean, List&lt;Integer&gt;&gt; collect = integers.stream().collect(Collectors.partitioningBy(i -&gt; i % 3 == 0));
+        System.out.println(collect);
+-----------result-----------
+&#123;false=[1, 2, 4, 5, 7, 8, 10], true=[3, 6, 9]&#125;
+</code></pre><h3 id="聚合求平均值"><a href="#聚合求平均值" class="headerlink" title="聚合求平均值"></a>聚合求平均值</h3><pre><code class="java">// 返回Double类型
+public static &lt;T&gt; Collector&lt;T, ?, Double&gt; averagingDouble(ToDoubleFunction&lt;? super T&gt; mapper)
+// 返回Long 类型
+public static &lt;T&gt; Collector&lt;T, ?, Double&gt; averagingLong(ToLongFunction&lt;? super T&gt; mapper)
+//返回Int 类型
+public static &lt;T&gt; Collector&lt;T, ?, Double&gt; averagingInt(ToIntFunction&lt;? super T&gt; mapper)
+</code></pre><pre><code>List&lt;Double&gt; integers = Arrays.asList(1.1,2.2,3.3,4.4,5.1,6.1,7.1,8.1,9.1,10.1);
+Double collect = integers.stream().collect(Collectors.averagingDouble(Double::doubleValue));
+System.out.println(collect);
+----------result-----------
+5.659999999999999
+</code></pre><h3 id="聚合查找最大最小值"><a href="#聚合查找最大最小值" class="headerlink" title="聚合查找最大最小值"></a>聚合查找最大最小值</h3><pre><code class="java">//最小值
+public static &lt;T&gt; Collector&lt;T, ?, Optional&lt;T&gt;&gt; minBy(Comparator&lt;? super T&gt; comparator) 
+//最大值
+public static &lt;T&gt; Collector&lt;T, ?, Optional&lt;T&gt;&gt; maxBy(Comparator&lt;? super T&gt; comparator)  
+</code></pre><pre><code>List&lt;Double&gt; integers = Arrays.asList(1.1,2.2,3.3,4.4,5.1,6.1,7.1,8.1,9.1,10.1);
+Optional&lt;Double&gt; max = integers.stream().collect(Collectors.maxBy(Comparator.comparing(i -&gt; i)));
+Optional&lt;Double&gt; min = integers.stream().collect(Collectors.minBy(Comparator.comparing(i -&gt; i)));
+System.out.println(&quot;max=&quot;+max.get()+&quot;,min=&quot;+min.get());
+------------result------------
+max=10.1,min=1.1
+</code></pre><h3 id="聚合计算统计结果"><a href="#聚合计算统计结果" class="headerlink" title="聚合计算统计结果"></a>聚合计算统计结果</h3><pre><code class="java">//可以获得元素总个数，元素累计总和，最小值，最大值，平均值
+//返回Int 类型
+public static &lt;T&gt; Collector&lt;T, ?, IntSummaryStatistics&gt; summarizingInt(
+        ToIntFunction&lt;? super T&gt; mapper)
+//返回Double 类型
+public static &lt;T&gt; Collector&lt;T, ?, DoubleSummaryStatistics&gt; summarizingDouble(
+        ToDoubleFunction&lt;? super T&gt; mapper)
+//返回Long 类型
+public static &lt;T&gt; Collector&lt;T, ?, LongSummaryStatistics&gt; summarizingLong(
+        ToLongFunction&lt;? super T&gt; mapper)
+</code></pre><pre><code>List&lt;Double&gt; integers = Arrays.asList(1.1,2.2,3.3,4.4,5.1,6.1,7.1,8.1,9.1,10.1);
+DoubleSummaryStatistics collect = integers.stream().collect(Collectors.summarizingDouble(Double::doubleValue));
+System.out.println(collect);
+--------result----------
+DoubleSummaryStatistics&#123;count=10, sum=56.600000, min=1.100000, average=5.660000, max=10.100000&#125;
+</code></pre><h2 id="并行流"><a href="#并行流" class="headerlink" title="并行流"></a>并行流</h2><pre><code>List&lt;Integer&gt; integers = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
+
+integers.parallelStream().forEach(e-&gt;&#123;
+System.out.println(e);
+System.out.println(Thread.currentThread().getName());
+&#125;);
+--------reult---------
+5
+main
+4
+main
+1
+main
+3
+ForkJoinPool.commonPool-worker-3
+6
+7
+ForkJoinPool.commonPool-worker-2
+ForkJoinPool.commonPool-worker-4
+2
+ForkJoinPool.commonPool-worker-1
+</code></pre><p>可以看出，并行流使用的是<code>fork/join</code>,他使用的commonPool，所有共用一个。所以，我们一般自定义线程池来运行。</p><pre><code>IntStream range = IntStream.range(1, 10);
+ForkJoinPool forkJoinPol = new ForkJoinPool(5);
+forkJoinPol.submit(()-&gt;&#123;
+range.parallel().forEach(f-&gt;&#123;
+System.out.println(f);
+System.out.println(Thread.currentThread().getName());
+&#125;);
+&#125;).get();
+------------result------------
+6
+ForkJoinPool-1-worker-1
+3
+ForkJoinPool-1-worker-2
+5
+ForkJoinPool-1-worker-1
+8
+ForkJoinPool-1-worker-3
+4
+ForkJoinPool-1-worker-2
+7
+ForkJoinPool-1-worker-4
+9
+ForkJoinPool-1-worker-3
+2
+ForkJoinPool-1-worker-1
+1
+ForkJoinPool-1-worker-5
+</code></pre><h3 id="parallelStream的坑"><a href="#parallelStream的坑" class="headerlink" title="parallelStream的坑"></a>parallelStream的坑</h3><ol><li>默认情况下，使用通用的<code>fork/join</code>池完成任务，该池是所有并行流共享的。并且该池线程数和cpu核心数一样，对cpu密集型任务是有意义的，因为机器只能执行这么多线程；对于io密集型，瓶颈是io，会等待其他系统。所以，两个流使用通用的线程池，会因为相互等待尔阻塞</li><li>使用foreach会乱序，应该使用foreachOrdered</li><li>线程不安全，写代码的是否需要注意线程安全的问题</li></ol><h3 id="fork-x2F-join是什么"><a href="#fork-x2F-join是什么" class="headerlink" title="fork&#x2F;join是什么"></a>fork&#x2F;join是什么</h3><p><code>fork/join</code>框架是Java7提供的一个用于并行执行任务的框架，拆用‘分而治之’的思想，就是把一个大任务拆成若干个小任务，最后在汇总结果，具体过程，我在网上找了一张图：</p><p><img src="/images/fork_join.png" alt="fork join"></p><h4 id="工作窃取算法"><a href="#工作窃取算法" class="headerlink" title="工作窃取算法"></a>工作窃取算法</h4><p>工作窃取（work-stealing）算法是指某个线程从其他队列里窃取任务来执行。工作窃取的运行流程图如下：</p><p><img src="/images/work_steal.png" alt="fork join"></p><p>我们把一个任务分配给两个线程执行，线程1执行很快，线程2还没执行完，线程1就会去线程儿中窃取一个任务执行，加快速度。此时，他们访问同一队列，为了减少窃取任务线程和被窃取任务线程的竞争，通常拆用双端队列，被窃取任务线程永远从头部取任务，而窃取任务线程永远从尾部拿任务线程</p><h4 id="ForkJoinPool"><a href="#ForkJoinPool" class="headerlink" title="ForkJoinPool"></a>ForkJoinPool</h4><p>ForkJoinPool是ExecutorService的实现类，因此是一种特殊的线程池。ForkJoinPool提供了如下两个常用的构造器：</p><pre><code class="java">// 创建一个包含parallelism个并行线程的ForkJoinPool
+public ForkJoinPool(int parallelism)
+
+//以Runtime.getRuntime().availableProcessors()的返回值作为parallelism来创建ForkJoinPool
+public ForkJoinPool() ：
+</code></pre><p>创建实例后，可以调用<code>public &lt;T&gt; ForkJoinTask&lt;T&gt; submit(ForkJoinTask&lt;T&gt; task)</code>和<code>public void execute(ForkJoinTask&lt;?&gt; task)</code>来执行任务。<code>ForkJoinTask</code>是一个抽象类，代表可并行、合并的任务，它还有两个抽象子类：</p><ul><li>RecursiveAction代表没有返回值的任务</li></ul><pre><code class="java">public class Demo1 extends RecursiveAction &#123;
+
+    public int start;
+    public int end;
+
+    public Demo1(int start, int end) &#123;
+        this.start = start;
+        this.end = end;
+    &#125;
+
+    @Override
+    protected void compute() &#123;
+        if((end-start) &gt;40)&#123;
+            //执行拆分
+            // 将大任务分解成两个小任务
+            int middle = (start + end) / 2;
+            Demo1 left = new Demo1(start, middle);
+            Demo1 right = new Demo1(middle, end);
+            left.fork();
+            right.fork();
+        &#125;else &#123;
+            for(int i= start; i&lt;end;i++) &#123;
+                System.out.println(Thread.currentThread().getName()+&quot;i的值&quot;+i);
+            &#125;
+        &#125;
+    &#125;
+
+
+    public static void main(String[] args) throws InterruptedException &#123;
+        // 创建包含Runtime.getRuntime().availableProcessors()返回值作为个数的并行线程的ForkJoinPool
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+
+        // 提交可分解的PrintTask任务
+        forkJoinPool.submit(new Demo1(0, 1000));
+
+        //阻塞当前线程直到 ForkJoinPool 中所有的任务都执行结束
+        forkJoinPool.awaitTermination(2, TimeUnit.SECONDS);
+
+        // 关闭线程池
+        forkJoinPool.shutdown();
+    &#125;
+&#125;
+</code></pre><ul><li>RecursiveTask代表有返回值的任务</li></ul><pre><code class="java">public class Demo1 extends RecursiveTask&lt;Integer&gt; &#123;
+
+    public int start;
+    public int end;
+
+    public Demo1(int start, int end) &#123;
+        this.start = start;
+        this.end = end;
+    &#125;
+
+    @Override
+    protected Integer compute() &#123;
+        int sum = 0;
+        if((end-start) &gt;40)&#123;
+            //执行拆分
+            // 将大任务分解成两个小任务
+            int middle = (start + end) / 2;
+            Demo1 left = new Demo1(start, middle);
+            Demo1 right = new Demo1(middle, end);
+            //并行执行任务
+            left.fork();
+            right.fork();
+            //累加两个任务
+            return left.join()+right.join();
+        &#125;else &#123;
+
+            for(int i= start; i&lt;end;i++) &#123;
+                sum+=i;
+            &#125;
+            return sum;
+        &#125;
+    &#125;
+
+
+    public static void main(String[] args) throws InterruptedException, ExecutionException &#123;
+        // 创建包含Runtime.getRuntime().availableProcessors()返回值作为个数的并行线程的ForkJoinPool
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+
+        int sum = IntStream.range(0, 100).parallel().reduce( 0,Integer::sum );
+        System.out.println(sum);
+
+
+        // 提交可分解的PrintTask任务
+        ForkJoinTask&lt;Integer&gt; submit = forkJoinPool.submit(new Demo1(0, 100));
+        Integer integer = submit.get();
+        System.out.println(integer);
+
+        //阻塞当前线程直到 ForkJoinPool 中所有的任务都执行结束
+        forkJoinPool.awaitTermination(2, TimeUnit.SECONDS);
+
+        // 关闭线程池
+        forkJoinPool.shutdown();
+    &#125;
+&#125;
+</code></pre><p>总结，<code>fork/join</code>总体分两步，第一步fork把大任务分割成子任务，有可能子任务还是很大，所以还需要不停的分割，直到分割出的子任务足够小；第二步，分割的子任务分别放在双端队列里，然后几个启动线程分别从双端队列里获取任务执行。子任务执行完的结果都统一放在一个队列里，启动一个线程从队列里拿数据，然后合并这些数据</p></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2020/12/19/2020-12-19Stream%E5%87%BD%E6%95%B0%E6%93%8D%E4%BD%9C/" title="Stream函数操作">https://github/zhuchong6.github.io/2020/12/19/2020-12-19Stream函数操作/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/Java/" rel="tag"># Java</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2020/12/16/2020-12-16es%E6%9F%A5%E8%AF%A2/" rel="prev" title="es学习(三)-QueryDSL"><i class="fa fa-chevron-left"></i> es学习(三)-QueryDSL</a></div><div class="post-nav-item"><a href="/2021/01/07/2021-01-07java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" rel="next" title="java并发编程（一）-线程">java并发编程（一）-线程 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-Stream%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">Java Stream基础操作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Stream%E6%9E%84%E9%80%A0%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">Stream构造方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#stream%E6%9C%AC%E8%BA%AB%E7%9A%84"><span class="nav-number">1.2.1.</span> <span class="nav-text">stream本身的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Collection%E6%8E%A5%E5%8F%A3%E6%8F%90%E4%BE%9B"><span class="nav-number">1.2.2.</span> <span class="nav-text">Collection接口提供</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Stream%E4%B8%AD%E9%97%B4%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.</span> <span class="nav-text">Stream中间操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#filter%E8%BF%87%E6%BB%A4%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.1.</span> <span class="nav-text">filter过滤操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#map%E6%98%A0%E5%B0%84%E8%BD%AC%E5%8C%96"><span class="nav-number">1.3.2.</span> <span class="nav-text">map映射转化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#peek%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="nav-number">1.3.3.</span> <span class="nav-text">peek数据处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flatMap"><span class="nav-number">1.3.4.</span> <span class="nav-text">flatMap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#distinct-%E5%8E%BB%E9%87%8D"><span class="nav-number">1.3.5.</span> <span class="nav-text">distinct 去重</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sorted-%E6%8E%92%E5%BA%8F"><span class="nav-number">1.3.6.</span> <span class="nav-text">sorted 排序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#limit%E5%92%8Cskip"><span class="nav-number">1.3.7.</span> <span class="nav-text">limit和skip</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Stream%E7%BB%88%E6%AD%A2%E6%93%8D%E4%BD%9C"><span class="nav-number">1.4.</span> <span class="nav-text">Stream终止操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%8D%E5%8E%86%E6%B6%88%E8%B4%B9"><span class="nav-number">1.4.1.</span> <span class="nav-text">遍历消费</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E6%8D%A2%E6%88%90%E6%95%B0%E7%BB%84"><span class="nav-number">1.4.2.</span> <span class="nav-text">转换成数组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E6%9C%80%E5%B0%8F"><span class="nav-number">1.4.3.</span> <span class="nav-text">最大最小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%88%E5%B9%B6"><span class="nav-number">1.4.4.</span> <span class="nav-text">合并</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E6%95%B0"><span class="nav-number">1.4.5.</span> <span class="nav-text">计数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%9A%E5%90%88%E5%A4%84%E7%90%86"><span class="nav-number">1.4.6.</span> <span class="nav-text">聚合处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Collector-%E8%81%9A%E5%90%88%E7%B1%BB-%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="nav-number">1.5.</span> <span class="nav-text">Collector(聚合类)的操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3Collector%E5%92%8C%E5%AE%9E%E7%8E%B0%E7%B1%BBCollectorImpl"><span class="nav-number">1.5.1.</span> <span class="nav-text">接口Collector和实现类CollectorImpl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E6%8D%A2%E6%88%90List-Set"><span class="nav-number">1.5.2.</span> <span class="nav-text">转换成List, Set</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E6%8D%A2%E6%88%90Map"><span class="nav-number">1.5.3.</span> <span class="nav-text">转换成Map</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E6%B5%81%E8%81%9A%E5%90%88"><span class="nav-number">1.5.4.</span> <span class="nav-text">字符流聚合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%98%A0%E5%B0%84%E3%80%81%E8%81%9A%E5%90%88%E6%B5%81"><span class="nav-number">1.5.5.</span> <span class="nav-text">映射、聚合流</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%9A%E5%90%88%E3%80%81%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.5.6.</span> <span class="nav-text">聚合、转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84"><span class="nav-number">1.5.7.</span> <span class="nav-text">分组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E6%8B%86%E5%88%86"><span class="nav-number">1.5.8.</span> <span class="nav-text">流拆分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%9A%E5%90%88%E6%B1%82%E5%B9%B3%E5%9D%87%E5%80%BC"><span class="nav-number">1.5.9.</span> <span class="nav-text">聚合求平均值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%9A%E5%90%88%E6%9F%A5%E6%89%BE%E6%9C%80%E5%A4%A7%E6%9C%80%E5%B0%8F%E5%80%BC"><span class="nav-number">1.5.10.</span> <span class="nav-text">聚合查找最大最小值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%9A%E5%90%88%E8%AE%A1%E7%AE%97%E7%BB%9F%E8%AE%A1%E7%BB%93%E6%9E%9C"><span class="nav-number">1.5.11.</span> <span class="nav-text">聚合计算统计结果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E8%A1%8C%E6%B5%81"><span class="nav-number">1.6.</span> <span class="nav-text">并行流</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#parallelStream%E7%9A%84%E5%9D%91"><span class="nav-number">1.6.1.</span> <span class="nav-text">parallelStream的坑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fork-x2F-join%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.6.2.</span> <span class="nav-text">fork&#x2F;join是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E7%AA%83%E5%8F%96%E7%AE%97%E6%B3%95"><span class="nav-number">1.6.2.1.</span> <span class="nav-text">工作窃取算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ForkJoinPool"><span class="nav-number">1.6.2.2.</span> <span class="nav-text">ForkJoinPool</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">55</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">17</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">26</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2023</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>

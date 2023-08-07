@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="引言之前，我们完成了tomcat解析Http请求，并将其封装成HttpServelet。这次，我们补全剩余的工作，支持动态加载自定义的servlet文件。"><meta property="og:type" content="article"><meta property="og:title" content="手写tomcat2"><meta property="og:url" content="https://github/zhuchong6.github.io/2023/01/20/2023-1-9mini-tomcat2/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="引言之前，我们完成了tomcat解析Http请求，并将其封装成HttpServelet。这次，我们补全剩余的工作，支持动态加载自定义的servlet文件。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://github/images/mini-tomcat.png"><meta property="article:published_time" content="2023-01-20T16:00:00.000Z"><meta property="article:modified_time" content="2023-08-07T00:18:37.954Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="Java"><meta property="article:tag" content="Tomcat"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://github/images/mini-tomcat.png"><link rel="canonical" href="https://github/zhuchong6.github.io/2023/01/20/2023-1-9mini-tomcat2/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>手写tomcat2 | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">17</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2023/01/20/2023-1-9mini-tomcat2/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">手写tomcat2</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2023-01-21 00:00:00" itemprop="dateCreated datePublished" datetime="2023-01-21T00:00:00+08:00">2023-01-21</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2023-08-07 08:18:37" itemprop="dateModified" datetime="2023-08-07T08:18:37+08:00">2023-08-07</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Tomcat/" itemprop="url" rel="index"><span itemprop="name">Tomcat</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>之前，我们完成了tomcat解析Http请求，并将其封装成HttpServelet。这次，我们补全剩余的工作，支持动态加载自定义的servlet文件。</p><span id="more"></span><p>这个项目主要是为了学习，所以我们也只需要模拟这个主流程，<a target="_blank" rel="noopener" href="https://github.com/zhuchong6/mini-tomcat">项目地址</a></p><p>首先回忆一下我们如何部署我们的代码到tomcat上的，将项目打包成war包（例如app.war），放到tomcat中的webapps的文件夹下，然后启动就可以了。启动之后，我们发现tomcat会将app.war自动解压成一个文件夹&#x2F;app，文件夹里面有个classes目录放着所有的servlet文件。</p><p>那么问题不就很简单了吗？我们需要首先定位到我们的webapps目录下，然后加载里面的类就行了。</p><h2 id="加载servlet"><a href="#加载servlet" class="headerlink" title="加载servlet"></a>加载servlet</h2><p>首先看下项目结构，和上次相比增加了一个webapps目录，然后在里面添加了一些文件，模拟用户部署的场景。</p><p><img src="/images/mini-tomcat.png" alt="mini-tomcat"></p><ol><li><p>我们需要在tomcat启动之前进行加载的过程，因此在tomcat启动类前加入一个部署的过程。</p><pre><code class="java">    public static void main(String[] args) &#123;
+        Tomcat tomcat = new Tomcat();
+
+        tomcat.deployApps();
+        tomcat.start();
+    &#125;
+
+    private void deployApps() &#123;
+        //user.dir获取当前的工作目录，在进入其子目录webapps
+        File webapps = new File(System.getProperty(&quot;user.dir&quot;), &quot;webapps&quot;);
+        for (String appName : webapps.list()) &#123;
+
+            deployApp(webapps, appName);
+        &#125;
+    &#125;
+
+/**
+     * 部署app
+     * @param webapps webapps目录
+     * @param appName webapps下面的目录
+     */
+private void deployApp(File webapps, String appName) &#123;
+                //创建一个项目的上下文，用于保存这个项目下url和servlet的映射关系
+        Context context = new Context(appName);
+        System.out.println(webapps.toString());
+
+        //1.找到当前目录下有哪些servlet
+        File appDirectory = new File(webapps, appName);
+        File classesDirectory = new File(appDirectory, &quot;classes&quot;);
+        System.out.println(classesDirectory);
+                //找到所有的class文件
+        List&lt;File&gt; allFiles = getAllFileFromAbsolutePath(classesDirectory);
+        for (File file : allFiles) &#123;
+            //加载servlet类
+
+            //将/com/zz/t.class---&gt; com.zz.t
+            String name = file.getPath();
+            //当前系统的文件分割符号
+            String separator = File.separator;
+            name = name.replace(classesDirectory.getPath()+separator, &quot;&quot;);
+            name = name.replace(&quot;.class&quot;, &quot;&quot;);
+            name = name.replace(separator, &quot;.&quot;);
+
+            System.out.println(name);
+
+            //使用类加载器加载类
+            Class&lt;?&gt; servletClazz = null;
+            try &#123;
+                //注意不能使用当前线程的类加载器，因为我们要加载的文件不属于tomcat的工程，所以会提示找不到，这个时候只能使用自定义的类加载器
+                //servletClazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+                WebAppClassLoader webAppClassLoader = new WebAppClassLoader(new URL[]&#123;classesDirectory.toURL()&#125;);
+                servletClazz = webAppClassLoader.loadClass(name);
+                System.out.println(servletClazz);
+                                //判断类是否继承HttpServlet
+                if(HttpServlet.class.isAssignableFrom(servletClazz))&#123;
+                    System.out.println(servletClazz);
+                      //判断是否有WebServlet注解
+                    if(servletClazz.isAnnotationPresent(WebServlet.class))&#123;
+                        WebServlet annotation = servletClazz.getAnnotation(WebServlet.class);
+                        String[] strings = annotation.urlPatterns();
+
+                        for (String urlPattern : strings) &#123;
+                              //将满足条件的servlet加入映射
+                            context.addUrlPatternMapping(urlPattern, (Servlet) servletClazz.newInstance());
+                        &#125;
+                    &#125;
+
+                &#125;
+
+            &#125; catch (MalformedURLException e) &#123;
+                throw new RuntimeException(e);
+            &#125; catch (ClassNotFoundException e) &#123;
+                throw new RuntimeException(e);
+            &#125; catch (InstantiationException e) &#123;
+                throw new RuntimeException(e);
+            &#125; catch (IllegalAccessException e) &#123;
+                throw new RuntimeException(e);
+            &#125;
+
+        &#125;
+
+        contextMap.put(appName, context);
+    &#125;
+</code></pre><p>部署过程非常简单，具体可以看下代码。我这里简单解释下，就是寻找在webapps下面的所有的servlet，然后将他们加载进来；然后，在更加app名称，url地址进行一个分类，建立url和servlet的映射着一点非常重要。</p></li><li><p>部署完成之后，我们就需要修改我们之前的代码，将原来的硬编码创建servlet修改成使用加载的servlet在执行接受请求和发送响应。</p><pre><code class="java">...
+  //            //这里自定义Servlet模拟用户写的servlet，暂时没写到tomcat加载webapps的servlet出此下策
+//            SelfServlet selfServlet = new SelfServlet();
+//            selfServlet.service(request, response);
+
+            //通过url 找到对应的servlet
+            String requestUrl = request.getRequestURL().toString();
+            System.out.println(&quot;requestUrl = &quot; + requestUrl);
+            requestUrl = requestUrl.substring(1);
+            String[] part = requestUrl.split(&quot;/&quot;);
+            String appName = part[0];
+            if(part.length&gt;1)&#123;
+                String urlPattern = part[1];
+
+                Context context = tomcat.getContextMap().get(appName);
+                if(context != null)&#123;
+                    Servlet servlet = context.getByUrlPattern(urlPattern);
+                    if(servlet != null)&#123;
+                        servlet.service(request, response);
+                        //发送响应
+                        response.complete();
+                    &#125;else&#123;
+                        //servlet为空，搞一个默认的servlet
+                        DefaultServlet defaultServlet = new DefaultServlet();
+                        defaultServlet.service(request,response);
+                        //发送响应
+                        response.complete();
+                    &#125;
+                &#125;
+            &#125;
+...
+</code></pre><p>这里很简单了，通过我们请求的url查找到相应的servelt，如果找不到就用默认的servlet处理。</p></li><li><p>测试一下，发现能够正常的返回。然后，我们还可以在webapps下重新部署一个工程在进行测试，看能不能正常返回。</p></li></ol><p>自此，项目完结。实际上的tomcat比这个复杂很多，我这里只是为了学习做的一个toy project，能够让我理清脉络，不用迷失在繁杂的细节中。</p></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2023/01/20/2023-1-9mini-tomcat2/" title="手写tomcat2">https://github/zhuchong6.github.io/2023/01/20/2023-1-9mini-tomcat2/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/Java/" rel="tag"># Java</a> <a href="/tags/Tomcat/" rel="tag"># Tomcat</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2023/01/19/2023-01-19netty%E5%AD%A6%E4%B9%A002/" rel="prev" title="Netty学习之NIO入门"><i class="fa fa-chevron-left"></i> Netty学习之NIO入门</a></div><div class="post-nav-item"><a href="/2023/01/23/2023-01-22netty%E5%AD%A6%E4%B9%A003/" rel="next" title="Netty学习之初探">Netty学习之初探 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BDservlet"><span class="nav-number">1.1.</span> <span class="nav-text">加载servlet</span></a></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">55</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">17</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">26</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2023</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>

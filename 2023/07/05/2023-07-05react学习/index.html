@@ -1,0 +1,1099 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="React学习介绍1.React起源React起源facebook内部项目，该公司对市场上的JavaScript MVC框架不满意，决定自己写一套，用于架设Instagram网站。做出来之后，发现很好用，就于2013年5月开源了 2.React与传统MVC关系轻量级视图层库。A javascript library for building user interfaces React是构建页面元素"><meta property="og:type" content="article"><meta property="og:title" content="react学习"><meta property="og:url" content="https://github/zhuchong6.github.io/2023/07/05/2023-07-05react%E5%AD%A6%E4%B9%A0/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="React学习介绍1.React起源React起源facebook内部项目，该公司对市场上的JavaScript MVC框架不满意，决定自己写一套，用于架设Instagram网站。做出来之后，发现很好用，就于2013年5月开源了 2.React与传统MVC关系轻量级视图层库。A javascript library for building user interfaces React是构建页面元素"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://redux.js.org/assets/images/ReduxDataFlowDiagram-49fa8c3968371d9ef6f2a1486bd40a26.gif"><meta property="article:published_time" content="2023-07-05T13:16:30.000Z"><meta property="article:modified_time" content="2023-08-07T00:18:37.954Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="前端"><meta property="article:tag" content="react"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://redux.js.org/assets/images/ReduxDataFlowDiagram-49fa8c3968371d9ef6f2a1486bd40a26.gif"><link rel="canonical" href="https://github/zhuchong6.github.io/2023/07/05/2023-07-05react%E5%AD%A6%E4%B9%A0/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>react学习 | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">17</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2023/07/05/2023-07-05react%E5%AD%A6%E4%B9%A0/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">react学习</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2023-07-05 21:16:30" itemprop="dateCreated datePublished" datetime="2023-07-05T21:16:30+08:00">2023-07-05</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2023-08-07 08:18:37" itemprop="dateModified" datetime="2023-08-07T08:18:37+08:00">2023-08-07</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="React学习"><a href="#React学习" class="headerlink" title="React学习"></a>React学习</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><h3 id="1-React起源"><a href="#1-React起源" class="headerlink" title="1.React起源"></a>1.React起源</h3><p>React起源facebook内部项目，该公司对市场上的JavaScript MVC框架不满意，决定自己写一套，用于架设Instagram网站。做出来之后，发现很好用，就于2013年5月开源了</p><h3 id="2-React与传统MVC关系"><a href="#2-React与传统MVC关系" class="headerlink" title="2.React与传统MVC关系"></a>2.React与传统MVC关系</h3><p>轻量级视图层库。<em>A javascript library for building user interfaces</em></p><p>React是构建页面元素UI的库，可以简单理解为，React将页面分成各个独立的块，每一个块儿就是一个独立组件，各个组件之间可以进行组合、嵌套，就形成了我们的页面。</p><span id="more"></span><h3 id="3-React的特性"><a href="#3-React的特性" class="headerlink" title="3.React的特性"></a>3.React的特性</h3><ol><li>声明式设计-React采用声明范式（只关心数据层改变，无需考虑网页如何渲染），轻松描述应用</li><li>高效-React通过对DOM的模拟(V-DOM)，最大幅度的减少与DOM的交互</li><li>灵活-React可以与已知的库或者框架很好的配合</li><li>JSX-JSX是javascript语法的拓展</li><li>组件- 通过react构建组件，使代码很容易得到复用，能很好的应用在大项目的开发中去</li><li>单向的响应数据流-React实现了单向响应的数据流，减少重复代码，比传统数据绑定更加简单</li></ol><h3 id="4-虚拟DOM"><a href="#4-虚拟DOM" class="headerlink" title="4.虚拟DOM"></a>4.虚拟DOM</h3><p>传统DOM更新场景下，每一个页面对应一个DOM树，每次需要更新页面的时候，需要手动操作DOM去更新。</p><p>虚拟DOM更新场景下，React把真实的DOM树转换成JavaScript对象树，也就是VDOM。通过DIFF算法，将虚拟DOM的change更新到真实DOM中去。</p><h2 id="create-react-app"><a href="#create-react-app" class="headerlink" title="create-react-app"></a>create-react-app</h2><p>全局安装create-react-app</p><pre><code class="shell">$ npm install -g create-react-app
+</code></pre><p>创建一个项目</p><pre><code class="shell">$ create-react-app your-app-name
+</code></pre><p>如果不想全局安装，可以使用npx</p><pre><code class="shell">$ npx create-react-app your-app-name
+</code></pre><p>生成的项目目录结构如下：</p><pre><code>|--README.md #使用方法文档
+|--ndoe_modules #所有依赖安装的目录
+|--package-lock.json #锁定安装时的包版本号，保证团队的依赖一致
+|--package.json #
+|--public #静态公共目录
+|--src #开发用的源码代码目录
+</code></pre><blockquote><p>注意这一步会有依赖下载过慢的清况，可以切换到淘宝镜像，具体步骤如下：</p><ol><li>执行 npm i -g nrm 下载nrm切换镜像工具</li><li>执行nrm ls 查看所有镜像源</li><li>执行nrm use taobao 切换到淘宝源</li></ol></blockquote><h2 id="编写第一个react-app"><a href="#编写第一个react-app" class="headerlink" title="编写第一个react app"></a>编写第一个react app</h2><ol><li><p>首先删除src目录下的所有文件</p></li><li><p>在src目录下新建一个index.js文件</p></li><li><p>在index文件中写入如下代码</p><pre><code class="react">//从react的包中引入React。
+//只要你写react，这个包必须引入，因为react的jsx语法，需要React解析
+import React from &#39;react&#39;
+//ReacDOM可以帮助我们把React组件渲染到页面上去
+import ReactDOM from &#39;react-dom&#39;
+
+ReactDOM.render(
+//JSX语法标签
+&lt;h1&gt;hello react&lt;/h1&gt;, 
+//确定要渲染的地方
+document.getElementById(&quot;root&quot;)
+)
+</code></pre></li><li><p>执行命令<code>npm start</code>,会打开浏览器，显示出hello react文字</p></li></ol><h2 id="JSX语法与组件"><a href="#JSX语法与组件" class="headerlink" title="JSX语法与组件"></a>JSX语法与组件</h2><h3 id="1-JSX语法"><a href="#1-JSX语法" class="headerlink" title="1.JSX语法"></a>1.JSX语法</h3><p>JSX将HTML语法直接加入到JavaScript代码中，再通过翻译器转换到纯JavaScript后由浏览器运行。在实际开发中，JSX在产品打包阶段都已经编译成纯JavaScript代码，不会带来任何副作用，编译的过程由Babel的JSX编译器实现</p><blockquote><p><a target="_blank" rel="noopener" href="https://reactjs.org/docs/hello-world.html">Https://reactjs.org/docs/hello-world.html</a></p></blockquote><h3 id="2-Class组件"><a href="#2-Class组件" class="headerlink" title="2.Class组件"></a>2.Class组件</h3><p>ES6的加入让JavaScript直接支持使用Class来定义一个类，react创建组件的方式就是使用类的继承，<code>ES6 class</code>是目前官方推荐的使用方式，它使用ES6的标准语法构建，看一下代码：</p><pre><code class="react">import React from &#39;react&#39;
+import ReactDOM from &#39;react-dom&#39;
+
+//创建一个组件，组件必须继承React.Component类
+//注意：首字母大写
+class App extends React.Component&#123;
+
+    render()&#123;
+          //这个节点不能有任何兄弟节点，必须是根节点
+          //如果要换行可以使用（）包裹，成为一个整体，否则报错
+        return &lt;h1&gt;hello react component&lt;/h1&gt;
+    &#125;
+&#125;
+
+ReactDOM.render(
+&lt;App/&gt;, 
+document.getElementById(&quot;root&quot;)
+)
+</code></pre><h3 id="3-函数式组件"><a href="#3-函数式组件" class="headerlink" title="3.函数式组件"></a>3.函数式组件</h3><pre><code class="react">import React from &#39;react&#39;
+import ReactDOM from &#39;react-dom&#39; 
+
+//函数式组件,16.8之前函数式组件无法包含状态，所以使用类组件多；之后能够包含状态，推荐函数式组件
+//1.和类组件一样，div必须是根节点
+//2.和类组件一样函数名称必须大写
+//3.和类组件一样JSX如果换行，必须要（）包裹成一个整体
+function App()&#123;
+    return (
+        &lt;div&gt;
+            hello function component
+        &lt;/div&gt;
+    )
+&#125;
+
+ReactDOM.render(
+&lt;App/&gt;, 
+document.getElementById(&quot;root&quot;)
+)
+</code></pre><h4 id="组件的嵌套"><a href="#组件的嵌套" class="headerlink" title="组件的嵌套"></a>组件的嵌套</h4><pre><code class="react">import React, &#123; Component &#125; from &#39;react&#39;
+import ReactDOM from &#39;react-dom&#39; 
+
+//类组件
+class Navibar extends Component &#123;
+    render() &#123;
+      return (
+        &lt;div&gt;
+          Navibar
+        &lt;/div&gt;
+      )
+    &#125;
+&#125;
+
+//普通函数组件
+function Swiper()&#123;
+    return (
+        &lt;div&gt;Swiper&lt;/div&gt;
+    )
+&#125;
+
+//箭头函数组件
+const Tabbar = ()=&gt;&#123;
+    return (
+        &lt;div&gt;
+          Tabbar
+        &lt;/div&gt;
+      )
+&#125;
+
+//箭头函数另一种写法
+const Tabbar2 = ()=&gt;&lt;div&gt;Tabbar2&lt;/div&gt;
+
+//App组件，包含四个子组件
+class App extends Component &#123;
+  render() &#123;
+    return (
+      &lt;div&gt;
+        &lt;Navibar /&gt;
+        &lt;Swiper /&gt;
+        &lt;Tabbar /&gt;
+        &lt;Tabbar2 /&gt;
+      &lt;/div&gt;
+    )
+  &#125;
+&#125;
+
+ReactDOM.render(
+&lt;App/&gt;, 
+document.getElementById(&quot;root&quot;)
+)
+</code></pre><h3 id="4-组件样式"><a href="#4-组件样式" class="headerlink" title="4.组件样式"></a>4.组件样式</h3><p>在react中<code>&#123;&#125;</code>包裹的是表达式，页面展示的是里面表达式计算的值。</p><blockquote><p>react注释写法优点特殊,就是js的注释，在用{}包裹起来</p><p>{&#x2F;&#x2F;} 或者{&#x2F;**&#x2F;}</p></blockquote><ul><li><p>行内样式</p><p>想给虚拟DOM添加行内样式，需要使用表达式传入样式对象的方式来实现：</p><pre><code class="react">//注意：这里的两个花括号，外层表示我们要在JSX插入JS，内层表示一个js对象
+//html里面font-size属性，在这类转成fontSize这种驼峰风格的，这个需要注意一下
+&lt;p style=&#123;&#123;color:'red', fontSize:'14px'&#125;&#125;&gt;&lt;/p&gt;
+</code></pre><p>行内样式需要写入一个样式对象，这个样式对象的位置可以放在很多地方，例如<code>render</code>函数里，组件原型上，外链的js上</p></li><li><p>使用Class</p><p>其实我们大多数情况还是在大量的为元素添加类名，需要注意的是，<code>class</code>需要专门写成<code>className</code>（因为是写在js代码中的，class在js是关键字；同样的label标签的for属性也是一样）</p><pre><code class="react">&lt;p className=&quot;hello&quot;&gt;hello react&lt;/p&gt;
+</code></pre><blockquote><p>注意：</p><p>class &#x3D;&#x3D;&#x3D;》className</p><p>for&#x3D;&#x3D;&#x3D;》htmlFor</p></blockquote></li></ul><p><em><strong>react中比较推荐使用行内样式，因为react觉得每个组件是一个独立的整体</strong></em></p><h3 id="5-事件处理"><a href="#5-事件处理" class="headerlink" title="5.事件处理"></a>5.事件处理</h3><h4 id="5-1-绑定事件"><a href="#5-1-绑定事件" class="headerlink" title="5.1 绑定事件"></a>5.1 绑定事件</h4><p>采用on+事件名的方式来绑定事件。注意，这里和原生的事件是有区别的，原生的事件全是小写<code>onclick</code>，React采取驼峰式写法<code>onClick</code>，<strong>React事件不是原生事件，是合成事件</strong></p><h4 id="5-2-事件handler写法"><a href="#5-2-事件handler写法" class="headerlink" title="5.2 事件handler写法"></a>5.2 事件handler写法</h4><ul><li>直接在render中写行内的箭头函数（不推荐）</li><li>在组件内使用箭头函数定义一个方法（推荐）</li><li>直接在组件内定义一个非箭头函数的方法，然后再render里直接使用<code>onClick=&#123;this.handlerFuntioin.bind(this)&#125;</code>（不推荐）</li><li>直接在组件定义一个非箭头函数方法，然后再construct方法里<code>bind(this)</code>（推荐）</li></ul><pre><code class="react">import React, &#123; Component &#125; from &#39;react&#39;
+
+export default class App extends Component &#123;
+  a = 1000
+  render() &#123;
+    return (
+      &lt;div&gt;
+        &lt;input&gt;&lt;/input&gt;
+            &#123;//不推荐&#125;
+        &lt;button onClick=&#123;()=&gt;&#123;
+          console.log(1111111, this.a) 
+        &#125;&#125;&gt;add1&lt;/button&gt;
+          &#123;//不推荐&#125;
+        &lt;button onClick=&#123;this.Add2.bind(this)&#125;&gt;add2&lt;/button&gt;
+          &#123;//推荐&#125;
+        &lt;button onClick=&#123;this.Add3&#125;&gt;add3&lt;/button&gt;
+          &#123;//推荐这种方式&#125;
+        &lt;button onClick=&#123;()=&gt;&#123;
+          this.Add4()
+        &#125;&#125;&gt;add4&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  &#125;
+
+  Add2()&#123;
+    console.log(2222, this.a)
+  &#125;
+
+  //箭头函数的this和App一致          
+  Add3 = ()=&gt;&#123;
+    console.log(3333,this.a)
+  &#125;
+
+  Add4()&#123;
+    console.log(4444,this.a)
+  &#125;
+&#125;
+</code></pre><h4 id="5-3-Event-对象"><a href="#5-3-Event-对象" class="headerlink" title="5.3 Event 对象"></a>5.3 Event 对象</h4><p>和浏览器一样，事件handler会被传入一个<code>event</code>对象，这个对象和普通浏览器对象<code>event</code>对象所包含的方法属性基本一致。不同的是，React中的<code>event</code>对象不是浏览器提供的，而是它内部自己构建的，它同样具有<code>event.stopPropagation</code>、<code>event.preventDefault</code>这种常用的方法。</p><h3 id="6-Ref的应用"><a href="#6-Ref的应用" class="headerlink" title="6.Ref的应用"></a>6.Ref的应用</h3><h4 id="6-1-给标签设置ref-x3D-”username”"><a href="#6-1-给标签设置ref-x3D-”username”" class="headerlink" title="6.1 给标签设置ref&#x3D;”username”"></a>6.1 给标签设置ref&#x3D;”username”</h4><p>通过this.refs.username, ref可以获得应用的真实dom,this.refs.username.value获取对象的值</p><h4 id="6-2-给组件设置ref-x3D-”username”"><a href="#6-2-给组件设置ref-x3D-”username”" class="headerlink" title="6.2 给组件设置ref&#x3D;”username”"></a>6.2 给组件设置ref&#x3D;”username”</h4><p>通过this.refs.username, ref可以获得组件的对象</p><h4 id="6-3-新的写法"><a href="#6-3-新的写法" class="headerlink" title="6.3 新的写法"></a>6.3 新的写法</h4><pre><code class="react">myref = React.createRef()
+
+&lt;div ref=&#123;myref&#125;&gt;hello&lt;/div&gt;
+//访问this.myref.current获取到真实dom节点对象
+</code></pre><h2 id="组件数据挂载方式"><a href="#组件数据挂载方式" class="headerlink" title="组件数据挂载方式"></a>组件数据挂载方式</h2><h3 id="1-状态"><a href="#1-状态" class="headerlink" title="1. 状态"></a>1. 状态</h3><p>状态就是组件描述某种显示的数据，由组件自己设置和更改，也就是说组件自己维护，使用状态的目的就是为了在不同状态下使组件的显示不同（自己设置的）。</p><h4 id="定义state"><a href="#定义state" class="headerlink" title="定义state"></a>定义state</h4><pre><code class="react">import React, &#123; Component &#125; from &#39;react&#39;
+
+export default class App extends Component &#123;
+  //state这个名称是固定的
+  //方法一：通过构造器构造state
+  constructor()&#123;
+    super()
+    this.state=&#123;
+      showLabel:true
+    &#125;
+  &#125;
+  
+//  方法二：直接通过对象修改
+//  state =&#123;
+//    showLabel:true
+//  &#125;
+
+  render() &#123;
+    return (
+      &lt;div&gt;
+        &lt;h1&gt;欢迎来到react世界1&lt;/h1&gt;
+        &lt;button &gt;&#123;this.state.showLabel?&quot;收藏&quot;:&quot;取消收藏&quot;&#125;&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  &#125;
+&#125;
+</code></pre><h4 id="修改state"><a href="#修改state" class="headerlink" title="修改state"></a>修改state</h4><pre><code class="react">import React, &#123; Component &#125; from &#39;react&#39;
+
+export default class App extends Component &#123;
+
+  state =&#123;
+    showLabel:true
+  &#125;
+
+  render() &#123;
+    return (
+      &lt;div&gt;
+        &lt;h1&gt;欢迎来到react世界1&lt;/h1&gt;
+        &lt;button onClick=&#123;()=&gt;&#123;
+          //state的修改只能通过setState函数修改，其他方式无效
+          this.setState(&#123;
+            showLabel: !this.state.showLabel
+          &#125;,()=&gt;&#123;
+            console.log(&quot;这个是回调函数，表明state同步完成了，渲染出了dom，后续如果有需要操作dom的可以在这里进行&quot;)
+          &#125;)
+          if(this.state.showLabel)&#123;
+            console.log(&quot;收藏逻辑&quot;)
+          &#125;else&#123;
+            console.log(&quot;取消收藏逻辑&quot;)
+          &#125;
+        &#125;&#125;&gt;&#123;this.state.showLabel?&quot;收藏&quot;:&quot;取消收藏&quot;&#125;&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  &#125;
+&#125;
+</code></pre><h3 id="2-属性-props"><a href="#2-属性-props" class="headerlink" title="2. 属性(props)"></a>2. 属性(props)</h3><p><code>props</code>是正常外部传入的，组件内部也可以通过一些方式来初始化设置，属性不能被组件自己更改，但是你可以通过父组件主动重新渲染的方式来传入新的<code>props</code>。</p><p>属性是描述性质、特点的，组件自己不能随意更改。</p><p>之前的代码里有<code>props</code>的简单使用，总而言之，在使用一个组件的时候，可以把参数放在标签属性中，所有的属性都会作为组件<code>props</code>对象的键值。通过箭头函数创建的组件，需要通过函数的参数来接收<code>props</code>:</p><blockquote><p>1)在组件上通过key&#x3D;valuex 写属性，通过this.props获取属性，这样组件的可复用性提高了。</p><p>2)注意在传参数时候，如果写成isShow&#x3D;”true” 那么这是一个字符串。 如果写成isShow&#x3D;{true}，这个世布尔值</p><p>3){…对象} 展开写法，<code>&lt;Navibar title=&#123;obj.title&#125; leftShow=&#123;obj.leftShow&#125;&gt;</code>和<code>&lt;Navibar &#123;...obj&#125;/&gt;</code>等价</p><p>4)默认属性值</p><pre><code class="react">//通过设置类属性设置属性的默认值
+//第一种方式直接在组件外面使用类名.defaultProps方式
+*.defaultProps = &#123;
+  name:&quot;1231&quot;
+&#125;
+
+//或，类组件推荐这种方式，方法组件推荐上面的方式
+//第二种方式，在组件内部使用
+static defaultProps = &#123;
+  name:&quot;1231&quot;
+&#125;
+</code></pre><p>4)prop-types 属性验证</p><pre><code class="react">//通过设置类属性设置属性的验证
+//属性从组件传入的时候需要对类型进行验证，默认的类型react已经提供好了
+import PropTypes from &#39;prop-types&#39;
+//类属性，在组外部使用
+*.propTypes = &#123;
+  title: PropTypes.string,
+  showLeft: PropTypes.bool,
+&#125;
+
+//或，类组件推荐这种方式，方法组件推荐上面的方式
+//类属性，在组件内部使用
+static propTypes = &#123;
+  title: PropTypes.string,
+  showLeft: PropTypes.bool,
+&#125;
+</code></pre></blockquote><p><strong>⚠️插槽：是属性的特殊属性。</strong></p><p><strong>作用：</strong></p><p>**1.一定程度上可以减少父子通信 **</p><p>**2.复用（比如说轮播内容，第一个地方次轮播图片，第二个地方轮播视频，这时候就可以把轮播内容放到轮播组件插槽中，轮播组件只需要控制轮播方式而不关心DOM结构） **</p><pre><code class="react">import React, &#123; Component &#125; from &#39;react&#39;
+
+class Child extends Component&#123;
+  render() &#123;
+    return (
+      &lt;div&gt;
+        Child
+        &#123;/* 插槽 */&#125;
+        &#123;/* 固定写法，含义是将组件内包裹的内容挂载到this.props.children属性上 */&#125;
+        &#123;this.props.children&#125;
+      &lt;/div&gt;
+    )
+  &#125; 
+&#125;
+
+export default class App extends Component &#123;
+  render() &#123;
+    return (
+      &lt;div&gt;
+        App
+        &lt;Child&gt;
+          &lt;div&gt;1111&lt;/div&gt;
+        &lt;/Child&gt;
+      &lt;/div&gt;
+    )
+  &#125;
+&#125;
+</code></pre><h3 id="3-属性VS状态"><a href="#3-属性VS状态" class="headerlink" title="3. 属性VS状态"></a>3. 属性VS状态</h3><p>相似点：都是纯js对象，都会触发render更新，都具有确定性（状态&#x2F;属性相同，结果相同）</p><p>不同点：</p><ol><li>属性能从父组件获取，状态不能</li><li>属性可以由父组件修改，状态不能</li><li>属性能在内部设置默认值，状态也可以，设置方式不一样</li><li>属性不在组件内部修改，状态要在组件内部修改</li><li>属性能设置自组件初始值，状态不能</li><li>属性可以修改自组件的值，状态不能</li></ol><p><code>state</code>的主要作用是用于组件保存、控制、修改自己的可变状态。<code>state</code>在组件内部初始化，可以被组件自身修改，而外部不能访问也不能修改。你可以认为<code>state</code>是一个局部、只能被组件自身控制的数据源。<code>state</code>中状态可以通过<code>this.setState</code>方法进行更新，<code>setState</code>会导致组件的重新渲染</p><p><code>props</code>主要作用是让使用该组件的父组件可以传入参数来配置该组件。它是外部传进来的配置参数，组件内部无法控制也无法修改。除非，外部组件主动传入新的<code>props</code>，否则组件的<code>props</code>永远不变。</p><p>没有<code>state</code>的组件叫做<em><strong>无状态组件（stateless component）</strong></em>，设置了<code>state</code>的组件叫做<em><strong>有状态组件（stateful component）</strong></em>。因为状态回带来管理的复杂性，我们尽量多写无状态组件，尽量少些有状态的组件。这样回降低代码维护的难度，也会在一定程度上增强组件的可复用性。</p><h3 id="4-渲染数据"><a href="#4-渲染数据" class="headerlink" title="4. 渲染数据"></a>4. 渲染数据</h3><h4 id="4-1-列表渲染"><a href="#4-1-列表渲染" class="headerlink" title="4.1 列表渲染"></a>4.1 列表渲染</h4><pre><code class="react">import React, &#123; Component &#125; from &#39;react&#39;
+
+export default class App extends Component &#123;
+
+  constructor()&#123;
+    super()
+    this.state = &#123;
+      list:[&#123;
+        id:1,
+        name:&quot;1231&quot;
+      &#125;,&#123;
+        id:2,
+        name:&quot;eee&quot;
+      &#125;,&#123;
+        id:3,
+        name:&quot;rrr&quot;
+      &#125;,]
+    &#125;
+  &#125;
+
+  render() &#123;
+    return (
+      &lt;div&gt;
+        //通过js的方式渲染列表，key是唯一键，必须要加
+        &#123;this.state.list.map(item=&gt;&lt;li key=&#123;item.id&#125;&gt;&#123;item.name&#125;&lt;/li&gt;)&#125;
+      &lt;/div&gt;
+    )
+  &#125;
+&#125;
+</code></pre><p>React的高效依赖于Virtual-DOM，尽量不操作DOM。对于列表元素来说会有一个问题：元素可能在一个列表中改变位置，值不变。要实现这个操作，只需要交换一下DOM位置就行了，但是React并不知道我们只是改变了元素位置，所以它会重新渲染元素（再执行Virtual-DOM）,这样会大大增加DOM操作。但是，如果给每个元素加上标识，React就可以知道这两个元素只是交换了位置，这个标识就是key，这个key必须是唯一的标识</p><blockquote><p>小技巧：</p><p>在列表渲染的时候，我们需要把要渲染的数据备份一份，然后每次操作副本不动原始数据，这样原始数据我们就不会修改，深拷贝推荐下面的方式：</p><p>let list&#x3D;[1,2,3,4]</p><p>let newList&#x3D;list.slice()&#x2F;&#x2F;副本</p></blockquote><h4 id="4-2-条件渲染"><a href="#4-2-条件渲染" class="headerlink" title="4.2 条件渲染"></a>4.2 条件渲染</h4><pre><code class="react">//三目运算符
+&#123;this.state.dataList.length===0 ? &lt;div&gt;暂&lt;/div&gt; : null&#125;
+//断路法
+&#123;this.state.dataList.length===0 &amp;&amp; &lt;div&gt;暂&lt;/div&gt;&#125;
+</code></pre><h4 id="4-3-dangerouslySetInnerHtml"><a href="#4-3-dangerouslySetInnerHtml" class="headerlink" title="4.3 dangerouslySetInnerHtml"></a>4.3 dangerouslySetInnerHtml</h4><p>对于富文本创建的内容，后台拿到的数据是这样的：</p><pre><code class="react">content = &quot;&lt;p&gt;Hello React&lt;/p&gt;&quot;
+</code></pre><p>处于安全考虑，React当中所有的表达式都会被转义，如果直接输入，标签会被当成文本。这个时候就需要使用<code>dangerouslySetInnerHtml</code>属性，它允许我们动态设置<code>innerHTML</code></p><pre><code class="react">&lt;div dangerouslySetInnerHTML=&#123;&#123;
+    //__html固定，
+		__html: "<p>Hello React</p>"
+&#125;&#125;&gt;
+</code></pre><h2 id="表单中受控组件与非受控组件"><a href="#表单中受控组件与非受控组件" class="headerlink" title="表单中受控组件与非受控组件"></a>表单中受控组件与非受控组件</h2><h3 id="1-非受控组件"><a href="#1-非受控组件" class="headerlink" title="1. 非受控组件"></a>1. 非受控组件</h3><p>React要编写一个非受控组件，可以使用<code>ref</code>来从DOM节点中获取表单数据，就是<em><strong>非受控节点</strong></em>。</p><p>例如：下面代码使用非受控组件接受一个表单的值</p><pre><code class="react">import React, &#123; Component &#125; from &#39;react&#39;
+
+export default class App extends Component &#123;
+  username = React.createRef()
+  render() &#123;
+    return (
+      &lt;div&gt;
+        &lt;h1&gt;登录页&lt;/h1&gt;
+        &#123;/* 非受控的组件，value不受控制，需要修改成defaultValue */&#125;
+        &lt;input type=&#39;text&#39;  ref=&#123;this.username&#125; 
+        // value=&quot;默认值&quot;
+        defaultValue=&#123;&quot;默认值&quot;&#125; &gt;&lt;/input&gt;
+        &lt;button onClick=&#123;()=&gt;&#123;
+          console.log(this.username.current.value)
+        &#125;&#125;&gt;登录&lt;/button&gt;
+        &lt;button onClick=&#123;()=&gt;&#123;
+          this.username.current.value=&quot;&quot;
+        &#125;&#125;&gt;重置&lt;/button&gt;
+
+        &#123;/* 非受控组件在这里会有问题，只有第一次能传值，后续值不会改变，不会触发render更新 */&#125;
+        &#123;/* &lt;ChileComponent myvalue=&#123;this.username.current.value&#125;&gt;&lt;/ChileComponent&gt; */&#125;
+      &lt;/div&gt;
+    )
+  &#125;
+&#125;
+</code></pre><p>因为非受控组件将真实数据存储在DOM节点中，所以在非受控组件中，有时候反而更容易集成React和非React代码。如果你不介意代码美观性，并希望快速编写代码，使用非受控组件往往可以减少你的代码量。否则，你应该使用受控组件。</p><blockquote><p>默认值的问题</p><p>在React渲染生命周期的时候，表单元素上的<code>value</code>将会覆盖DOM节点中的值，在非受控组件中，你经常希望React能赋予组件一个初始值，但是不去控制后续的更新。在这种情况下，你可以指定一个<code>defaultValue</code>属性，而不是<code>value</code>属性。</p></blockquote><h3 id="2-受控组件"><a href="#2-受控组件" class="headerlink" title="2. 受控组件"></a>2. 受控组件</h3><p>在HTML中，表单元素（如input、textarea和select）通常自己维护<code>state</code>，并根据用户输入进行更新。而在React中，可变状态（mutable state）通常保存在组件state属性中，并且只能通过使用<code>setState</code>来更新。</p><p>我们可以把两者结合起来，使React的state成为<strong>唯一的数据源</strong>，渲染表单的React组件还控制着用户输入过程中表单发生的操作。被React以这种方式控制取值的表单输入元素就叫做<em><strong>受控组件</strong></em>。</p><p>下面就是一个受控组件的案例：</p><pre><code class="react">import React, &#123; Component &#125; from &#39;react&#39;
+
+export default class App extends Component &#123;
+
+ state=&#123;
+   username:&quot;react&quot;
+ &#125;
+
+ render() &#123;
+   return (
+     &lt;div&gt;
+       &lt;h1&gt;登录页&lt;/h1&gt;
+     
+       &#123;/* input是一个受控组件 */&#125;
+       &lt;input type=&#39;text&#39;  
+        value=&#123;this.state.username&#125; 
+        onChange=&#123;(event)=&gt;&#123;
+         // console.log(event.target.value)
+         this.setState(&#123;
+           username: event.target.value
+         &#125;)
+       &#125;&#125;&gt;&lt;/input&gt;
+       &lt;button onClick=&#123;()=&gt;&#123;
+         console.log(this.state.username)
+       &#125;&#125;&gt;登录&lt;/button&gt;
+       &lt;button onClick=&#123;()=&gt;&#123;
+         this.setState(&#123;
+           username:&#39;&#39;
+         &#125;)
+       &#125;&#125;&gt;重置&lt;/button&gt;
+
+       &#123;/* 方便传递状态给子组件 */&#125;
+       &lt;ChileComponent myvalue=&#123;this.username.current.value&#125;&gt;&lt;/ChileComponent&gt;
+     &lt;/div&gt;
+   )
+ &#125;
+&#125;
+</code></pre><blockquote><p>注意：</p><p>广义范围内，React组件的数据渲染是否被调用者传递的<code>props</code>完全控制，控制则为受控组件，否则为非受控组件。</p></blockquote><h2 id="组件通信方式"><a href="#组件通信方式" class="headerlink" title="组件通信方式"></a>组件通信方式</h2><h3 id="1-父子组件通信"><a href="#1-父子组件通信" class="headerlink" title="1. 父子组件通信"></a>1. 父子组件通信</h3><h4 id="1-1-传递数据（父传子）和传递回调方法（子传父）"><a href="#1-1-传递数据（父传子）和传递回调方法（子传父）" class="headerlink" title="1.1 传递数据（父传子）和传递回调方法（子传父）"></a>1.1 传递数据（父传子）和传递回调方法（子传父）</h4><pre><code class="react">import React, &#123; Component &#125; from &#39;react&#39;
+
+class Navibar extends Component &#123;
+  render() &#123;
+    return (
+      &lt;div style=&#123;&#123;background:"red"&#125;&#125;&gt;
+        &lt;button onClick=&#123;()=&gt;&#123;
+            // 获取自定义的属性
+            //这个获取的是一个函数，如果需要执行，需要在后面加上()
+            let cc = this.props.cc
+            console.log(&quot;点击之后通知父组件App，让App改变isShow的状态，从而改变Sidebar组件的显隐&quot;,cc )
+            //子传父，通过父组件属性传递过来的回调函数调用
+            cc()//执行父组件传过来的函数
+        &#125;&#125;&gt;子组件click&lt;/button&gt;
+        &lt;span&gt;Navibar&lt;/span&gt;
+      &lt;/div&gt;
+    )
+  &#125;
+&#125;
+
+class Sidebar extends Component &#123;
+    render() &#123;
+      return (
+        &lt;div style=&#123;&#123;background:"yellow", width:"200px"&#125;&#125;&gt;
+            &lt;ul&gt; 
+                &lt;li&gt;11111&lt;/li&gt;
+                &lt;li&gt;11111&lt;/li&gt;
+                &lt;li&gt;11111&lt;/li&gt;
+                &lt;li&gt;11111&lt;/li&gt;
+                &lt;li&gt;11111&lt;/li&gt;
+                &lt;li&gt;11111&lt;/li&gt;
+                &lt;li&gt;11111&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+      )
+    &#125;
+  &#125;
+
+
+export default class App extends Component &#123;
+    state=&#123;
+        isShow: true
+    &#125;
+
+  render() &#123;
+    return (
+      &lt;div&gt;
+        &#123;/* 自定义一个属性，但是不执行，执行时机是子组件自己决定的 */&#125;
+        &#123;/* 父传子，属性传递 */&#125;
+        &lt;Navibar cc=&#123;()=&gt;&#123;
+            console.log(&quot;父组件中自定义一个属性，传入一段函数定义&quot;)
+            this.changeSideBar()
+        &#125;&#125;/&gt;
+        &#123;/* &lt;button onClick=&#123;()=&gt;&#123;
+            this.changeSideBar()
+        &#125;&#125; &gt;父组件click&lt;/button&gt; */&#125;
+        &#123;this.state.isShow &amp;&amp; &lt;Sidebar /&gt;&#125;
+      &lt;/div&gt;
+    )
+  &#125;
+
+  changeSideBar = ()=&gt;&#123;
+    this.setState(&#123;
+        isShow: !this.state.isShow
+    &#125;)
+  &#125;
+&#125;
+</code></pre><h4 id="1-2-ref标记（父组件拿到子组件的引用，从而调用子组件的方法）"><a href="#1-2-ref标记（父组件拿到子组件的引用，从而调用子组件的方法）" class="headerlink" title="1.2 ref标记（父组件拿到子组件的引用，从而调用子组件的方法）"></a>1.2 ref标记（父组件拿到子组件的引用，从而调用子组件的方法）</h4><p>在父组件中清楚子组件的input输入框的value值。<strong>this.refs.form.reset()</strong></p><h3 id="2-非父子组件通信方式"><a href="#2-非父子组件通信方式" class="headerlink" title="2. 非父子组件通信方式"></a>2. 非父子组件通信方式</h3><h4 id="2-1-状态提升（中间人模式）"><a href="#2-1-状态提升（中间人模式）" class="headerlink" title="2.1 状态提升（中间人模式）"></a>2.1 状态提升（中间人模式）</h4><p>React中状态提升意思是，多个组件需要共享的状态提升到它最近的父组件上，在父组件上改变这个状态，然后在通过props分发给子组件</p><h4 id="2-2-发布订阅模式"><a href="#2-2-发布订阅模式" class="headerlink" title="2.2 发布订阅模式"></a>2.2 发布订阅模式</h4><pre><code class="react">import React, &#123; Component &#125; from &#39;react&#39;
+
+export default class App extends Component &#123;
+  render() &#123;
+    return (
+      &lt;div&gt;App&lt;/div&gt;
+    )
+  &#125;
+&#125;
+
+//处理中心
+var bus = &#123;
+    list:[],
+
+    //订阅
+    subscribe(callback)&#123;
+        console.log(callback)
+        this.list.push(callback)
+    &#125;, 
+    //发布
+    publish(text)&#123;
+        //遍历所有的list，执行回调函数
+        console.log(this.list)
+        this.list.forEach(callback=&gt;&#123;
+            callback &amp;&amp; callback(text)
+        &#125;)
+    &#125;,
+&#125;
+
+//订阅
+bus.subscribe((value)=&gt;&#123;
+    console.log(&quot;第一次订阅&quot;, value)
+&#125;)
+
+bus.subscribe((value)=&gt;&#123;
+    console.log(&quot;第二次订阅&quot;, value)
+&#125;)
+
+//发布
+bus.publish(&quot;发布的时候传的形参&quot;)
+</code></pre><h4 id="2-3-context状态树传参"><a href="#2-3-context状态树传参" class="headerlink" title="2.3 context状态树传参"></a>2.3 context状态树传参</h4><pre><code class="react">import React, &#123; Component &#125; from &#39;react&#39;
+//1.先定义全局的context对象
+ const GlobalContext = React.createContext()
+
+//2.设置生产者 
+export default class App extends Component &#123;
+
+  state=&#123;
+    name:&quot;张三&quot;
+  &#125;
+
+  render() &#123;
+    return (
+      //包裹根节点
+      &lt;GlobalContext.Provider value=&#123;&#123;
+        call: "打电话",
+        phone: "手机号",
+        name: this.state.name,
+        //只能通过这种方式让父组件更新，这样才能重新渲染，重新执行render函数
+        //在消费组件内直接修改，不能重新渲染，不能出发页面更新
+        changeName:(value)=>&#123;
+          this.setState(&#123;
+            name: value
+          &#125;) 
+        &#125;,
+      &#125;&#125;&gt;
+        &lt;div&gt;
+          App
+          &lt;Child&gt;&lt;/Child&gt;
+          &lt;Child2&gt;&lt;/Child2&gt;
+        &lt;/div&gt;
+      &lt;/GlobalContext.Provider&gt;
+    )
+  &#125;
+&#125;
+
+//3.设置消费者
+class Child extends Component&#123;
+  render() &#123;
+    return (
+      &lt;GlobalContext.Consumer&gt;
+        &#123;
+          (value)=&gt;&#123;
+            return (
+              //这里才是根节点内容
+              &lt;div style=&#123;&#123;
+                background:"yellow"
+              &#125;&#125;&gt;
+                Child组件1
+                &lt;button onClick=&#123;()=&gt;&#123;
+                  value.changeName(&quot;李四&quot;)
+                &#125;&#125;&gt;改变name值为李四&lt;/button&gt;
+                &lt;p&gt;&#123;value.name&#125;&lt;/p&gt;
+                &lt;p&gt;&#123;value.phone&#125;&lt;/p&gt;
+                &lt;p&gt;&#123;value.call&#125;&lt;/p&gt;
+              &lt;/div&gt;
+            )
+          &#125;
+        &#125;
+      &lt;/GlobalContext.Consumer&gt;
+    )
+  &#125;
+&#125;
+
+class Child2 extends Component&#123;
+  render() &#123;
+    return (
+      &lt;GlobalContext.Consumer&gt;
+        &#123;
+          (value)=&gt;&#123;
+            return (
+              //这里才是根节点内容
+              &lt;div style=&#123;&#123;
+                background:"red"
+              &#125;&#125;&gt;
+                Child组件2
+                &lt;p&gt;&#123;value.name&#125;&lt;/p&gt;
+                &lt;p&gt;&#123;value.phone&#125;&lt;/p&gt;
+                &lt;p&gt;&#123;value.call&#125;&lt;/p&gt;
+              &lt;/div&gt;
+            )
+          &#125;
+        &#125;
+      &lt;/GlobalContext.Consumer&gt;
+    )
+  &#125;
+&#125;
+</code></pre><h2 id="React生命周期"><a href="#React生命周期" class="headerlink" title="React生命周期"></a>React生命周期</h2><h3 id="1-初始化阶段"><a href="#1-初始化阶段" class="headerlink" title="1. 初始化阶段"></a>1. 初始化阶段</h3><blockquote><ul><li><p>componentWillMount：render之前最后一次修改状态的机会 <strong>新版本已废弃，直接替换为使用consructor</strong></p></li><li><p>render：只能访问this.props和this.state，不允许修改状态和DOM输出</p></li><li><p>componentDidMount：成功render并渲染完成真实DOM之后触发，可以修改DOM</p><pre><code class="react">componentDidMount()&#123;
+  console.log(&quot;mount&quot;)
+  //数据请求axios
+  //订阅函数的调用
+  // setInterval
+  // 基于创建完的DOM进行一些初始化，比如说一些初始化类库之类的，例如：BetterScroll库
+&#125;
+</code></pre></li></ul></blockquote><h3 id="2-运行中阶段"><a href="#2-运行中阶段" class="headerlink" title="2. 运行中阶段"></a>2. 运行中阶段</h3><blockquote><ul><li><p>componentWillReceiveProps：父组件修改属性的时候触发 <strong>新版本已废弃</strong></p></li><li><p>shouldComponentUpdate：返回false会阻止render调用</p><pre><code class="react">//优化组件更新操作
+shouldComponentUpdate(nextProps, nextState) &#123; 
+    //return true 应该更新
+    //return false 阻止更新
+    // this.state 老状态
+    // nextState 新状态
+    if(JSON.stringify(this.state) !== JSON.stringify(nextState))&#123;
+      return true
+    &#125;
+    return false
+&#125;
+</code></pre></li><li><p>componentWillUpdate：不能修改属性和状态 <strong>新版本已废弃</strong></p></li><li><p>render：只能访问this.props和this.state，不允许修改状态和DOM输出</p></li><li><p>componentDidUpdate：能访问之前的props和state，可以修改DOM</p><pre><code class="react">componentDidUpdate(preProps, preState)&#123;
+  //preProps 老的属性
+  //preState 老的状态
+&#125;
+</code></pre></li></ul></blockquote><h3 id="3-销毁阶段"><a href="#3-销毁阶段" class="headerlink" title="3. 销毁阶段"></a>3. 销毁阶段</h3><blockquote><ul><li>componentWillUnmount：在删除组件之前进行清理操作，比如计时器和事件监听</li></ul></blockquote><h4 id="老生命周期的问题"><a href="#老生命周期的问题" class="headerlink" title="老生命周期的问题"></a>老生命周期的问题</h4><ol><li>componentWillMount，在ssr中这个方法会被多次调用，所以会重复触发多次，同时在这里如果绑定事件，将无法解绑，导致内存泄漏，变得不够安全和高效，从而逐步废弃</li><li>componentWillReceiveProps，外部组件多次频繁更新传入多次不同的props，会导致不必要的异步请求</li><li>componentWillUpdate，更新前记录DOM状态，可能会做一些处理，与componentDidUpdate相隔时间过长，会导致状态不太可信</li></ol><h4 id="新生命周期的替代"><a href="#新生命周期的替代" class="headerlink" title="新生命周期的替代"></a>新生命周期的替代</h4><ol><li>getDerivedStateFromProps，第一次组件初始化，以及后续组件更新过程中（包括自身状态更新以及父传子），返回一个对象作为新的state，返回null说明不需要在这里更新state</li><li>getSnapshotBeforeUpdate，取代了componentWillUpdate，触发事件为update发生的时候，<strong>在render之后，DOM渲染之前</strong>返回一个值，作为componentDidUpdate的第三个参数。</li></ol><h3 id="4-react中性能优化"><a href="#4-react中性能优化" class="headerlink" title="4. react中性能优化"></a>4. react中性能优化</h3><h4 id="4-1-shouldComponentUpdate"><a href="#4-1-shouldComponentUpdate" class="headerlink" title="4.1 shouldComponentUpdate"></a>4.1 shouldComponentUpdate</h4><p>控制组件自身或者子组件是否需要更新，尤其在子组件非常多的情况下，需要进行优化</p><h4 id="4-2-PureComponent"><a href="#4-2-PureComponent" class="headerlink" title="4.2 PureComponent"></a>4.2 PureComponent</h4><p>PureComponent会帮你比较新props和旧的props，新的state和旧的state（值相等、或者对象含有相同的属性、且属性值相等），决定shouldComponentUpdate返回true或者false，从而决定是否要呼叫render函数。</p><blockquote><p>注意⚠️：</p><p>如果你的state或者props永远都在变，那么PureComponent并不会更快，因为shallowEqual需要花时间。</p></blockquote><pre><code class="react">import React, &#123;  PureComponent &#125; from &#39;react&#39;
+export default class App extends PureComponent &#123;
+  render() &#123;
+    console.log(&quot;render&quot;)
+    return (
+      &lt;div&gt;App&lt;/div&gt;
+    )
+  &#125;
+&#125;
+</code></pre><h2 id="React-Hooks"><a href="#React-Hooks" class="headerlink" title="React Hooks"></a>React Hooks</h2><h3 id="1-使用Hooks的理由"><a href="#1-使用Hooks的理由" class="headerlink" title="1. 使用Hooks的理由"></a>1. 使用Hooks的理由</h3><ol><li>高阶组件为了复用，导致代码层级复杂</li><li>生命周期复杂</li><li>写成function组件，无状态组件，因为需要状态，又改成了class，成本高</li></ol><h3 id="2-useState（保存组件状态）"><a href="#2-useState（保存组件状态）" class="headerlink" title="2. useState（保存组件状态）"></a>2. useState（保存组件状态）</h3><pre><code class="react">const [state, setState] = useState(initialState)
+</code></pre><p>一个小demo：</p><pre><code class="react">import React, &#123; useState &#125; from &#39;react&#39;
+
+export default function App() &#123;
+  var obj = useState(&quot;zzz&quot;)
+  //是一个数组，第一个参数是初始化的值，第二个参数是一个函数
+  console.log(obj)
+  //这个写法就是es6数组解构赋值，和上面等价
+  const [name, setName] = useState(&quot;zzz&quot;)
+  const [age, setAge] = useState(28)
+  
+  return (
+    &lt;div&gt;
+      &lt;button onClick=&#123;()=&gt;&#123;
+        // console.log(name)
+        setName(&quot;修改的新name值&quot;)
+        setAge(18)
+      &#125;&#125;&gt;click&lt;/button&gt;
+      App-&#123;name&#125;-&#123;age&#125;
+    &lt;/div&gt;
+  )
+&#125;
+</code></pre><h3 id="3-useEffect（处理副作用）和useLayoutEffect（同步执行副作用）"><a href="#3-useEffect（处理副作用）和useLayoutEffect（同步执行副作用）" class="headerlink" title="3. useEffect（处理副作用）和useLayoutEffect（同步执行副作用）"></a>3. useEffect（处理副作用）和useLayoutEffect（同步执行副作用）</h3><p><em><strong>Function Component不存在生命周期，所以不要把Class Component的生命周期搬过来对号入坐</strong></em></p><pre><code class="react">useEffect(()=&gt;&#123;
+  //effect
+  return ()=&gt;&#123;
+    //cleanup
+  &#125;
+&#125;,[依赖的状态；空数组，表示不依赖])
+</code></pre><p><strong>不要对Dependencies撒谎，如果你明确使用了某个变量，却没有声明在依赖中，你等于向React撒谎了。后果就是，当依赖的变量改变，useEffect不会再次执行，eslint也会警告</strong></p><p>有依赖的demo：</p><pre><code class="react">import React, &#123; useEffect, useState &#125; from &#39;react&#39;
+
+export default function App() &#123;
+
+  const [name, setName] = useState(&quot;asda&quot;)
+
+  //这里使用了name，那么依赖必须要传，不然只有第一次首字母大写，后续修改name值都不会变
+  useEffect(()=&gt;&#123;
+    //首字母大写
+    var newName = name.substring(0,1).toUpperCase()+name.substring(1) 
+    setName(newName)
+  &#125;, [name])
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick=&#123;()=&gt;&#123;
+        setName(&quot;zzzzada&quot;)
+      &#125;&#125;&gt;click&lt;/button&gt;
+      App-&#123;name&#125;
+    &lt;/div&gt;
+  )
+&#125;
+</code></pre><p>没有依赖的demo：</p><pre><code class="react">import React, &#123; useEffect, useState &#125; from &#39;react&#39;
+
+export default function App() &#123;
+
+  const [isCreated, setIsCreated] = useState(true)
+
+  return (
+    &lt;div&gt;
+      App
+      &lt;button onClick=&#123;()=&gt;&#123;
+        setIsCreated(false)
+      &#125;&#125;&gt;点击销毁子组件&lt;/button&gt;
+      &#123;isCreated&#125;
+      &#123;isCreated &amp;&amp; &lt;Child  /&gt;&#125;
+    &lt;/div&gt;
+  )
+&#125;
+
+
+function Child() &#123;
+  useEffect(() =&gt; &#123;
+    //监听resize事件
+    window.onresize = ()=&gt;&#123;
+      console.log(&quot;resize&quot;)
+    &#125;
+    //启动定时器
+    var timer = setInterval(()=&gt;&#123;
+      console.log(&quot;1111&quot;)
+    &#125;, 1000)
+  
+    return () =&gt; &#123;
+      console.log(&quot;组件销毁的时候执行&quot;)
+      //为什么要这么处理，因为react在组件销毁的时候绑定在组件上的事件，react并不会为我们清楚，所以需要自己手动清理
+      //去掉监听
+      window.onresize=&quot;&quot;
+      //清楚定时器
+      clearInterval(timer)
+    &#125;
+  &#125;, [])
+  
+
+  return (
+    &lt;div&gt;
+      child
+    &lt;/div&gt;
+  )
+&#125;
+</code></pre><h4 id="useEffect和useLayoutEffect有啥区别？"><a href="#useEffect和useLayoutEffect有啥区别？" class="headerlink" title="useEffect和useLayoutEffect有啥区别？"></a>useEffect和useLayoutEffect有啥区别？</h4><p>简单来说就是调用时机不同，<code>useLayoutEffect</code>和原来的<code>componentDidMount和componentDidUpdate</code>一致，在React完成DOM更新之后<em><strong>马上同步调用</strong></em>代码，会阻塞页面渲染。而<code>useEffect</code>是会在整个页面渲染完才会调用代码。</p><p>官方建议优先使用useEffect。</p><p>在实际使用中如果想避免<strong>页面抖动</strong>（在useEffect中修改DOM很可能出现）的话，可以把需要操作DOM的代码放在useLayoutEffect里。在这里做DOM操作，这些DOM修改会和React做出的更改一起被一次性渲染到屏幕上，只有一次回流、重绘的代价。</p><h3 id="4-useCallBack（记忆函数）"><a href="#4-useCallBack（记忆函数）" class="headerlink" title="4. useCallBack（记忆函数）"></a>4. useCallBack（记忆函数）</h3><p>防止因为组件重新渲染，导致方法重新创建，起到缓存的作用；只有第二个参数变化了，才重新声明一次</p><pre><code class="react">var handleClick = useCallBack(()=&gt;&#123;
+  console.log(name)
+&#125;, [name])
+&lt;buttton onClick=&#123;()=&gt;handleClick()&#125;&gt; hello &lt;/button&gt;
+//只有name改变后，这个函数才会重新声明一次
+//如果传入空数组，那么就是第一次创建就被缓存，如果name后期变化了，拿到的还是老的name
+//如果不传第二个参数，每次都会重新声明一次，拿到的就是最新的name
+</code></pre><h3 id="5-useMemo（记忆组件）"><a href="#5-useMemo（记忆组件）" class="headerlink" title="5. useMemo（记忆组件）"></a>5. useMemo（记忆组件）</h3><p>useCallBack的功能完全可以用useMemo取代，如果你想通过useMemo返回一个记忆函数也是完全可以的。</p><pre><code class="react">useCallBack(fn, inputs)  等价于 useMemo( ()=&gt;fn, inputs)
+</code></pre><p>唯一的区别是：<strong>useCallBack不会执行第一个参数函数，只是将它返回给你，而useMemo会执行第一个函数，并将结果返回给你。</strong></p><p>所以，useCallBack常用与记忆事件函数，生产记忆后的事件函数并传递给子组件使用。而useMemo更适合经过函数计算的到一个确认的值，比如记忆组件，理解为计算属性。</p><h3 id="6-useRef（保存引用值）"><a href="#6-useRef（保存引用值）" class="headerlink" title="6. useRef（保存引用值）"></a>6. useRef（保存引用值）</h3><pre><code class="react">const myswiper = useRef(null)
+&lt;Swiper ref=&#123;myswiper&#125; /&gt;
+</code></pre><h3 id="7-useReducer和useContext（减少组件层级）"><a href="#7-useReducer和useContext（减少组件层级）" class="headerlink" title="7. useReducer和useContext（减少组件层级）"></a>7. useReducer和useContext（减少组件层级）</h3><pre><code class="react">import React, &#123;  useContext, useState &#125; from &#39;react&#39;
+//1.先定义全局的context对象
+const GlobalContext = React.createContext()
+
+//2.设置生产者 
+export default function App()&#123;
+  const [name, setName] = useState(&quot;张三&quot;)
+
+  return (
+    //包裹根节点
+    &lt;GlobalContext.Provider value=&#123;&#123;
+      call: "打电话",
+      phone: "手机号",
+      name: name,
+      //只能通过这种方式让父组件更新，这样才能重新渲染，重新执行render函数
+      //在消费组件内直接修改，不能重新渲染，不能出发页面更新
+      changeName:(value)=>&#123;
+        setName(value)
+      &#125;,
+    &#125;&#125;&gt;
+      &lt;div&gt;
+        App
+        &lt;Child&gt;&lt;/Child&gt;
+        &lt;Child2&gt;&lt;/Child2&gt;
+      &lt;/div&gt;
+    &lt;/GlobalContext.Provider&gt;
+  )
+&#125;
+
+
+//3.设置消费者
+function Child()&#123;
+  //class组件的写法
+  return (
+    //直接使用标签版本
+    &lt;GlobalContext.Consumer&gt;
+      &#123;
+        (value)=&gt;&#123;
+          return (
+            //这里才是根节点内容
+            &lt;div style=&#123;&#123;
+              background:"yellow"
+            &#125;&#125;&gt;
+              Child组件1
+              &lt;button onClick=&#123;()=&gt;&#123;
+                value.changeName(&quot;李四&quot;)
+              &#125;&#125;&gt;改变name值为李四&lt;/button&gt;
+              &lt;p&gt;&#123;value.name&#125;&lt;/p&gt;
+              &lt;p&gt;&#123;value.phone&#125;&lt;/p&gt;
+              &lt;p&gt;&#123;value.call&#125;&lt;/p&gt;
+            &lt;/div&gt;
+          )
+        &#125;
+      &#125;
+    &lt;/GlobalContext.Consumer&gt;
+  )
+&#125;
+
+//useContext简化代码
+function Child2()&#123;
+  //hooks写法，大大减化代码
+  const context = useContext(GlobalContext)
+  console.log(&quot;context&quot;, context)
+  return (
+    //这里才是根节点内容
+    &lt;div style=&#123;&#123;
+      background:"red"
+    &#125;&#125;&gt;
+      Child组件2
+      &lt;p&gt;&#123;context.name&#125;&lt;/p&gt;
+      &lt;p&gt;&#123;context.phone&#125;&lt;/p&gt;
+      &lt;p&gt;&#123;context.call&#125;&lt;/p&gt;
+    &lt;/div&gt;
+  )
+&#125;
+</code></pre><h4 id="userReducer将组件状态转移到外部，使得组件无状态"><a href="#userReducer将组件状态转移到外部，使得组件无状态" class="headerlink" title="userReducer将组件状态转移到外部，使得组件无状态"></a>userReducer将组件状态转移到外部，使得组件无状态</h4><pre><code class="react">import React,&#123;useReducer&#125; from &#39;react&#39;
+
+//useReducer处理函数
+const reducer = (preState, action)=&gt;&#123;
+  console.log(&quot;reducer...&quot;, preState, action)
+  //这里是一个技巧，操作状态不应该对原状态操作，需要深拷贝一份，对新状态操作，这样不会污染原来状态
+  let newState = &#123;...preState&#125;
+  switch(action.type)&#123;
+    case &quot;value-minus&quot;:
+      newState.count--
+      return newState
+    case &quot;value-add&quot;:
+      newState.count++
+      return newState
+
+    default:
+      return preState  
+  &#125;
+
+&#125;
+//useReducer外部的状态
+const initialState=&#123;
+  count: 0
+&#125;
+
+export default function App() &#123;
+
+  // 这样做的好处就是将状态转移到外部，组件变成无状态了，类似后端开发redis作用
+  // const [state, dispatch] = useReducer(first, second, third)
+  const [state, dispatch] = useReducer(reducer, initialState)
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick=&#123;()=&gt;&#123;
+        dispatch(&#123;
+          //type固定不可变，对应的值可以修改
+          type:&quot;value-minus&quot;
+        &#125;)
+      &#125;&#125;&gt;-&lt;/button&gt;
+      &#123;state.count&#125;
+      &lt;button onClick=&#123;()=&gt;&#123;
+        dispatch(&#123;
+          //type固定不可变，对应的值可以修改
+          type:&quot;value-add&quot;
+        &#125;)
+      &#125;&#125;&gt;+&lt;/button&gt;
+    &lt;/div&gt;
+  )
+&#125;
+</code></pre><h4 id="案例：点击Child1组件的按钮，能够分别修改Child2和Child3组件的内容"><a href="#案例：点击Child1组件的按钮，能够分别修改Child2和Child3组件的内容" class="headerlink" title="案例：点击Child1组件的按钮，能够分别修改Child2和Child3组件的内容"></a>案例：点击Child1组件的按钮，能够分别修改Child2和Child3组件的内容</h4><pre><code class="react">import React,&#123;useReducer, useContext&#125; from &#39;react&#39;
+
+//将状态转移到外部
+const initialValue = &#123;
+  text1:&quot;aaaa&quot;,
+  text2:&quot;bbbb&quot;
+&#125;
+//定义状态发生改变的回调函数，也就是具体修改状态的地方就在这
+const reducer = (preState, action)=&gt;&#123;
+  const newState  = &#123;...preState&#125;
+  switch(action.type)&#123;
+    case &quot;click2&quot;:
+      newState.text1 = action.value
+      return newState 
+    case &quot;click3&quot;:
+      newState.text2 = action.value
+      return newState 
+    default:
+      return preState
+  &#125;
+&#125;
+//帮助在子节点同步状态
+const GlobalContext = React.createContext()
+
+export default function App() &#123;
+  const [state, dispatch] = useReducer(reducer, initialValue)
+  return (
+    //父组件将状态传递到子组件
+    &lt;GlobalContext.Provider value=&#123;&#123;
+      state, 
+      dispatch
+    &#125;&#125;&gt;
+        &lt;div&gt;
+          APP
+          &lt;Child1&gt;&lt;/Child1&gt;
+          &lt;Child2&gt;&lt;/Child2&gt;
+          &lt;Child3&gt;&lt;/Child3&gt;
+        &lt;/div&gt;
+    &lt;/GlobalContext.Provider&gt;
+    
+  )
+&#125;
+
+function Child1()&#123;
+  //子组件拿到状态，这里是解构赋值的方式，只用了一个，所以只写一个
+  //完整的是 const &#123;state, dispatch&#125; = useContext(GlobalContext)
+  const &#123;dispatch&#125; = useContext(GlobalContext)
+  return (
+    &lt;div&gt;
+      &lt;button onClick=&#123;()=&gt;&#123;
+        dispatch(&#123;
+          type:&quot;click2&quot;,
+          value:&quot;点击了click2&quot;
+        &#125;)
+      &#125;&#125;&gt;click2&lt;/button&gt;
+      Child1
+      &lt;button onClick=&#123;()=&gt;&#123;
+        dispatch(&#123;
+          type:&quot;click3&quot;,
+          value:&quot;点击了click3&quot;
+        &#125;)
+      &#125;&#125;&gt;click3&lt;/button&gt;
+    &lt;/div&gt;
+  )
+&#125;
+
+function Child2()&#123;
+  //子组件拿到状态，这里是解构赋值的方式，只用了一个，所以只写一个
+  //完整的是 const &#123;state, dispatch&#125; = useContext(GlobalContext)
+  const &#123;state&#125; = useContext(GlobalContext)
+  console.log(state)
+  return (
+    &lt;div&gt;
+      Child2-&#123;state.text1&#125;
+    &lt;/div&gt;
+  )
+&#125;
+
+function Child3()&#123;
+  //子组件拿到状态，这里是解构赋值的方式，只用了一个，所以只写一个
+  //完整的是 const &#123;state, dispatch&#125; = useContext(GlobalContext)
+  const &#123;state&#125; = useContext(GlobalContext)
+  
+  return (
+    &lt;div&gt;
+      Child3-&#123;state.text2&#125;
+    &lt;/div&gt;
+  )
+&#125;
+</code></pre><h3 id="8-自定义hooks（相当于抽出公共组件）"><a href="#8-自定义hooks（相当于抽出公共组件）" class="headerlink" title="8. 自定义hooks（相当于抽出公共组件）"></a>8. 自定义hooks（相当于抽出公共组件）</h3><p><strong>当我们想在两个函数之间共享逻辑的时候，我们会把它提到第三个函数中。</strong></p><p>必须以“use”开头吗？必须如此。这个约定非常重要，不遵循的话，由于无法判断某个函数是否包含其对内部的Hook的调用，React将无法检查你的Hook是否违反了Hook的规则</p><pre><code class="react">import React, &#123; useEffect &#125; from &#39;react&#39;
+import axios from &#39;axios&#39;
+
+//抽出到自定义hooks
+function useGetListFromServce()&#123;
+  const [list, setList] = useState([])
+
+
+  useEffect(() =&gt; &#123;
+    axios.get(&quot;xxxx&quot;).then(res=&gt;&#123;
+      setList(res.data)
+    &#125;)
+
+    
+    return () =&gt; &#123;
+      list
+    &#125;
+  &#125;, [])
+  
+&#125;
+
+export default function App() &#123;
+
+  //原始逻辑
+  // const [list, setList] = useState([])
+  
+  // const getListFromServce = ()=&gt;&#123;
+  //   axios.get(&quot;xxxx&quot;).then(res=&gt;&#123;
+  //     setList(res.data)
+  //   &#125;)
+  // &#125;
+
+  //从自定义hooks拿出list
+  const &#123;list&#125; =  useGetListFromServce()
+
+  return (
+    &lt;div&gt;App
+      &#123;
+        list.length
+      &#125;
+    &lt;/div&gt;
+  )
+&#125;
+</code></pre><h2 id="React路由"><a href="#React路由" class="headerlink" title="React路由"></a>React路由</h2><h3 id="1-什么是路由"><a href="#1-什么是路由" class="headerlink" title="1. 什么是路由"></a>1. 什么是路由</h3><p>路由是根据不同的url地址展示不同的内容或者页面</p><p>一个针对React设计的路由解决方案，可以友好的帮你解决React Components 到URL之间的同步映射关系</p><h3 id="2-路由安装"><a href="#2-路由安装" class="headerlink" title="2. 路由安装"></a>2. 路由安装</h3><pre><code class="shell">npm install react-router-dom@5
+</code></pre><h3 id="3-路由使用"><a href="#3-路由使用" class="headerlink" title="3. 路由使用"></a>3. 路由使用</h3><h4 id="3-1-路由方法导入"><a href="#3-1-路由方法导入" class="headerlink" title="3.1 路由方法导入"></a>3.1 路由方法导入</h4><pre><code class="react">import &#123;HashRouter,Route&#125; from &#39;react-router-dom&#39;
+</code></pre><h4 id="3-2-定义路由以及重定向"><a href="#3-2-定义路由以及重定向" class="headerlink" title="3.2 定义路由以及重定向"></a>3.2 定义路由以及重定向</h4><pre><code class="react">&lt;HashRouter&gt;
+  &#123;/* switch只陪到到找到的第一个，然后就退出。
+        刷新之后如果匹配到，立即退出，就不会Redirect，否则继续跳到Redirect */&#125;
+  &#123;/* 类似switch case语句 */&#125;
+  &lt;Switch&gt;
+    &lt;Route path=&quot;/films&quot; component=&#123;Films&#125;&gt;&lt;/Route&gt;
+    &lt;Route path=&quot;/cinemas&quot; component=&#123;Cinemas&#125;&gt;&lt;/Route&gt;
+    &lt;Route path=&quot;/center&quot; component=&#123;Center&#125;&gt;&lt;/Route&gt;
+
+    &#123;/* 模糊匹配，所以每次刷新都会匹配到Redirect这里 */&#125;
+    &#123;/* &lt;Redirect  from=&quot;/&quot; to=&quot;/films&quot; /&gt; */&#125;
+    &#123;/* 精确匹配 */&#125;
+    &lt;Redirect  from=&quot;/&quot; to=&quot;/films&quot;  exact /&gt;
+
+    &#123;/* 放到想要做的效果就是上面都不匹配，跳到这个组件，展示404 */&#125;
+    &#123;/* 但是实际效果来说，会被上面的Redirect拦截掉，
+            因为默认的是模糊匹配，因此需要让Redirect变成精准匹配，只需要在Redirect加上exact属性即可 */&#125;
+    &lt;Route component=&#123;NotFound&#125; /&gt;
+  &lt;/Switch&gt;
+&lt;/HashRouter&gt;
+</code></pre><blockquote><p>注意⚠️：</p><ol><li><redirect from="/" to="/films">默认模糊匹配</li><li>加上exact精准匹配</li><li>Warning :Hash history cannot PUSH the same path;a new entry will not be added to the history stack,这个警告只有hash模式会出现</li></ol></blockquote><h4 id="3-3-嵌套路由"><a href="#3-3-嵌套路由" class="headerlink" title="3.3 嵌套路由"></a>3.3 嵌套路由</h4><pre><code class="react">&lt;Switch&gt;
+  &lt;Route path=&quot;/films/nowplay&quot; component=&#123;Nowplaying&#125;&gt;&lt;/Route&gt;
+  &lt;Route path=&quot;/films/commingsoon&quot; component=&#123;CommingSoon&#125;&gt;&lt;/Route&gt;
+
+  &lt;Redirect from=&quot;/films&quot; to=&quot;/films/nowplay&quot; &gt;&lt;/Redirect&gt;
+&lt;/Switch&gt;
+</code></pre><h4 id="3-4-路由跳转方式"><a href="#3-4-路由跳转方式" class="headerlink" title="3.4 路由跳转方式"></a>3.4 路由跳转方式</h4><h5 id="3-4-1-声明式导航"><a href="#3-4-1-声明式导航" class="headerlink" title="3.4.1 声明式导航"></a>3.4.1 声明式导航</h5><pre><code class="react"> &lt;NavLink to=&quot;/films&quot; activeClassName=&quot;zactiv&quot;&gt;电影&lt;/NavLink&gt;
+</code></pre><h5 id="3-4-2-编程式导航"><a href="#3-4-2-编程式导航" class="headerlink" title="3.4.2 编程式导航"></a>3.4.2 编程式导航</h5><pre><code class="react">//方式一
+window.location.href=&quot;#/detail/&quot;+id
+
+//方式二
+//方法组件中, `/detail/$&#123;id&#125;` 字符串模版
+props.history.push(`/detail/$&#123;id&#125;`)
+</code></pre><h3 id="3-5-路由传参"><a href="#3-5-路由传参" class="headerlink" title="3.5 路由传参"></a>3.5 路由传参</h3><pre><code class="react">//一、query传参数
+&lt;Route paht=&quot;/detail&quot; component=&#123;Detail&#125; &gt;&lt;/Route&gt;
+//传参数
+props.history.push(&#123;pathname:&#39;/detail&#39;, query:&#123;id:1&#125;&#125;)
+//取参数
+props.location.query.id
+
+//二、动态路由传参, 推荐这种
+&lt;Route paht=&quot;/detail/:myid&quot; component=&#123;Detail&#125; &gt;&lt;/Route&gt;
+//传参数
+props.history.push(`/detail/$&#123;id&#125;`)  
+//取参数 
+props.match.params.myid
+</code></pre><h3 id="3-6-路由拦截"><a href="#3-6-路由拦截" class="headerlink" title="3.6 路由拦截"></a>3.6 路由拦截</h3><pre><code class="react">//加个redirect是为了保持地址栏和组件一致
+&lt;Route path=&quot;/center&quot; render=&#123; (props)=&gt; isAuth()?&lt;Center &#123;...props&#125; /&gt;: &lt;Redirect to=&quot;/login&quot; /&gt; &#125; /&gt;
+
+&lt;Route path=&quot;/login&quot; component=&#123;Login&#125;&gt;&lt;/Route&gt;
+</code></pre><h2 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h2><ol><li><p><code>npm i http-proxy-middleware</code>安装代理插件</p></li><li><p>在src目录下新建setupProxy.js</p></li><li><p>在setupProxy.js复制如下代码</p><pre><code class="js">//这段代码含义，
+
+//用户发送一个以/api开头的请求，node服务器会把这个请求拦截下来，
+//并由node服务器去发送请求，然后把数据给我们的代码
+//这样做是为了绕过，浏览器的跨域限制，由服务器去请求到数据在给到我们自己写的代码
+const &#123;createProxyMiddleware&#125; = require(&#39;http-proxy-middleware&#39;)
+
+module.exports = function(app)&#123;
+  app.use(
+      &#39;/api&#39;, //以api开头的接口
+    createProxyMiddleware(&#123;
+      target:&#39;http://www.newbaiduy.com&#39;, //目标请求的域名
+      changeOrigin: true,
+    &#125;)
+  )
+&#125;
+</code></pre></li></ol><h2 id="Flux与Redux"><a href="#Flux与Redux" class="headerlink" title="Flux与Redux"></a>Flux与Redux</h2><p>Redux主要是用于应用状态管理。简而言之，Redux用一个单独的常量状态树（state对象）保存整个应用的状态，这个对象不能被直接改变。当一些数据发生变化了，一个新的对象就会被创建（使用action和reducer），这样就可以进行数据追踪，实现时光旅行。</p><h3 id="1-redux介绍及设计和使用的三大原则"><a href="#1-redux介绍及设计和使用的三大原则" class="headerlink" title="1. redux介绍及设计和使用的三大原则"></a>1. redux介绍及设计和使用的三大原则</h3><blockquote><ul><li>state 以单一对象存储在store对象中</li><li>state 只读（每次都返回一个新对象）</li><li>使用纯函数reducer执行state更新</li></ul></blockquote><h3 id="2-redux工作流"><a href="#2-redux工作流" class="headerlink" title="2. redux工作流"></a>2. redux工作流</h3><p><img src="https://redux.js.org/assets/images/ReduxDataFlowDiagram-49fa8c3968371d9ef6f2a1486bd40a26.gif" alt="redux工作流"></p><blockquote><p>原图地址：<a target="_blank" rel="noopener" href="https://redux.js.org/tutorials/essentials/part-1-overview-concepts#:~:text=on%20the%20screen-,Here%27s,-what%20that%20data">https://redux.js.org/tutorials/essentials/part-1-overview-concepts#:~:text=on%20the%20screen-,Here%27s,-what%20that%20data</a></p></blockquote><h2 id="React-redux"><a href="#React-redux" class="headerlink" title="React-redux"></a>React-redux</h2><h3 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1. 介绍"></a>1. 介绍</h3><blockquote><p><a target="_blank" rel="noopener" href="https://github.com/reactjs/react-redux">https://github.com/reactjs/react-redux</a></p></blockquote><h3 id="2-容器组件与UI组件"><a href="#2-容器组件与UI组件" class="headerlink" title="2. 容器组件与UI组件"></a>2. 容器组件与UI组件</h3><h4 id="2-1-UI组件"><a href="#2-1-UI组件" class="headerlink" title="2.1 UI组件"></a>2.1 UI组件</h4><ul><li>只负责UI的呈现，不带有任何业务</li><li>没有状态（即不使用this.state这个变量）</li><li>所有数据都有this.props提供</li><li>不使用任何redux的api</li></ul><h4 id="2-2-容器组件"><a href="#2-2-容器组件" class="headerlink" title="2.2 容器组件"></a>2.2 容器组件</h4><ul><li>负责管理数据和业务逻辑，不负责UI的呈现</li><li>带有内部状态</li><li>使用Redux的API</li></ul><h3 id="2-3-Provider与connect"><a href="#2-3-Provider与connect" class="headerlink" title="2.3 Provider与connect"></a>2.3 Provider与connect</h3><h3 id="2-4-HOC与context通信在react-redux底层中的应用"><a href="#2-4-HOC与context通信在react-redux底层中的应用" class="headerlink" title="2.4 HOC与context通信在react-redux底层中的应用"></a>2.4 HOC与context通信在react-redux底层中的应用</h3><ol><li>connect 是HOC，高阶组件</li><li>Provider组件，可以让容器组件拿到state，使用了context</li></ol><h3 id="2-5-高阶组件构建与应用"><a href="#2-5-高阶组件构建与应用" class="headerlink" title="2.5 高阶组件构建与应用"></a>2.5 高阶组件构建与应用</h3><p>HOC不仅仅是一个方法，确切说应该是一个组件工厂，获取低阶组件，生产高阶组件。</p><ol><li>代码复用，代码模块化</li><li>增删查改props</li><li>渲染劫持</li></ol><pre><code class="react">import React from &#39;react&#39;
+
+function NotFound() &#123;
+  return (
+    &lt;div&gt;404 not found&lt;/div&gt;
+  )
+&#125;
+
+function myHOC(func, obj) &#123;
+  //执行传入的函数
+  var value = func()
+  
+  return (MyComponent)=&gt;&#123; //这里返回一个函数，入参是一个组件，对应下面的 myHOC(...)(NotFound) 这一部分
+    //执行上面定义的函数，返回一个组件
+    return (props)=&gt;&#123;
+      //劫持原组件，然后渲染一下
+      return (&lt;div style=&#123;&#123;background: "red"&#125;&#125;&gt; 
+        &#123;/* 将value， 之前的props和obj绑定到新组件的props中去 */&#125;
+        &lt;MyComponent &#123;...value&#125; &#123;...props&#125; &#123;...obj&#125; &gt;&lt;/MyComponent&gt;
+      &lt;/div&gt;)//括号包裹的就是组件内容
+    &#125;
+  &#125;
+&#125;
+
+
+//自定义的高阶组件
+export default myHOC(()=&gt;&#123;
+  return &#123;
+    a:1,
+    b:2
+  &#125;
+&#125;, &#123;
+  f1()&#123;&#125;,
+  f2()&#123;&#125;,
+&#125;)(NotFound)
+</code></pre><h3 id="2-6-Redux持久化"><a href="#2-6-Redux持久化" class="headerlink" title="2.6 Redux持久化"></a>2.6 Redux持久化</h3><blockquote><p>redux-persis</p><p><a target="_blank" rel="noopener" href="https://github.com/rt2zz/redux-persist">https://github.com/rt2zz/redux-persist</a></p></blockquote><h2 id="UI组件库"><a href="#UI组件库" class="headerlink" title="UI组件库"></a>UI组件库</h2><p>Ant Design是一个致力于提升【用户】和【设计者】使用体验的预言；旨在统一中台项目中的前端UI设计，屏蔽不必要的设计差异和实现成本，解放设计和前端的的研发资源；包含很多设计原则和配套的组件库。</p><h3 id="1-ant-design（PC端）"><a href="#1-ant-design（PC端）" class="headerlink" title="1. ant-design（PC端）"></a>1. ant-design（PC端）</h3><p><a target="_blank" rel="noopener" href="https://ant.design/index-cn">https://ant.design/index-cn</a></p><h2 id="2-antd-mobile（移动端）"><a href="#2-antd-mobile（移动端）" class="headerlink" title="2. antd-mobile（移动端）"></a>2. antd-mobile（移动端）</h2><p><a target="_blank" rel="noopener" href="https://mobile.ant.design/">https://mobile.ant.design</a></p><h2 id="Immutable"><a href="#Immutable" class="headerlink" title="Immutable"></a>Immutable</h2><pre><code class="react">var obj = &#123; /* 一个十分复杂的对象 */ &#125;
+doSomething(obj)
+//上面的函数执行完之后，此时的obj还是原来的obj吗？如果函数内部发生deepCopy那么就不是，否则还是原来的地址
+
+//deepCopy?
+</code></pre><h3 id="1-Immutable-js介绍"><a href="#1-Immutable-js介绍" class="headerlink" title="1. Immutable.js介绍"></a>1. Immutable.js介绍</h3><blockquote><p>地址： <a target="_blank" rel="noopener" href="https://github.com/immutable-js/immutable-js">https://github.com/immutable-js/immutable-js</a></p></blockquote><p>每次修改一个immutable对象时都会创建一个新的不可变对象，在新对象的操作并不会影响原始对象的数据。</p><h3 id="2-深拷贝与浅拷贝"><a href="#2-深拷贝与浅拷贝" class="headerlink" title="2. 深拷贝与浅拷贝"></a>2. 深拷贝与浅拷贝</h3><ol><li>var arr &#x3D; {}; var arr2 &#x3D; arr; 浅拷贝</li><li>Object.assign()只是一级属性复制，比浅拷贝多拷贝了一层而已</li><li>const obj1 &#x3D; JSON.parse(JSON.stringfy(obj));数组对象都好用（缺点：不能有undefined）</li></ol><h3 id="3-immutable优化性能的方式"><a href="#3-immutable优化性能的方式" class="headerlink" title="3. immutable优化性能的方式"></a>3. immutable优化性能的方式</h3><p>immutable实现的原理是Persistent Data Structure（持久化数据结构），也就是使用旧数据创建新数据时，要保证旧数据同时可用且不变。同时，为了避免deepCopy把所有节点都复制一遍带来的性能损耗，immutable使用了Structural Sharing（结构共享）。即，对象树的一个节点发生变化，只修改这个节点和它影响的父节点，其他节点共享。</p><h3 id="4-Immutable中常用的类型（Map，-List）"><a href="#4-Immutable中常用的类型（Map，-List）" class="headerlink" title="4. Immutable中常用的类型（Map， List）"></a>4. Immutable中常用的类型（Map， List）</h3><ul><li><p>Map</p><pre><code class="react">import &#123;Map&#125; from &#39;immutable&#39;
+const m1 = Map(&#123;a:1,b:2,c:3&#125;)
+const m2 = map1.set(&#39;b&#39;,50)
+m1.get(&#39;b&#39;)+&quot; vs &quot;+m2.get(&#39;b&#39;);   //2 vs 50
+</code></pre></li><li><p>List</p><pre><code class="react">import &#123;List&#125; from &#39;immutable&#39;
+
+const list = List([1,2,3])
+const list2 = list1.push(3,4,5) //添加
+const list3 = list2.unshift(0) //移除 
+
+list2.toJs() //123345
+list3.toJs() // 23345
+</code></pre></li></ul></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2023/07/05/2023-07-05react%E5%AD%A6%E4%B9%A0/" title="react学习">https://github/zhuchong6.github.io/2023/07/05/2023-07-05react学习/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/%E5%89%8D%E7%AB%AF/" rel="tag"># 前端</a> <a href="/tags/react/" rel="tag"># react</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2023/06/26/2023-02-02k8s%E5%AD%A6%E4%B9%A0/" rel="prev" title="k8s学习"><i class="fa fa-chevron-left"></i> k8s学习</a></div><div class="post-nav-item"><a href="/2023/07/25/2023-07-25CodeReview/" rel="next" title="CodeReview应该怎么做？">CodeReview应该怎么做？ <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#React%E5%AD%A6%E4%B9%A0"><span class="nav-number">1.</span> <span class="nav-text">React学习</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-React%E8%B5%B7%E6%BA%90"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.React起源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-React%E4%B8%8E%E4%BC%A0%E7%BB%9FMVC%E5%85%B3%E7%B3%BB"><span class="nav-number">1.1.2.</span> <span class="nav-text">2.React与传统MVC关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-React%E7%9A%84%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.3.</span> <span class="nav-text">3.React的特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E8%99%9A%E6%8B%9FDOM"><span class="nav-number">1.1.4.</span> <span class="nav-text">4.虚拟DOM</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#create-react-app"><span class="nav-number">1.2.</span> <span class="nav-text">create-react-app</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E5%86%99%E7%AC%AC%E4%B8%80%E4%B8%AAreact-app"><span class="nav-number">1.3.</span> <span class="nav-text">编写第一个react app</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JSX%E8%AF%AD%E6%B3%95%E4%B8%8E%E7%BB%84%E4%BB%B6"><span class="nav-number">1.4.</span> <span class="nav-text">JSX语法与组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-JSX%E8%AF%AD%E6%B3%95"><span class="nav-number">1.4.1.</span> <span class="nav-text">1.JSX语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Class%E7%BB%84%E4%BB%B6"><span class="nav-number">1.4.2.</span> <span class="nav-text">2.Class组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BB%84%E4%BB%B6"><span class="nav-number">1.4.3.</span> <span class="nav-text">3.函数式组件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E7%9A%84%E5%B5%8C%E5%A5%97"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">组件的嵌套</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E7%BB%84%E4%BB%B6%E6%A0%B7%E5%BC%8F"><span class="nav-number">1.4.4.</span> <span class="nav-text">4.组件样式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86"><span class="nav-number">1.4.5.</span> <span class="nav-text">5.事件处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-%E7%BB%91%E5%AE%9A%E4%BA%8B%E4%BB%B6"><span class="nav-number">1.4.5.1.</span> <span class="nav-text">5.1 绑定事件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-%E4%BA%8B%E4%BB%B6handler%E5%86%99%E6%B3%95"><span class="nav-number">1.4.5.2.</span> <span class="nav-text">5.2 事件handler写法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-Event-%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.4.5.3.</span> <span class="nav-text">5.3 Event 对象</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Ref%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">1.4.6.</span> <span class="nav-text">6.Ref的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#6-1-%E7%BB%99%E6%A0%87%E7%AD%BE%E8%AE%BE%E7%BD%AEref-x3D-%E2%80%9Dusername%E2%80%9D"><span class="nav-number">1.4.6.1.</span> <span class="nav-text">6.1 给标签设置ref&#x3D;”username”</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-2-%E7%BB%99%E7%BB%84%E4%BB%B6%E8%AE%BE%E7%BD%AEref-x3D-%E2%80%9Dusername%E2%80%9D"><span class="nav-number">1.4.6.2.</span> <span class="nav-text">6.2 给组件设置ref&#x3D;”username”</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-3-%E6%96%B0%E7%9A%84%E5%86%99%E6%B3%95"><span class="nav-number">1.4.6.3.</span> <span class="nav-text">6.3 新的写法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E6%95%B0%E6%8D%AE%E6%8C%82%E8%BD%BD%E6%96%B9%E5%BC%8F"><span class="nav-number">1.5.</span> <span class="nav-text">组件数据挂载方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%8A%B6%E6%80%81"><span class="nav-number">1.5.1.</span> <span class="nav-text">1. 状态</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89state"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">定义state</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9state"><span class="nav-number">1.5.1.2.</span> <span class="nav-text">修改state</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B1%9E%E6%80%A7-props"><span class="nav-number">1.5.2.</span> <span class="nav-text">2. 属性(props)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%B1%9E%E6%80%A7VS%E7%8A%B6%E6%80%81"><span class="nav-number">1.5.3.</span> <span class="nav-text">3. 属性VS状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%B8%B2%E6%9F%93%E6%95%B0%E6%8D%AE"><span class="nav-number">1.5.4.</span> <span class="nav-text">4. 渲染数据</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-%E5%88%97%E8%A1%A8%E6%B8%B2%E6%9F%93"><span class="nav-number">1.5.4.1.</span> <span class="nav-text">4.1 列表渲染</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-%E6%9D%A1%E4%BB%B6%E6%B8%B2%E6%9F%93"><span class="nav-number">1.5.4.2.</span> <span class="nav-text">4.2 条件渲染</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-dangerouslySetInnerHtml"><span class="nav-number">1.5.4.3.</span> <span class="nav-text">4.3 dangerouslySetInnerHtml</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A8%E5%8D%95%E4%B8%AD%E5%8F%97%E6%8E%A7%E7%BB%84%E4%BB%B6%E4%B8%8E%E9%9D%9E%E5%8F%97%E6%8E%A7%E7%BB%84%E4%BB%B6"><span class="nav-number">1.6.</span> <span class="nav-text">表单中受控组件与非受控组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%9D%9E%E5%8F%97%E6%8E%A7%E7%BB%84%E4%BB%B6"><span class="nav-number">1.6.1.</span> <span class="nav-text">1. 非受控组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%8F%97%E6%8E%A7%E7%BB%84%E4%BB%B6"><span class="nav-number">1.6.2.</span> <span class="nav-text">2. 受控组件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F"><span class="nav-number">1.7.</span> <span class="nav-text">组件通信方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%88%B6%E5%AD%90%E7%BB%84%E4%BB%B6%E9%80%9A%E4%BF%A1"><span class="nav-number">1.7.1.</span> <span class="nav-text">1. 父子组件通信</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-%E4%BC%A0%E9%80%92%E6%95%B0%E6%8D%AE%EF%BC%88%E7%88%B6%E4%BC%A0%E5%AD%90%EF%BC%89%E5%92%8C%E4%BC%A0%E9%80%92%E5%9B%9E%E8%B0%83%E6%96%B9%E6%B3%95%EF%BC%88%E5%AD%90%E4%BC%A0%E7%88%B6%EF%BC%89"><span class="nav-number">1.7.1.1.</span> <span class="nav-text">1.1 传递数据（父传子）和传递回调方法（子传父）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-ref%E6%A0%87%E8%AE%B0%EF%BC%88%E7%88%B6%E7%BB%84%E4%BB%B6%E6%8B%BF%E5%88%B0%E5%AD%90%E7%BB%84%E4%BB%B6%E7%9A%84%E5%BC%95%E7%94%A8%EF%BC%8C%E4%BB%8E%E8%80%8C%E8%B0%83%E7%94%A8%E5%AD%90%E7%BB%84%E4%BB%B6%E7%9A%84%E6%96%B9%E6%B3%95%EF%BC%89"><span class="nav-number">1.7.1.2.</span> <span class="nav-text">1.2 ref标记（父组件拿到子组件的引用，从而调用子组件的方法）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%9D%9E%E7%88%B6%E5%AD%90%E7%BB%84%E4%BB%B6%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F"><span class="nav-number">1.7.2.</span> <span class="nav-text">2. 非父子组件通信方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E7%8A%B6%E6%80%81%E6%8F%90%E5%8D%87%EF%BC%88%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="nav-number">1.7.2.1.</span> <span class="nav-text">2.1 状态提升（中间人模式）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.7.2.2.</span> <span class="nav-text">2.2 发布订阅模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-context%E7%8A%B6%E6%80%81%E6%A0%91%E4%BC%A0%E5%8F%82"><span class="nav-number">1.7.2.3.</span> <span class="nav-text">2.3 context状态树传参</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#React%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.8.</span> <span class="nav-text">React生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E9%98%B6%E6%AE%B5"><span class="nav-number">1.8.1.</span> <span class="nav-text">1. 初始化阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%BF%90%E8%A1%8C%E4%B8%AD%E9%98%B6%E6%AE%B5"><span class="nav-number">1.8.2.</span> <span class="nav-text">2. 运行中阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E9%94%80%E6%AF%81%E9%98%B6%E6%AE%B5"><span class="nav-number">1.8.3.</span> <span class="nav-text">3. 销毁阶段</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%80%81%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.8.3.1.</span> <span class="nav-text">老生命周期的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B0%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E6%9B%BF%E4%BB%A3"><span class="nav-number">1.8.3.2.</span> <span class="nav-text">新生命周期的替代</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-react%E4%B8%AD%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="nav-number">1.8.4.</span> <span class="nav-text">4. react中性能优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-shouldComponentUpdate"><span class="nav-number">1.8.4.1.</span> <span class="nav-text">4.1 shouldComponentUpdate</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-PureComponent"><span class="nav-number">1.8.4.2.</span> <span class="nav-text">4.2 PureComponent</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#React-Hooks"><span class="nav-number">1.9.</span> <span class="nav-text">React Hooks</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BD%BF%E7%94%A8Hooks%E7%9A%84%E7%90%86%E7%94%B1"><span class="nav-number">1.9.1.</span> <span class="nav-text">1. 使用Hooks的理由</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-useState%EF%BC%88%E4%BF%9D%E5%AD%98%E7%BB%84%E4%BB%B6%E7%8A%B6%E6%80%81%EF%BC%89"><span class="nav-number">1.9.2.</span> <span class="nav-text">2. useState（保存组件状态）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-useEffect%EF%BC%88%E5%A4%84%E7%90%86%E5%89%AF%E4%BD%9C%E7%94%A8%EF%BC%89%E5%92%8CuseLayoutEffect%EF%BC%88%E5%90%8C%E6%AD%A5%E6%89%A7%E8%A1%8C%E5%89%AF%E4%BD%9C%E7%94%A8%EF%BC%89"><span class="nav-number">1.9.3.</span> <span class="nav-text">3. useEffect（处理副作用）和useLayoutEffect（同步执行副作用）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#useEffect%E5%92%8CuseLayoutEffect%E6%9C%89%E5%95%A5%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">1.9.3.1.</span> <span class="nav-text">useEffect和useLayoutEffect有啥区别？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-useCallBack%EF%BC%88%E8%AE%B0%E5%BF%86%E5%87%BD%E6%95%B0%EF%BC%89"><span class="nav-number">1.9.4.</span> <span class="nav-text">4. useCallBack（记忆函数）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-useMemo%EF%BC%88%E8%AE%B0%E5%BF%86%E7%BB%84%E4%BB%B6%EF%BC%89"><span class="nav-number">1.9.5.</span> <span class="nav-text">5. useMemo（记忆组件）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-useRef%EF%BC%88%E4%BF%9D%E5%AD%98%E5%BC%95%E7%94%A8%E5%80%BC%EF%BC%89"><span class="nav-number">1.9.6.</span> <span class="nav-text">6. useRef（保存引用值）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-useReducer%E5%92%8CuseContext%EF%BC%88%E5%87%8F%E5%B0%91%E7%BB%84%E4%BB%B6%E5%B1%82%E7%BA%A7%EF%BC%89"><span class="nav-number">1.9.7.</span> <span class="nav-text">7. useReducer和useContext（减少组件层级）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#userReducer%E5%B0%86%E7%BB%84%E4%BB%B6%E7%8A%B6%E6%80%81%E8%BD%AC%E7%A7%BB%E5%88%B0%E5%A4%96%E9%83%A8%EF%BC%8C%E4%BD%BF%E5%BE%97%E7%BB%84%E4%BB%B6%E6%97%A0%E7%8A%B6%E6%80%81"><span class="nav-number">1.9.7.1.</span> <span class="nav-text">userReducer将组件状态转移到外部，使得组件无状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B%EF%BC%9A%E7%82%B9%E5%87%BBChild1%E7%BB%84%E4%BB%B6%E7%9A%84%E6%8C%89%E9%92%AE%EF%BC%8C%E8%83%BD%E5%A4%9F%E5%88%86%E5%88%AB%E4%BF%AE%E6%94%B9Child2%E5%92%8CChild3%E7%BB%84%E4%BB%B6%E7%9A%84%E5%86%85%E5%AE%B9"><span class="nav-number">1.9.7.2.</span> <span class="nav-text">案例：点击Child1组件的按钮，能够分别修改Child2和Child3组件的内容</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-%E8%87%AA%E5%AE%9A%E4%B9%89hooks%EF%BC%88%E7%9B%B8%E5%BD%93%E4%BA%8E%E6%8A%BD%E5%87%BA%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%EF%BC%89"><span class="nav-number">1.9.8.</span> <span class="nav-text">8. 自定义hooks（相当于抽出公共组件）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#React%E8%B7%AF%E7%94%B1"><span class="nav-number">1.10.</span> <span class="nav-text">React路由</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF%E8%B7%AF%E7%94%B1"><span class="nav-number">1.10.1.</span> <span class="nav-text">1. 什么是路由</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%B7%AF%E7%94%B1%E5%AE%89%E8%A3%85"><span class="nav-number">1.10.2.</span> <span class="nav-text">2. 路由安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%B7%AF%E7%94%B1%E4%BD%BF%E7%94%A8"><span class="nav-number">1.10.3.</span> <span class="nav-text">3. 路由使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-%E8%B7%AF%E7%94%B1%E6%96%B9%E6%B3%95%E5%AF%BC%E5%85%A5"><span class="nav-number">1.10.3.1.</span> <span class="nav-text">3.1 路由方法导入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-%E5%AE%9A%E4%B9%89%E8%B7%AF%E7%94%B1%E4%BB%A5%E5%8F%8A%E9%87%8D%E5%AE%9A%E5%90%91"><span class="nav-number">1.10.3.2.</span> <span class="nav-text">3.2 定义路由以及重定向</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-%E5%B5%8C%E5%A5%97%E8%B7%AF%E7%94%B1"><span class="nav-number">1.10.3.3.</span> <span class="nav-text">3.3 嵌套路由</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-%E8%B7%AF%E7%94%B1%E8%B7%B3%E8%BD%AC%E6%96%B9%E5%BC%8F"><span class="nav-number">1.10.3.4.</span> <span class="nav-text">3.4 路由跳转方式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-4-1-%E5%A3%B0%E6%98%8E%E5%BC%8F%E5%AF%BC%E8%88%AA"><span class="nav-number">1.10.3.4.1.</span> <span class="nav-text">3.4.1 声明式导航</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-4-2-%E7%BC%96%E7%A8%8B%E5%BC%8F%E5%AF%BC%E8%88%AA"><span class="nav-number">1.10.3.4.2.</span> <span class="nav-text">3.4.2 编程式导航</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E8%B7%AF%E7%94%B1%E4%BC%A0%E5%8F%82"><span class="nav-number">1.10.4.</span> <span class="nav-text">3.5 路由传参</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-%E8%B7%AF%E7%94%B1%E6%8B%A6%E6%88%AA"><span class="nav-number">1.10.5.</span> <span class="nav-text">3.6 路由拦截</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"><span class="nav-number">1.11.</span> <span class="nav-text">反向代理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flux%E4%B8%8ERedux"><span class="nav-number">1.12.</span> <span class="nav-text">Flux与Redux</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-redux%E4%BB%8B%E7%BB%8D%E5%8F%8A%E8%AE%BE%E8%AE%A1%E5%92%8C%E4%BD%BF%E7%94%A8%E7%9A%84%E4%B8%89%E5%A4%A7%E5%8E%9F%E5%88%99"><span class="nav-number">1.12.1.</span> <span class="nav-text">1. redux介绍及设计和使用的三大原则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-redux%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="nav-number">1.12.2.</span> <span class="nav-text">2. redux工作流</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#React-redux"><span class="nav-number">1.13.</span> <span class="nav-text">React-redux</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.13.1.</span> <span class="nav-text">1. 介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%AE%B9%E5%99%A8%E7%BB%84%E4%BB%B6%E4%B8%8EUI%E7%BB%84%E4%BB%B6"><span class="nav-number">1.13.2.</span> <span class="nav-text">2. 容器组件与UI组件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-UI%E7%BB%84%E4%BB%B6"><span class="nav-number">1.13.2.1.</span> <span class="nav-text">2.1 UI组件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E5%AE%B9%E5%99%A8%E7%BB%84%E4%BB%B6"><span class="nav-number">1.13.2.2.</span> <span class="nav-text">2.2 容器组件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Provider%E4%B8%8Econnect"><span class="nav-number">1.13.3.</span> <span class="nav-text">2.3 Provider与connect</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-HOC%E4%B8%8Econtext%E9%80%9A%E4%BF%A1%E5%9C%A8react-redux%E5%BA%95%E5%B1%82%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">1.13.4.</span> <span class="nav-text">2.4 HOC与context通信在react-redux底层中的应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E9%AB%98%E9%98%B6%E7%BB%84%E4%BB%B6%E6%9E%84%E5%BB%BA%E4%B8%8E%E5%BA%94%E7%94%A8"><span class="nav-number">1.13.5.</span> <span class="nav-text">2.5 高阶组件构建与应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-Redux%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">1.13.6.</span> <span class="nav-text">2.6 Redux持久化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UI%E7%BB%84%E4%BB%B6%E5%BA%93"><span class="nav-number">1.14.</span> <span class="nav-text">UI组件库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-ant-design%EF%BC%88PC%E7%AB%AF%EF%BC%89"><span class="nav-number">1.14.1.</span> <span class="nav-text">1. ant-design（PC端）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-antd-mobile%EF%BC%88%E7%A7%BB%E5%8A%A8%E7%AB%AF%EF%BC%89"><span class="nav-number">1.15.</span> <span class="nav-text">2. antd-mobile（移动端）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Immutable"><span class="nav-number">1.16.</span> <span class="nav-text">Immutable</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Immutable-js%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.16.1.</span> <span class="nav-text">1. Immutable.js介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%B7%B1%E6%8B%B7%E8%B4%9D%E4%B8%8E%E6%B5%85%E6%8B%B7%E8%B4%9D"><span class="nav-number">1.16.2.</span> <span class="nav-text">2. 深拷贝与浅拷贝</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-immutable%E4%BC%98%E5%8C%96%E6%80%A7%E8%83%BD%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">1.16.3.</span> <span class="nav-text">3. immutable优化性能的方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Immutable%E4%B8%AD%E5%B8%B8%E7%94%A8%E7%9A%84%E7%B1%BB%E5%9E%8B%EF%BC%88Map%EF%BC%8C-List%EF%BC%89"><span class="nav-number">1.16.4.</span> <span class="nav-text">4. Immutable中常用的类型（Map， List）</span></a></li></ol></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">55</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">17</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">26</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2023</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>

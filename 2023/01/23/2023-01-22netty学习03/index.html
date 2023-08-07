@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"github",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!0,style:"mac"},back2top:{enable:!0,sidebar:!0,scrollpercent:!0},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!0,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!1,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}}}</script><meta name="description" content="前言Netty是一款用于创建高性能网络应用程序的高级框架，它的优势在于：  不必精通网络编程，已经为你预置大量细节 比直接使用Java本地API要简单的多 有良好的设计实践，将应用程序逻辑和网络层解耦"><meta property="og:type" content="article"><meta property="og:title" content="Netty学习之初探"><meta property="og:url" content="https://github/zhuchong6.github.io/2023/01/23/2023-01-22netty%E5%AD%A6%E4%B9%A003/index.html"><meta property="og:site_name" content="Zeus的小窝QAQ"><meta property="og:description" content="前言Netty是一款用于创建高性能网络应用程序的高级框架，它的优势在于：  不必精通网络编程，已经为你预置大量细节 比直接使用Java本地API要简单的多 有良好的设计实践，将应用程序逻辑和网络层解耦"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://github/images/netty1.png"><meta property="og:image" content="https://github/images/netty2.png"><meta property="og:image" content="https://github/images/netty3.png"><meta property="article:published_time" content="2023-01-23T03:35:00.000Z"><meta property="article:modified_time" content="2023-08-07T00:18:37.950Z"><meta property="article:author" content="zhuchong"><meta property="article:tag" content="Java"><meta property="article:tag" content="Netty"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://github/images/netty1.png"><link rel="canonical" href="https://github/zhuchong6.github.io/2023/01/23/2023-01-22netty%E5%AD%A6%E4%B9%A003/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>Netty学习之初探 | Zeus的小窝QAQ</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Zeus的小窝QAQ" type="application/atom+xml"></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Zeus的小窝QAQ</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">26</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">17</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li></ul></nav></div></header><div class="reading-progress-bar"></div><a href="https://github.com/zhuchong6" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://github/zhuchong6.github.io/2023/01/23/2023-01-22netty%E5%AD%A6%E4%B9%A003/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="zhuchong"><meta itemprop="description" content="世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Zeus的小窝QAQ"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">Netty学习之初探</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2023-01-23 11:35:00" itemprop="dateCreated datePublished" datetime="2023-01-23T11:35:00+08:00">2023-01-23</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2023-08-07 08:18:37" itemprop="dateModified" datetime="2023-08-07T08:18:37+08:00">2023-08-07</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body" itemprop="articleBody"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Netty是一款用于创建<strong>高性能</strong>网络应用程序的高级框架，它的优势在于：</p><ul><li>不必精通网络编程，已经为你预置大量细节</li><li>比直接使用Java本地API要简单的多</li><li>有良好的设计实践，将应用程序逻辑和网络层解耦</li></ul><span id="more"></span><p>本文代码可以通过这里查看<a target="_blank" rel="noopener" href="https://github.com/zhuchong6/netty-learn">地址</a></p><h1 id="Netty特性"><a href="#Netty特性" class="headerlink" title="Netty特性"></a>Netty特性</h1><table><thead><tr><th>分类</th><th>Netty特性</th></tr></thead><tbody><tr><td>设计</td><td>统一的 API，支持多种传输类型，阻塞的和非阻塞的<br>简单而强大的线程模型<br>真正的无连接数据报套接字支持<br>链接逻辑组件以支持复用</td></tr><tr><td>易于使用</td><td>详实的Javadoc和大量的示例集<br>不需要超过JDK 1.6+3的依赖。(一些可选的特性可能需要Java 1.7+和&#x2F;或额外的依赖)</td></tr><tr><td>性能</td><td>拥有比 Java 的核心 API 更高的吞吐量以及更低的延迟<br>得益于池化和复用，拥有更低的资源消耗<br>最少的内存复制</td></tr><tr><td>健壮性</td><td>不会因为慢速、快速或者超载的连接而导致 OutOfMemoryError<br>消除在高速网络中 NIO 应用程序常见的不公平读&#x2F;写比率</td></tr><tr><td>安全性</td><td>完整的 SSL&#x2F;TLS 以及 StartTLS 支持<br>可用于受限环境下，如 Applet 和 OSGI</td></tr><tr><td>社区驱动</td><td>发布快速且频繁</td></tr></tbody></table><h2 id="第一个简单的Netty程序"><a href="#第一个简单的Netty程序" class="headerlink" title="第一个简单的Netty程序"></a>第一个简单的Netty程序</h2><p>我们将要创建一个简单netty的程序，包含客户端和服务器端，其功能很简单就是<strong>客户端连接到服务器端，服务器端收到并返回给客户端一个消息</strong>。</p><h3 id="Server端"><a href="#Server端" class="headerlink" title="Server端"></a><strong>Server端</strong></h3><pre><code class="java">public class EchoServer &#123;
+    private final int port;
+
+    public EchoServer(int port) &#123;
+        this.port = port;
+    &#125;
+
+    public static void main(String[] args) throws InterruptedException &#123;
+        if( args.length != 1)&#123;
+            //提示设置端口值
+            System.err.println(&quot;Usage: &quot;+ EchoServer.class.getSimpleName()+&quot; &lt;port&gt;&quot;);
+        &#125;
+        int port = Integer.parseInt(args[0]);
+        new EchoServer(port).start();
+    &#125;
+
+    public void start() throws InterruptedException &#123;
+        final EchoServerHandler echoServerHandler = new EchoServerHandler();
+        //创建EventLoopGroup
+        EventLoopGroup group = new NioEventLoopGroup();
+        try &#123;
+            //创建ServerBootstrap
+            ServerBootstrap serverBootstrap = new ServerBootstrap();
+            //因为你正在使用的是 NIO 传输，所以你指定了NioEventLoopGroup来接受和处理新的连接
+            serverBootstrap.group(group)
+                    //指定所使用的NIO传输channel，这里就是父Channel
+                    .channel(NioServerSocketChannel.class)
+                    //使用指定的端口设置套接字地址
+                    .localAddress(new InetSocketAddress(port))
+                    //添加一个echoServerHandler到子Channel的ChannelPipeline，
+                    // 当一个新的连接被接受时，一个新的子Channel将会被创建，用于处理入站消息通知
+                    // 而ChannelInitializer将会把一个你的EchoServerHandler的实例添加到该Channel的ChannelPipeline中
+                    .childHandler(new ChannelInitializer&lt;SocketChannel&gt;() &#123;
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception &#123;
+                            //echoServerHandler 中@Sharable表示我们可以使用同样的实例
+                            ch.pipeline().addLast(echoServerHandler);
+                        &#125;
+                    &#125;);
+
+            //异步绑定服务器，调用sync方法阻塞等待直到绑定完成
+            ChannelFuture channelFuture = serverBootstrap.bind().sync();
+            //获取Channel的closeFuture，并且阻塞当前线程直到它完成
+            channelFuture.channel().closeFuture().sync();
+        &#125;finally &#123;
+            //关闭EventLoopGroup释放所有资源
+            group.shutdownGracefully().sync();
+        &#125;
+    &#125;
+&#125;
+</code></pre><pre><code class="java">@ChannelHandler.Sharable
+public class EchoServerHandler extends ChannelInboundHandlerAdapter &#123;
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception &#123;
+        ByteBuf in = (ByteBuf) msg;
+        System.out.println(&quot;Server receive :&quot;+ in.toString(CharsetUtil.UTF_8));
+        ctx.write(in);
+    &#125;
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception &#123;
+        ctx.writeAndFlush(Unpooled.EMPTY_BUFFER)
+                .addListener(ChannelFutureListener.CLOSE);
+    &#125;
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception &#123;
+        cause.printStackTrace();
+        ctx.close();
+    &#125;
+&#125;
+</code></pre><h3 id="Client端"><a href="#Client端" class="headerlink" title="Client端"></a><strong>Client端</strong></h3><pre><code class="java">public class EchoClient &#123;
+    private final String host;
+    private final int port;
+
+    public EchoClient(String host, int port) &#123;
+        this.host = host;
+        this.port = port;
+    &#125;
+
+    public static void main(String[] args) throws InterruptedException &#123;
+        if (args.length != 2) &#123;
+            System.err.println(
+                    &quot;Usage: &quot; + EchoClient.class.getSimpleName() + &quot; &lt;host&gt; &lt;port&gt;&quot;);
+            return;
+        &#125;
+        String host = args[0];
+        int port = Integer.parseInt(args[1]);
+        new EchoClient(host, port).start();
+    &#125;
+    public void start() throws InterruptedException &#123;
+        EventLoopGroup group = new NioEventLoopGroup();
+        try &#123;
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(group)
+                    .channel(NioSocketChannel.class)
+                    .remoteAddress(new InetSocketAddress(host, port))
+                    .handler(new ChannelInitializer&lt;SocketChannel&gt;() &#123;
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception &#123;
+                            ch.pipeline().addLast(new EchoClientHandler());
+                        &#125;
+                    &#125;);
+
+            ChannelFuture f = bootstrap.connect().sync();
+            f.channel().closeFuture().sync();
+        &#125;finally &#123;
+            group.shutdownGracefully().sync();
+        &#125;
+    &#125;
+&#125;
+</code></pre><pre><code class="java">@ChannelHandler.Sharable
+public class EchoClientHandler extends SimpleChannelInboundHandler&lt;ByteBuf&gt; &#123;
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception &#123;
+        //当被通知Channel是活跃的时候，发送一条消息
+        ctx.writeAndFlush(Unpooled.copiedBuffer(&quot;Netty rocks!&quot;,
+                CharsetUtil.UTF_8));
+    &#125;
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf in) throws Exception &#123;
+        //记录已接收消息的转储
+        System.out.println(
+                &quot;Client received: &quot; + in.toString(CharsetUtil.UTF_8));
+    &#125;
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception &#123;
+        cause.printStackTrace();
+        ctx.close();
+    &#125;
+&#125;
+</code></pre><p>我们可以看出，使用Netty构建的程序远比Java API的要简单多了，而且最终要的是它将网络处理和业务处理进行了分离，使我们更加专注于业务构建，这一点我觉得在大型程序中非常有优势。</p><h1 id="Netty的组件和设计"><a href="#Netty的组件和设计" class="headerlink" title="Netty的组件和设计"></a>Netty的组件和设计</h1><h2 id="网络组件"><a href="#网络组件" class="headerlink" title="网络组件"></a>网络组件</h2><p>Channel、EventLoop和ChannelFuture这三个接口，被认为是netty网络抽象的代表，其中每个负责的职责如下：</p><ul><li>Channel：Socket</li><li>EventLoop：控制流、多线程处理、并发</li><li>ChannelFuture：异步通知</li></ul><h3 id="Channel接口"><a href="#Channel接口" class="headerlink" title="Channel接口"></a>Channel接口</h3><p>基本的IO操作（bind(),connect(),read()和write()）依赖于底层网络传输所提供的原语。对于Java网络编程，可以类比为Socket类。</p><h3 id="EventLoop接口"><a href="#EventLoop接口" class="headerlink" title="EventLoop接口"></a>EventLoop接口</h3><p>EventLoop定义了Netty的核心抽象，<strong>用于处理连接的生命周期中所发生的事件</strong>，下图在高层次上说明了Channel、EventLoop、Thread以及EventLoopGroup之间的关系。</p><p><img src="/images/netty1.png" alt="关系图"></p><ol><li>一个EventLoopGroup包含一个或者多个EventLoop</li><li>一个EventLoop在它的生命周期内只和一个Thread绑定</li><li>所有由EventLoop处理的IO事件都将在它专有的Thread上被处理</li><li>一个Channel在它的生命周期内只注册一个EventLoop</li><li>一个EventLoop可能会被分配给一个或者多个Channel</li></ol><h3 id="ChannelFuture接口"><a href="#ChannelFuture接口" class="headerlink" title="ChannelFuture接口"></a>ChannelFuture接口</h3><p>Netty中所有操作都是异步的，因为一个操作不回立即返回，所以我们需要一种用于在之后的某个时间点确定其结果的方法。可以将ChannelFuture看作一个将来要执行的操作的结果的占位符，无法确定什么时候执行，可以确定的是它一定会执行。并且，<strong>所有属于同一个Channel的操作都被保证其将以它们被调用的顺序被执行</strong>。</p><h2 id="业务组件"><a href="#业务组件" class="headerlink" title="业务组件"></a>业务组件</h2><p>ChannelHandler和ChannelPipeline用于管理数据流和处理应用程序业务逻辑。</p><h3 id="ChannelHandler接口"><a href="#ChannelHandler接口" class="headerlink" title="ChannelHandler接口"></a>ChannelHandler接口</h3><p>对于程序开发人员来说，接触的最多的就是ChannelHandler了，它充当了所有处理入站和出站数据的业务逻辑的容器。举个例子，ChannelInbounudHandler是以后会经常实现的子接口，接收入站数据和事件，这些数据稍后会被你自己的业务代码处理，当需要发送给客户端响应的时候，也可以直接冲ChannelInbounudHandler冲刷数据。</p><h3 id="ChannelPipeline接口"><a href="#ChannelPipeline接口" class="headerlink" title="ChannelPipeline接口"></a>ChannelPipeline接口</h3><p>ChannelPipeline是一个容器，用于存储ChannelHandler接口，我们先看一段代码：</p><pre><code class="java">...
+.childHandler(new ChannelInitializer&lt;SocketChannel&gt;() &#123;
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception &#123;
+                            System.out.println(&quot;连接2&quot;);
+                            //echoServerHandler 中@Sharable表示我们可以使用同样的实例
+                            ch.pipeline().addLast(echoServerHandler);
+                        &#125;
+                    &#125;)
+</code></pre><p>这是上面EchoServer截取的一段代码，当Channel被创建的时候会分配到它专属的ChannelPipeline中，ChannelHandler安装到ChannelPipeline中的过程如下：</p><ul><li>一个ChannelInitializer的实现被注册到ServerBootstrap中</li><li>当ChannelInitializer.initChannel()方法被调用的时候，ChannelInitializer将在ChannelPipeline安装一组自定义的ChannelHandler</li><li>ChannelInitializer将自己从ChannelPipeline中移除</li></ul><p>ChannelPipeline实际上是一个双向链表，内部是由序的，具体可以看下图：<br><img src="/images/netty2.png" alt="ChannelPipeline顺序"></p><h3 id="深入ChannelHandler"><a href="#深入ChannelHandler" class="headerlink" title="深入ChannelHandler"></a>深入ChannelHandler</h3><p>ChannelHandler有不同类型，它的功能取决于它的超类。Netty以适配器的形式提供了大量的ChannelHandler默认实现，目的是为了简化开发，下面这些是编写自定义 ChannelHandler 时经常会用到的适配器类：</p><blockquote><ul><li><p>ChannelHandlerAdapter</p></li><li><p>ChannelInboundHandlerAdapter</p></li><li><p>ChannelOutboundHandlerAdapter</p></li><li><p>ChannelDuplexHandler</p></li></ul></blockquote><h3 id="编码器和解码器"><a href="#编码器和解码器" class="headerlink" title="编码器和解码器"></a>编码器和解码器</h3><p>数据在网络之中传输的是字节的形式，入站的时候消息会被<strong>解码</strong>，即消息从字节转换成另一种格式，通常是Java对象；如果是出站消息，则会发生相反方向的转换，它将从当前的格式被<strong>编码</strong>为字节。</p><p>Netty为了编码器和解码器提供了不同类型的抽象，通常来说这些基类的名称类似于ByteToMessageDecoder或者ByteToByteEncoder。对于特殊的类型，会发现类似于 ProtobufEncoder 和 ProtobufDecoder 这样的名称——预置的用来支持 Google 的 Protocol Buffers。</p><p>所有Netty内置的编码和解码器适配器类都实现了ChannelOutboundHandler 或者 ChannelInboundHandler 接口，所以编码器解码器也是一种特殊的ChannelHandler。</p><h3 id="抽象类SimpleChannelInboundHandler"><a href="#抽象类SimpleChannelInboundHandler" class="headerlink" title="抽象类SimpleChannelInboundHandler"></a>抽象类SimpleChannelInboundHandler</h3><p>假如我们需要利用一个ChannelHandler来接收解码消息，并对该数据进行业务处理，只需要继承<code>SimpleChannelInboundHandler&lt;T&gt;</code>，其中T代表需要处理消息的Java类型。在这个 ChannelHandler 中， 你将需要重写基类的一个或者多个方法，并且获取一个到 ChannelHandlerContext 的引用， 这个引用将作为输入参数传递给 ChannelHandler 的所有方法</p><h3 id="Bootstrap"><a href="#Bootstrap" class="headerlink" title="Bootstrap"></a>Bootstrap</h3><p>就是启动类，Netty为应用程序配置了两个容器，<strong>Bootstrap（用于客户端）</strong>和 <strong>ServerBootstrap（用于服务端）</strong>，下面简单比较了两个类型：</p><table><thead><tr><th>类型</th><th><strong>Bootstrap</strong></th><th>ServerBootstrap</th></tr></thead><tbody><tr><td>网络编程中的作用</td><td>连接到远程主机和端口</td><td>绑定到一个本地端口</td></tr><tr><td>EventLoopGroup 的数目</td><td>1</td><td>2</td></tr></tbody></table><p>我们可以看出引导客户端只需要质一个EventLoopGroup，而服务端需要两个EventLoopGroup。</p><p>为什么呢？</p><p>因为服务器需要两组不同的Channel，第一组只包含一个ServerChannel，<strong>代表服务器自身已经绑定到某个本地端口的正在监听套接字</strong>；第二组包含所有已创建的用来处理传入客户端连接的Channel。下图可以作为一个简单的说明：<br><img src="/images/netty3.png" alt="具有两个EventLoopGroup的服务器"></p><h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>目前为止，我们使用Netty写了一个简单的小程序。然后介绍了，netty的一些组件和设计。大家看下来，其实应该有一点点感觉了。别急，我们先自己回忆并练习一下，然后在开始后面的学习。</p><p>加油！</p></div><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者： </strong>zhuchong</li><li class="post-copyright-link"><strong>本文链接：</strong> <a href="https://github/zhuchong6.github.io/2023/01/23/2023-01-22netty%E5%AD%A6%E4%B9%A003/" title="Netty学习之初探">https://github/zhuchong6.github.io/2023/01/23/2023-01-22netty学习03/</a></li><li class="post-copyright-license"><strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/Java/" rel="tag"># Java</a> <a href="/tags/Netty/" rel="tag"># Netty</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2023/01/20/2023-1-9mini-tomcat2/" rel="prev" title="手写tomcat2"><i class="fa fa-chevron-left"></i> 手写tomcat2</a></div><div class="post-nav-item"><a href="/2023/01/24/2023-01-22netty%E5%AD%A6%E4%B9%A004/" rel="next" title="Netty学习之初探二">Netty学习之初探二 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><script>window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Netty%E7%89%B9%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">Netty特性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84Netty%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.1.</span> <span class="nav-text">第一个简单的Netty程序</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Server%E7%AB%AF"><span class="nav-number">2.1.1.</span> <span class="nav-text">Server端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Client%E7%AB%AF"><span class="nav-number">2.1.2.</span> <span class="nav-text">Client端</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Netty%E7%9A%84%E7%BB%84%E4%BB%B6%E5%92%8C%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">Netty的组件和设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%BB%84%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">网络组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Channel%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.1.1.</span> <span class="nav-text">Channel接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EventLoop%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.1.2.</span> <span class="nav-text">EventLoop接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ChannelFuture%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.1.3.</span> <span class="nav-text">ChannelFuture接口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E7%BB%84%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">业务组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ChannelHandler%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.2.1.</span> <span class="nav-text">ChannelHandler接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ChannelPipeline%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.2.2.</span> <span class="nav-text">ChannelPipeline接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%B1%E5%85%A5ChannelHandler"><span class="nav-number">3.2.3.</span> <span class="nav-text">深入ChannelHandler</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E5%99%A8%E5%92%8C%E8%A7%A3%E7%A0%81%E5%99%A8"><span class="nav-number">3.2.4.</span> <span class="nav-text">编码器和解码器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%BD%E8%B1%A1%E7%B1%BBSimpleChannelInboundHandler"><span class="nav-number">3.2.5.</span> <span class="nav-text">抽象类SimpleChannelInboundHandler</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bootstrap"><span class="nav-number">3.2.6.</span> <span class="nav-text">Bootstrap</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">zhuchong</p><div class="site-description" itemprop="description">世人慌慌张张，不过是图碎银几两； 偏偏这碎银几两，能解世间万种慌张</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">55</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">17</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">26</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/zhuhcong6" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zhuhcong6" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a></span></div><div class="cc-license motion-element" itemprop="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a></div></div><div class="back-to-top motion-element"><i class="fa fa-arrow-up"></i> <span>0%</span></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2023</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">zhuchong</span></div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="//cdn.bootcdn.net/ajax/libs/medium-zoom/1.0.6/medium-zoom.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",model:{jsonPath:"/live2dw/assets/hijiki.model.json"},display:{position:"left",width:150,height:300},mobile:{show:!1},log:!1,tagMode:!1})</script></body></html>
